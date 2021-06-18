@@ -48,24 +48,24 @@ esp-xconfig: $(ESP_CFG_BUILD) $(GRLIB_CFG_BUILD)/grlib_config.vhd
 	@echo "Running interactive ESP configuration..."
 	@cd $(ESP_CFG_BUILD); \
 	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/esp_creator.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_power_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_power_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_mmi64_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_mmi64_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_cache_config_svh_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_cache_config_svh_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_esp_global_vhd_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_global_vhd_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_esp_config_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_config_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_riscv_dts_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_riscv_dts_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_S64esp_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_S64esp_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_socmap_h_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_h_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_socmap_vhd_new.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_vhd_new.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK)
+	echo "Running generate_power.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_power.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_mmi64.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_mmi64.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_cache_config_svh.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_cache_config_svh.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_esp_global_vhd.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_global_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_esp_config.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_config.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_riscv_dts.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_riscv_dts.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_S64esp.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_S64esp.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_socmap_h.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_h.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_socmap_vhd.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK)
 
 
 
