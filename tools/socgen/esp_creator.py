@@ -233,10 +233,10 @@ class EspCreator(Frame):
     self.soc.changed()
 
   def generate_files(self):
-    self.bottom_frame_noccfg.changed()
-    self.generate_socmap()
-    self.generate_mmi64_regs()
-    self.generate_power()
+    #self.bottom_frame_noccfg.changed()
+    #self.generate_socmap()
+    #self.generate_mmi64_regs()
+    #self.generate_power()
     if os.path.isfile(".esp_config.bak") == True:
       shutil.move(".esp_config.bak", ".esp_config")
 

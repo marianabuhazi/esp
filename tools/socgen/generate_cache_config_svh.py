@@ -57,13 +57,13 @@ def main(argv):
 
   esp_config = socgen.soc_config(soc)
 
-  fp = open('cache_cfg-new.svh', 'w')
+  fp = open('cache_cfg.svh', 'w')
 
   print_cache_config(fp, soc, esp_config)
 
   fp.close()
   
-  print("Created RTL caches configuration into 'cache_cfg-new.svh'")
+  print("Created RTL caches configuration into 'cache_cfg.svh'")
 
 if __name__ == "__main__":
   main(sys.argv)

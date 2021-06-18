@@ -273,10 +273,10 @@ def main(argv):
 
   esp_config = socgen.soc_config(soc)
 
-  fp = open('riscv-new.dts', 'w')
+  fp = open('riscv.dts', 'w')
   print_devtree(fp, esp_config)
   fp.close()
-  print("Created device-tree into 'riscv-new.dts'")
+  print("Created device-tree into 'riscv.dts'")
 
 if __name__ == "__main__":
   main(sys.argv)

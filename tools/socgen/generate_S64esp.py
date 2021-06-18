@@ -93,10 +93,10 @@ def main(argv):
 
   esp_config = socgen.soc_config(soc)
 
-  fp = open('S64esp-new', 'w')
+  fp = open('S64esp', 'w')
   print_load_script(fp, soc, esp_config)
   fp.close()
-  print("Created kernel module load script into 'S64esp-new'")
+  print("Created kernel module load script into 'S64esp'")
 
 if __name__ == "__main__":
   main(sys.argv)

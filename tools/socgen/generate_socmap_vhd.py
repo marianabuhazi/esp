@@ -1232,7 +1232,7 @@ def main(argv):
 
   esp_config = socgen.soc_config(soc)
 
-  fp = open('socmap-new.vhd', 'w')
+  fp = open('socmap.vhd', 'w')
 
   print_header(fp, "socmap")
   print_libs(fp, False)
@@ -1244,7 +1244,7 @@ def main(argv):
   fp.write("end socmap;\n")
   fp.close()
 
-  print("Created configuration into 'socmap-new.vhd'")
+  print("Created configuration into 'socmap.vhd'")
 
 if __name__ == "__main__":
   main(sys.argv)

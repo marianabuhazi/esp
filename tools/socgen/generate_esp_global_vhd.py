@@ -157,7 +157,7 @@ def main(argv):
   soc.read_config(False)
   esp_config = socgen.soc_config(soc)
 
-  fp = open('esp_global-new.vhd', 'w')
+  fp = open('esp_global.vhd', 'w')
 
   print_header(fp, "esp_global")
   print_libs(fp, True)
@@ -169,7 +169,7 @@ def main(argv):
   fp.write("end esp_global;\n")
   fp.close()
 
-  print("Created global constants definition into 'esp_global-new.vhd'")
+  print("Created global constants definition into 'esp_global.vhd'")
 
 if __name__ == "__main__":
   main(sys.argv)

@@ -76,12 +76,12 @@ def main(argv):
   soc.noc = noclib.NoC()
   soc.read_config(False)
 
-  fp = open('power-new.h', 'w')
+  fp = open('power.h', 'w')
 
   create_power(fp, soc)
 
   fp.close()
-  print("Created configuration into 'power-new.h'")
+  print("Created configuration into 'power.h'")
 
 if __name__ == "__main__":
   main(sys.argv)

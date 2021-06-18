@@ -156,7 +156,7 @@ def main(argv):
   soc.noc = noclib.NoC()
   soc.read_config(False)
 
-  fp = open('mmi64_regs-new.h', 'w')
+  fp = open('mmi64_regs.h', 'w')
 
   create_mmi64_regs(fp, soc)
 

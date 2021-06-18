@@ -55,13 +55,13 @@ def main(argv):
 
   esp_config = socgen.soc_config(soc)
 
-  fp = open('socmap-new.h', 'w')
+  fp = open('socmap.h', 'w')
 
   print_esplink_header(fp, esp_config, soc)
 
   fp.close()
   
-  print("Created ESPLink header into 'socmap-new.h'")
+  print("Created ESPLink header into 'socmap.h'")
 
 if __name__ == "__main__":
   main(sys.argv)
