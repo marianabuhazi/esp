@@ -12,7 +12,7 @@ from tkinter import *
 
 def write_config(soc):
   print("Writing backup configuration: \".esp_config-new.bak\"")
-  fp = open('.esp_config-new', 'w')
+  fp = open('.esp_config-new.bak', 'w')
   #fp = open('.testing', 'w')
   has_dvfs = False;
   fp.write("CPU_ARCH = " + soc.CPU_ARCH.get() + "\n")
@@ -143,10 +143,10 @@ def main(argv):
   soc = soclib.SoC_Config(DMA_WIDTH, TECH, LINUX_MAC, LEON3_STACK, True)
   soc.noc = noclib.NoC()
   soc.read_config(False)
-  write_config(soc) # soc.write_config() also works
+  write_config(soc)
 
   if os.path.isfile(".esp_config-new.bak") == True:
-    shutil.move(".esp_config-new.bak", ".esp_config-new")
+    shutil.copy2(".esp_config-new.bak", ".esp_config-new")
 
 if __name__ == "__main__":
   main(sys.argv)
