@@ -56,8 +56,6 @@ esp-xconfig: $(ESP_CFG_BUILD) $(GRLIB_CFG_BUILD)/grlib_config.vhd
 	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_cache_config_svh.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
 	echo "Running generate_esp_global_vhd.py..."; \
 	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_global_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
-	echo "Running generate_esp_config.py..."; \
-	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_config.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
 	echo "Running generate_riscv_dts.py..."; \
 	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_riscv_dts.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
 	echo "Running generate_S64esp.py..."; \
