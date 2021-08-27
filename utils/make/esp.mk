@@ -41,6 +41,102 @@ esplink: $(ESP_CFG_BUILD)/socmap.h $(ESPLINK_HDRS) $(ESPLINK_SRCS)
 		-I$(ESP_ROOT)/tools/esplink/src/ -I$(DESIGN_PATH)/$(ESP_CFG_BUILD) \
 		$(ESPLINK_SRCS) -o $@
 
+NEWSOCMAP_DEPS  = $(ESP_ROOT)/tools/newsocgen/main.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/tile.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/tile.h
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.ui
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.h
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.h
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.h
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/socmap_utils.h
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/socmap_utils.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.cpp
+NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/constants.h
+
+esp_constants.h: $(ESP_ROOT)/utils/esp_constants.inc .grlib_config
+	$(QUIET_BUILD)
+	@echo "#ifndef ESP_CONSTANTS_H" > $@
+	@echo "" >> $@
+	@echo "#define ESP_CONSTANTS_H" >> $@
+	@cat $< | sed 's/#/\/\//g' | sed 's/\./#define /g' | sed 's/=/ /g' | sed 's/\(#define.*\)$$/\1ULL/g' >> $@
+	@echo "" >> $@
+	@echo "// GRLIB" >> $@
+	@cat .grlib_config | grep 'CONFIG_SVGA_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_SVGA_ENABLE 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_GRETH_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_GRETH_ENABLE 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_DSU_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_DSU_ENABLE 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_DSU_ETH' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_DSU_ETH 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_DSU_JTAG' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_DSU_JTAG 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_UART1_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_UART_ENABLE 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_GPT_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_GPT_ENABLE 1' >> $@; \
+	fi;
+	@cat .grlib_config | grep 'CONFIG_IRQ3_ENABLE' | grep -q -v '#'; \
+	if [ $$? -eq 0 ]; then \
+	    echo '#define CFG_GRLIB_IRQ3_ENABLE 1' >> $@; \
+	fi;
+	@echo "" >> $@
+	@echo "#endif /* ESP_CONSTANTS_H */" >> $@
+
+#POWER_ESTIMATION_RTPS=$(shell find $(ESP_ROOT)/tech/$(POW_TECHLIB)/acc -name "power*.rpt")
+
+#esp_power_db.cpp: $(ESP_ROOT)/utils/scripts/update_power_db.py $(POWER_ESTIMATION_RTPS)
+#	$(QUIET_BUILD) $< $(ESP_ROOT)/tech/$(POW_TECHLIB) > $@
+
+
+newsocmap.mk: $(ESP_ROOT)/tools/newsocgen/socmap.pro
+	DESIGN_PATH=$(DESIGN_PATH) 			\
+	TECH_PATH=$(ESP_ROOT)/tech/$(TECHLIB) 		\
+	POW_TECH_PATH=$(ESP_ROOT)/tech/$(POW_TECHLIB) 	\
+	TECH=$(TECHLIB) 				\
+	BOARD=$(BOARD) 					\
+	CPU_ARCH=$(CPU_ARCH) 				\
+	DMA_WIDTH=$(NOC_WIDTH)				\
+	qmake-qt5 -o $@ $<
+
+#esp_power_db.cpp
+newsocmap: newsocmap.mk $(NEWSOCMAP_DEPS) esp_constants.h
+	$(QUIET_MAKE) make --quiet -f $<
+
+newsocmap-run: newsocmap grlib_config.vhd
+	$(QUIET_RUN)./$< $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC)
+
+newsocmap-clean:
+	$(QUIET_CLEAN) $(RM) 		\
+		espcreator.o		\
+		main.o			\
+		tile.o			\
+		address_map.o		\
+		socmap_utils.o		\
+		newsocmap.mk		\
+		moc_*			\
+		ui_espcreator.h
+
+newsocmap-distclean: newsocmap-clean
+	$(QUIET_CLEAN) $(RM) newsocmap
+
+.PHONY: newsocmap-clean newsocmap-distclean newsocmap-run
+
 esp-config: $(ESP_CFG_BUILD)/socmap.vhd
 
 esp-xconfig: $(ESP_CFG_BUILD) $(GRLIB_CFG_BUILD)/grlib_config.vhd
@@ -92,4 +188,4 @@ esp-config-distclean:
 config-distclean:
 	$(QUIET_CLEAN)$(RM) $(CFG_BUILD)
 
-.PHONY: esplink esp-xconfig esp-defconfig esp-config-clean esp-config-distclean config-distclean
+.PHONY: esplink newsocmap-run esp-xconfig esp-defconfig esp-config-clean esp-config-distclean config-distclean

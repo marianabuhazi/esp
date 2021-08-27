@@ -14,6 +14,9 @@ TKCONFIG_DEP  += $(wildcard $(TKCONFIG)/in/*.in.h)
 TKCONFIG_DEP  += $(wildcard $(TKCONFIG)/in/*.in.help)
 TKCONFIG_DEP  += grlib_config.in
 
+.grlib_config:
+	$(QUIET_CP)cp $(GRLIB_DEFCONFIG) $@
+
 $(GRLIB_CFG_BUILD)/.grlib_config:
 	$(QUIET_MKDIR)mkdir -p $(GRLIB_CFG_BUILD)
 	$(QUIET_CP)cp $(GRLIB_DEFCONFIG) $@
