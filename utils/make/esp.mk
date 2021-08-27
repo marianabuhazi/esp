@@ -118,7 +118,7 @@ newsocmap.mk: $(ESP_ROOT)/tools/newsocgen/socmap.pro
 newsocmap: newsocmap.mk $(NEWSOCMAP_DEPS) esp_constants.h
 	$(QUIET_MAKE) make --quiet -f $<
 
-newsocmap-run: newsocmap grlib_config.vhd
+newsocmap-run: newsocmap $(GRLIB_CFG_BUILD)/grlib_config.vhd
 	$(QUIET_RUN)./$< $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC)
 
 newsocmap-clean:
