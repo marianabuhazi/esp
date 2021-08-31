@@ -358,12 +358,16 @@ std::string Tile::get_acc_l2()
 
 std::string Tile::get_ip_acc()
 {
+    /*
     for (unsigned i = 0; i < ip_acc.size(); i++) 
     {
         if (ip == ip_acc[i][0])
             return ip_acc[i][1];
     }
-    return ip;
+    */
+    std::string ip_cap = ip;
+    transform(ip_cap.begin(), ip_cap.end(),ip_cap.begin(), ::toupper);
+    return ip_cap;
 }
 
 std::string Tile::get_impl_acc()
@@ -371,12 +375,15 @@ std::string Tile::get_impl_acc()
     QString get_impl_q = impl_sel->currentText();
     std::string get_impl_s = get_impl_q.toUtf8().constData();
 
+    /*
     for (unsigned i = 0; i < impl_acc.size(); i++) 
     {
         if (get_impl_s == impl_acc[i][0])
             return impl_acc[i][1];
     }
-    return get_impl_s;
+    */
+    std::string get_impl_s_sub = get_impl_s.substr(ip.length() + 1, get_impl_s.length() - ip.length() - 1);
+    return get_impl_s_sub;
 }
 
 void Tile::impl_reset()
