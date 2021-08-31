@@ -33,6 +33,10 @@
 
 ## To do
 - Add descriptions of other files in this `README.md`
+- From cryo-ai branch, full implement:
+  - CPU section: FPU
+  - Peripherals section: UART, JTAG, Ethernet, SVGA
+  - Debug Link section: IP, MAC Addresses
 - Load existing `.esp_config` or `.esp_config.bak.*` files on startup (starting configuration is currently fixed)
 - Implement vendor names (ex: `sld`) for accelerators in `.esp_config*` files
 - Make sure that `get_ip_acc()` and `get_impl_acc()` functions for accelerators in `.esp_config*` in `tile.cpp` correctly work for all accelerators
