@@ -22,7 +22,7 @@ This directory is organized as follows:
 
 The overall flow is described below:
 
-![socgen flow](socgen_flow.png "socgen flow")
+![socgen flow](img/socgen_flow.png "socgen flow")
 
 First, `esp_creator.py` creates the `.esp_config*` files, which are then used by the file generators. For each file generator in the named `generate_<file>.py`, the file `<file>` is created.
 
