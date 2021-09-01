@@ -1135,6 +1135,12 @@ void espcreator::on_pushButton_gen_clicked()
 
     fp.close();
 
+    std::string system_1 = "cp ";
+    std::string system_2 = bkp_file_name.c_str();
+    std::string system_3 = " .esp_config";
+    std::string sys = system_1 + system_2 + system_3;
+    system(sys.c_str());
+
     QMessageBox msgBox_saved;
     QString saved_msg = "New configuration file saved in " + QString::fromUtf8(bkp_file_name.c_str());
     msgBox_saved.setText(saved_msg);
