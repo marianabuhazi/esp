@@ -15,7 +15,12 @@ This directory is organized as follows:
 * `main.cpp` runs the entire application. It can be run using `$ ./main <NOC_WIDTH> <TECH_LIB> <MAC_ADDRESS>`.
 * `socmap_utils.cpp` and `socmap_utils.h` contain various miscellaneous functions used in `tile.cpp` and `address_map.cpp`.
 
-## GUI
+## Running the GUI
+
+- To run the GUI, enter the directory of an FGPA board (ex: `esp/socs/xilinx-vc707-xc7vx485t/`) and run `$ make newsocmap-run`.
+- After configuring the SoC, clicking "Generate SoC Configuration File", and closing the GUI, the file generators in `esp/tools/socgen/` will then run to generate the files based off of `.esp_config.bak`.
+
+## GUI Screenshots
 
 ![gui 1](img/gui1.png "gui 1")
 
@@ -29,11 +34,10 @@ Above is a screenshot of the GUI that demonstrates the scrolling capabilities of
 
 Above is a screenshot of the GUI that demonstrates the checking on clicking "Generate SoC Configuration File".
 
-
-
 ## To do
+
 - Add descriptions of other files in this `README.md`
-- From cryo-ai branch, full implement:
+- From cryo-ai branch, fully implement:
   - CPU section: FPU
   - Peripherals section: UART, JTAG, Ethernet, SVGA
   - Debug Link section: IP, MAC Addresses
@@ -77,7 +81,7 @@ Above is a screenshot of the GUI that demonstrates the checking on clicking "Gen
 
 ## To do
 - Add descriptions of other files in this `README.md`
-- From cryo-ai branch, full implement:
+- From cryo-ai branch, fully implement:
   - CPU section: FPU
   - Peripherals section: UART, JTAG, Ethernet, SVGA
   - Debug Link section: IP, MAC Addresses
