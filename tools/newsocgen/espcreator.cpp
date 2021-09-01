@@ -1137,7 +1137,7 @@ void espcreator::on_pushButton_gen_clicked()
 
     std::string system_1 = "cp ";
     std::string system_2 = bkp_file_name.c_str();
-    std::string system_3 = " .esp_config";
+    std::string system_3 = " socgen/esp/.esp_config";
     std::string sys = system_1 + system_2 + system_3;
     system(sys.c_str());
 
