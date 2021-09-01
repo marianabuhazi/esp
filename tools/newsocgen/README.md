@@ -45,3 +45,10 @@ Above is a screenshot of the GUI that demonstrates the checking on clicking "Gen
 - Implement vendor names (ex: `sld`) for accelerators in `.esp_config*` files
 - Make sure that `get_ip_acc()` and `get_impl_acc()` functions for accelerators in `.esp_config*` in `tile.cpp` correctly work for all accelerators
 - Update “make targets” such as `esp-xconfig`, `esp-config` `esp-defconfig`
+
+## Dependencies
+- Running `$ qmake-qt5 --version` returns
+```
+QMake version 3.1
+Using Qt version 5.9.7 in /usr/lib64
+```
