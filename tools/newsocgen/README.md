@@ -16,11 +16,18 @@ This directory is organized as follows:
 * `socmap_utils.cpp` and `socmap_utils.h` contain various miscellaneous functions used in `tile.cpp` and `address_map.cpp`.
 
 ## GUI
+
 ![gui 1](img/gui1.png "gui 1")
-![gui 2](img/gui1.png "gui 2")
-![gui 3](img/gui1.png "gui 3")
 
+Above is a screenshot of the equivalent of the starting setup in the original GUI (`esp/tools/socgen/`).
 
+![gui 2](img/gui2.png "gui 2")
+
+Above is a screenshot of the GUI that demonstrates the scrolling capabilities of the NoC.
+
+![gui 3](img/gui3.png "gui 3")
+
+Above is a screenshot of the GUI that demonstrates the checking on clicking "Generate SoC Configuration File".
 
 
 
