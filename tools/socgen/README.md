@@ -2,9 +2,11 @@
 
 This directory contains tools for configuring and generating an ESP SoC. The directory also contains the various file generators for `.esp_config` and other files derived from it. 
 
+To run the GUI, enter the directory of an FGPA board (ex: `esp/socs/xilinx-vc707-xc7vx485t/`) and run `$ make esp-xconfig`.
+To run any `generate_<file>.py` generators, run `$ python3 generate_esp_global_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK)`.
+
 This directory is organized as follows:
 * `esp_creator.py` configures and generates an ESP SoC in GUI mode
-  * To run the GUI, enter the directory of an FGPA board (ex: `esp/socs/xilinx-vc707-xc7vx485t/`) and run `$ make esp-xconfig`
 * `esp_creator_batch.py` configures and generates an ESP SoC in batch mode
 * `soc.py` contains the definition and structure of an ESP SoC, which is then configured by `esp_creator*.py` files
 * `NoCConfiguration.py` contains most of the logic and setup functions relating to the NoC Configuration/tile floorplanning, which are used by `esp_creator*.py` and `soc.py` files 
