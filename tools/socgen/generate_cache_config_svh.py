@@ -14,6 +14,7 @@ def print_cache_config(fp, soc, esp_config):
   fp.write("`ifndef __CACHES_CFG_SVH__\n")
   fp.write("`define __CACHES_CFG_SVH__\n")
   fp.write("\n")
+  print(soc.CPU_ARCH.get())
   addr_bits = 32
   byte_bits = 2
   word_bits = 2
@@ -21,6 +22,7 @@ def print_cache_config(fp, soc, esp_config):
     addr_bits = 32
     byte_bits = 3
     word_bits = 1
+    fp.write("`define LLSC\n")
   if soc.CPU_ARCH.get() == "leon3":
     fp.write("`define BIG_ENDIAN\n")
   else:
