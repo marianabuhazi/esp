@@ -19,7 +19,7 @@ This directory is organized as follows:
 * `generate_socmap_vhd.py` which generates `socmap.vhd` file.
 
 The overall flow is described below:
-![socgen flow](socgen_flow.png "socgen flow" =200px)
+![socgen flow](socgen_flow.png "socgen flow" =200x)
 
 
 # Old README.md
