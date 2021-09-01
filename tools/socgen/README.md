@@ -9,7 +9,7 @@ This directory is organized as follows:
 * `esp_creator.py` configures and generates an ESP SoC in GUI mode
 * `esp_creator_batch.py` configures and generates an ESP SoC in batch mode
 * `soc.py` contains the definition and structure of an ESP SoC, which is then configured by `esp_creator*.py` files
-* `NoCConfiguration.py` contains most of the logic and setup functions relating to the NoC Configuration/tile floorplanning, which are used by `esp_creator*.py` and `soc.py` files 
+* `NoCConfiguration.py` contains most of the logic and setup functions relating to the NoC/tile floorplanning, which are used by `esp_creator*.py` and `soc.py` files 
 * `constants.py` contains definitions of constants used in `generate_S64esp.py`, `generate_socmap_h.py`, and `generate_socmap_vhd.py` files
 * `generate_cache_config_svh.py` which generates the `cache_cfg.svh` file. The `cache_cfg.svh` file defines `BIG`/`LITTLE_ENDIAN`, `ADDR`/`BYTE`/`WORD_BITS`, `L2`/`LLC_SETS`/`WAYS`.
 * `generate_esp_global_vhd.py` which generates the `esp_global.vhd` file. The `esp_global.vhd` file defines global constants for architecture parameters.
