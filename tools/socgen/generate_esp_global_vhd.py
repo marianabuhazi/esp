@@ -47,9 +47,10 @@ def print_libs(fp, std_only):
   fp.write("\n")
 
 def print_global_constants(fp, soc):
-  fp.write("  ------ Global architecture parameters\n")
+  fp.write("  ------ Global architecture parameters\n\n")
+
+  fp.write("  ------ General\n")
   fp.write("  constant ARCH_BITS : integer := " + str(soc.DMA_WIDTH) + ";\n")
-  fp.write("  constant GLOB_MAXIOSLV : integer := " + str(socgen.NAPBS) + ";\n")
   # Keep cache-line size constant to 128 bits for now. We don't want huge line buffers
   fp.write("  constant GLOB_WORD_OFFSET_BITS : integer := " + str(int(math.log2(128/soc.DMA_WIDTH))) + ";\n")
   fp.write("  constant GLOB_BYTE_OFFSET_BITS : integer := " + str(int(math.log2(soc.DMA_WIDTH/8))) +";\n")
@@ -57,6 +58,10 @@ def print_global_constants(fp, soc):
   fp.write("  constant GLOB_ADDR_INCR : integer := " + str(int(soc.DMA_WIDTH/8)) +";\n")
   # TODO: Keep physical address to 32 bits for now to reduce tag size. This will increase to support more memory
   fp.write("  constant GLOB_PHYS_ADDR_BITS : integer := " + str(32) +";\n")
+  fp.write("  constant GLOB_MAXIOSLV : integer := " + str(socgen.NAPBS) + ";\n\n")
+
+  #
+  fp.write("  ------ CPU\n")
   fp.write("  type cpu_arch_type is (leon3, ariane, ibex);\n")
   fp.write("  constant GLOB_CPU_ARCH : cpu_arch_type := " + soc.CPU_ARCH.get() + ";\n")
   if soc.CPU_ARCH.get() == "ariane":
@@ -67,12 +72,18 @@ def print_global_constants(fp, soc):
     fp.write("  constant GLOB_CPU_RISCV : integer range 0 to 1 := 0;\n")
   else:
     fp.write("  constant GLOB_CPU_RISCV : integer range 0 to 1 := 1;\n")
+  if soc.CPU_ARCH.get() == "ariane":
+    fp.write("  constants GLOB_CPU_LLSC : integer range 0 to 1 := 1;\n\n")
+  else:
+    fp.write("  constants GLOB_CPU_LLSC : integer range 0 to 1 := 0\n\n")
+    '''
   fp.write("\n")
   # RTL caches
   if soc.cache_rtl.get() == 1:
     fp.write("  constant CFG_CACHE_RTL   : integer := 1;\n")
   else:
     fp.write("  constant CFG_CACHE_RTL   : integer := 0;\n\n")
+    '''
 
 def print_constants(fp, soc, esp_config):
   fp.write("  ------ NoC parameters\n")
