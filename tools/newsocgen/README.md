@@ -41,6 +41,8 @@ Above is a screenshot of the GUI that demonstrates the checking on clicking "Gen
   - CPU section: FPU
   - Peripherals section: UART, JTAG, Ethernet, SVGA
   - Debug Link section: IP, MAC Addresses
+  - The screenshot of the `cryo-ai` branch configuration options is below:
+  ![cryo-ai config](img/cryo.png "cryo-ai config")
 - Load existing `.esp_config` or `.esp_config.bak.*` files on startup (starting configuration is currently fixed)
 - Implement vendor names (ex: `sld`) for accelerators in `.esp_config*` files
 - Make sure that `get_ip_acc()` and `get_impl_acc()` functions for accelerators in `.esp_config*` in `tile.cpp` correctly work for all accelerators
