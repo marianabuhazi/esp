@@ -34,10 +34,25 @@ Above is a screenshot of the GUI that demonstrates the scrolling capabilities of
 
 Above is a screenshot of the GUI that demonstrates the checking on clicking "Generate SoC Configuration File".
 
+![power](img/power.png "power")
+Above is a screenshot of the "Power Information" window of a tile.
+
+![save](img/save.png "save")
+Above is a screenshot of the save prompt window.
+
+![scroll](img/scroll.png "scroll")
+Above is a screenshot of the scrolling feature of the tile grid. Once any dimension of the grid is greater than `3`, then scrollbars appear in the appropriate directions.
+
+![soc1](img/soc1.png "soc1")
+Above is the screenshot of the top half of the configuration options.
+
+![soc2](img/soc2.png "soc2")
+Above is the screenshot of the bottom half of the configuration options.
+
 ## To do
 
 - Add descriptions of other files in this `README.md`
-- From cryo-ai branch, fully implement:
+- From `cryo-ai` branch, fully implement:
   - CPU section: FPU
   - Peripherals section: UART, JTAG, Ethernet, SVGA
   - Debug Link section: IP, MAC Addresses
