@@ -57,7 +57,7 @@ espcreator::espcreator(QWidget *parent,
     ui->lineEdit_nocw->setText("32");
     // ui->lineEdit_nocw->setText("64");
     ui->lineEdit_espmac->setText(get_ESP_MAC().c_str());
-    ui->lineEdit_espip->setText(get_ESP_IP().c_str());
+    // ui->lineEdit_espip->setText(get_ESP_IP().c_str());
 
     /*
     ui->combo_l2_ways->addItem("2 ways");
@@ -252,9 +252,11 @@ std::string espcreator::get_ESP_MAC()
         }
     }
     str = ethipm + ethipl;
+    /*
     int length = str.length() + 3;
     for (int i = 2; i < length; i += 3)
         str.insert(i, ":");
+    */
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
     /* printf("ethipm: %s\n", str.c_str()); */
     return str;
