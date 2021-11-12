@@ -163,6 +163,7 @@ class SoC_Config():
       self.cache_en.set(0)
     line = fp.readline()
     if line.find("CONFIG_CACHE_RTL = y") != -1:
+      self.cache_spandex.set(0)
       self.cache_rtl.set(1)
       #self.cache_rtl.set(1)
       self.cache_impl.set("ESP RTL") #SystemVerilog
@@ -173,10 +174,10 @@ class SoC_Config():
       self.cache_rtl.set(0)
       self.cache_impl.set("SystemC + HLS")
       if line.find("CONFIG_CACHE_SPANDEX = y") != -1:
-        #self.cache_spandex.set(1)
+        self.cache_spandex.set(1)
         self.cache_impl.set("SPANDEX HLS")
       else:
-        #self.cache_spandex.set(0)
+        self.cache_spandex.set(0)
         self.cache_impl.set("ESP HLS")
       line = fp.readline()
     line = fp.readline()
@@ -454,6 +455,7 @@ class SoC_Config():
     self.CPU_ARCH = StringVar()
     self.cache_en = IntVar()
     self.cache_rtl = IntVar()
+    self.cache_spandex = IntVar()
     self.cache_impl = StringVar()
     # Read configuration
     self.noc = ncfg.NoC()

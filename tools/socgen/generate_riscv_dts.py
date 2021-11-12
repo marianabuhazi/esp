@@ -11,7 +11,8 @@ import NoCConfiguration as noclib
 from tkinter import *
 from constants import *
 
-def print_devtree(fp, esp_config):
+def print_devtree(fp, soc, esp_config):
+
   # Get CPU base frequency
   with open("../../top.vhd") as top_fp:
     for line in top_fp:
@@ -21,6 +22,7 @@ def print_devtree(fp, esp_config):
         CPU_FREQ = int(items[5].replace(";",""))
         top_fp.close()
         break
+
 
   fp.write("/dts-v1/;\n")
   fp.write("\n")
@@ -189,8 +191,11 @@ def print_devtree(fp, esp_config):
       address = base + 0xD000 + (l2.idx << 8)
       address_str = format(address, "x")
       size_str = "100"
-      fp.write("    espl2cache" + str(l2.id) + "@" + address_str + " {\n")
-      fp.write("      compatible = \"sld,l2_cache\";\n")
+      fp.write("    l2cache" + str(l2.id) + "@" + address_str + " {\n")
+      if soc.cache_spandex.get() == 1:
+        fp.write("      compatible = \"uiuc,spandex_l2\";\n")
+      else:
+        fp.write("      compatible = \"sld,l2_cache\";\n")
       fp.write("      reg = <0x0 0x" + address_str + " 0x0 0x" + size_str + ">;\n")
       fp.write("      reg-shift = <2>; // regs are spaced on 32 bit boundary\n")
       fp.write("      reg-io-width = <4>; // only 32-bit access are supported\n")
@@ -204,8 +209,11 @@ def print_devtree(fp, esp_config):
       address = base + 0xD000 + (llc.idx << 8)
       address_str = format(address, "x")
       size_str = "100"
-      fp.write("    espllccache" + str(llc.id) + "@" + address_str + " {\n")
-      fp.write("      compatible = \"sld,llc_cache\";\n")
+      fp.write("    llccache" + str(llc.id) + "@" + address_str + " {\n")
+      if soc.cache_spandex.get() == 1:
+        fp.write("      compatible = \"uiuc,spandex_llc\";\n")
+      else:
+        fp.write("      compatible = \"sld,llc_cache\";\n")
       fp.write("      reg = <0x0 0x" + address_str + " 0x0 0x" + size_str + ">;\n")
       fp.write("      reg-shift = <2>; // regs are spaced on 32 bit boundary\n")
       fp.write("      reg-io-width = <4>; // only 32-bit access are supported\n")
@@ -274,7 +282,7 @@ def main(argv):
   esp_config = socgen.soc_config(soc)
 
   fp = open('riscv.dts', 'w')
-  print_devtree(fp, esp_config)
+  print_devtree(fp, soc, esp_config)
   fp.close()
   print("Created device-tree into 'riscv.dts'")
 

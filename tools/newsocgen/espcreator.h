@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include <stdio.h>
 #include <sys/sendfile.h> // sendfile
@@ -53,7 +54,8 @@ class espcreator : public QMainWindow
     espcreator(QWidget *parent,
                std::string noc_width,
                std::string tech_library,
-               std::string mac_address);
+               std::string mac_address,
+               std::string board);
     ~espcreator();
 
   private
@@ -104,6 +106,11 @@ slots:
     bool check_clock_domains();
     void update_address_map();
     void update_power_info();
+    int read_config(bool temporary);
+    std::string get_esp_config_bak();
+    bool isfile(std::string filename);
+    void str_erase(std::string str, char erase);
+    std::vector<std::string> str_split(std::string &s, char delimiter);
 };
 
 #endif // ESPCREATOR_H

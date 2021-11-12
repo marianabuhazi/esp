@@ -9,6 +9,7 @@ import soc as soclib
 import socmap_gen as socgen
 import NoCConfiguration as noclib
 
+from constants import *
 from tkinter import *
 
 def print_header(fp, package):
@@ -73,9 +74,9 @@ def print_global_constants(fp, soc):
   else:
     fp.write("  constant GLOB_CPU_RISCV : integer range 0 to 1 := 1;\n")
   if soc.CPU_ARCH.get() == "ariane":
-    fp.write("  constants GLOB_CPU_LLSC : integer range 0 to 1 := 1;\n\n")
+    fp.write("  constant GLOB_CPU_LLSC : integer range 0 to 1 := 1;\n\n")
   else:
-    fp.write("  constants GLOB_CPU_LLSC : integer range 0 to 1 := 0\n\n")
+    fp.write("  constant GLOB_CPU_LLSC : integer range 0 to 1 := 0\n\n")
     '''
     # removed from cryo-ai branch
   fp.write("\n")
@@ -87,22 +88,98 @@ def print_global_constants(fp, soc):
     '''
 
 def print_constants(fp, soc, esp_config):
+  # added form cryo-ai
+  fp.write("  ------ Shared local memory (SLM)\n")
+  fp.write("  constant CFG_SLM_KBYTES : integer := " + str(esp_config.slm_kbytes) + ";\n")
+  fp.write("  constant CFG_SLMDDR_KBYTES : integer := " + str(esp_config.slmddr_kbytes) + ";\n\n")
+  '''
+  # removed from cryo-ai
   fp.write("  ------ NoC parameters\n")
   fp.write("  constant CFG_XLEN : integer := " + str(soc.noc.cols) + ";\n")
   fp.write("  constant CFG_YLEN : integer := " + str(soc.noc.rows) + ";\n")
   fp.write("  constant CFG_TILES_NUM : integer := CFG_XLEN * CFG_YLEN;\n")
+  '''
 
-  fp.write("  ------ DMA memory allocation (contiguous buffer or scatter/gather\n")
-  fp.write("  constant CFG_SCATTER_GATHER : integer range 0 to 1 := " + str(soc.transfers.get()) + ";\n")
+  fp.write("  ------ DMA memory allocation (contiguous buffer or scatter/gather)\n")
+  fp.write("  constant CFG_SCATTER_GATHER : integer range 0 to 1 := " + str(soc.transfers.get()) + ";\n\n")
 
+  # added from cryo-ai
+  fp.write("  ------ Cache hierarchy\n")
+  if soc.cache_rtl.get() == 1:
+    fp.write("  constant CFG_CACHE_RTL   : integer := 1;\n")
+  else:
+    fp.write("  constant CFG_CACHE_RTL   : integer := 0;\n")
+  if soc.cache_spandex.get() == 1:
+    fp.write("  constant USE_SPANDEX     : integer := 1;\n")
+  else:
+    fp.write("  constant USE_SPANDEX     : integer := 0;\n")
+  if esp_config.coherence:
+    fp.write("  constant CFG_L2_ENABLE   : integer := 1;\n")
+    fp.write("  constant CFG_L2_DISABLE  : integer := 0;\n")
+    fp.write("  constant CFG_LLC_ENABLE  : integer := 1;\n")
+  else:
+    fp.write("  constant CFG_L2_ENABLE   : integer := 0;\n")
+    fp.write("  constant CFG_L2_DISABLE  : integer := 1;\n")
+    fp.write("  constant CFG_LLC_ENABLE  : integer := 0;\n")
   fp.write("  constant CFG_L2_SETS     : integer := " + str(soc.l2_sets.get()      ) +  ";\n")
   fp.write("  constant CFG_L2_WAYS     : integer := " + str(soc.l2_ways.get()      ) +  ";\n")
   fp.write("  constant CFG_LLC_SETS    : integer := " + str(soc.llc_sets.get()     ) +  ";\n")
   fp.write("  constant CFG_LLC_WAYS    : integer := " + str(soc.llc_ways.get()     ) +  ";\n")
   fp.write("  constant CFG_ACC_L2_SETS : integer := " + str(soc.acc_l2_sets.get()  ) +  ";\n")
   fp.write("  constant CFG_ACC_L2_WAYS : integer := " + str(soc.acc_l2_ways.get()  ) +  ";\n")
+  fp.write("\n")
 
-  fp.write("  ------ Monitors enable (requires proFPGA MMI64)\n")
+  # added form cryo-ai
+  fp.write("  ------ Caches interrupt line\n")
+  fp.write("  constant CFG_SLD_LLC_CACHE_IRQ : integer := " + str(LLC_CACHE_PIRQ) + ";\n")
+  fp.write("  constant CFG_SLD_L2_CACHE_IRQ : integer := " + str(L2_CACHE_PIRQ) + ";\n\n")
+
+  #
+  fp.write("  ------ UART\n")
+  fp.write("  constant CFG_UART1_ENABLE : integer := 1;\n")
+  fp.write("  constant CFG_UART1_FIFO : integer := 32;\n")
+  fp.write("  constant CFG_UART1_IRQ : integer := (2);\n\n")
+
+  #
+  fp.write("  ------ JTAG based DSU interface (DO NOT ENABLE, NOT SUPPORTED)\n")
+  fp.write("  constant CFG_AHB_JTAG : integer := 0;\n\n")
+
+  #
+  fp.write("  ------ Ethernet\n")
+  fp.write("  constant CFG_ETH_EN : integer := " + str(soc.eth_en.get()) + ";\n\n")
+  fp.write("  ------ Gaisler Ethernet core\n")
+  fp.write("  constant CFG_GRETH : integer := 1;\n")
+  fp.write("  constant CFG_GRETH1G : integer := 0;\n")
+  fp.write("  constant CFG_ETH_FIFO : integer := 8;\n")
+  fp.write("  constant CFG_GRETH_FT : integer := 0;\n")
+  fp.write("  constant CFG_GRETH_EDCLFT : integer := 0;\n\n")
+
+  #
+  fp.write("  ------ SVGA\n")
+  if esp_config.has_svga:
+    fp.write("  constant CFG_SVGA_ENABLE : integer := 1;\n")
+    fp.write("  constant CFG_SVGA_MEMORY_HADDR : integer := 16#301#;\n\n")
+  else:
+    fp.write("  constant CFG_SVGA_ENABLE : integer := 0;\n")
+    fp.write("  constant CFG_SVGA_MEMORY_HADDR : integer := 16#B01#;\n\n")
+
+  #
+  fp.write("  ------ Ethernet DSU\n")
+  fp.write("  constant CFG_DSU_ETH : integer := 1 + 0 + 0;\n")
+  fp.write("  constant CFG_ETH_BUF : integer := 16;\n")
+  fp.write("  constant CFG_ETH_IPM : integer := 16#" + soc.dsu_ip[:4] + "#;\n")
+  fp.write("  constant CFG_ETH_IPL : integer := 16#" + soc.dsu_ip[4:] + "#;\n")
+  fp.write("  constant CFG_ETH_ENM : integer := 16#" + soc.dsu_eth[:6] + "#;\n")
+  fp.write("  constant CFG_ETH_ENL : integer := 16#" + soc.dsu_eth[6:] + "#;\n\n")
+
+  #
+  fp.write("  ------ NoC\n")
+  fp.write("  constant CFG_XLEN : integer := " + str(soc.noc.cols) + ";\n")
+  fp.write("  constant CFG_YLEN : integer := " + str(soc.noc.rows) + ";\n")
+  fp.write("  constant CFG_TILES_NUM : integer := CFG_XLEN * CFG_YLEN;\n\n")
+
+  #
+  fp.write("  ------ Monitors (requires proFPGA MMI64)\n")
   fp.write("  constant CFG_MON_DDR_EN : integer := " + str(soc.noc.monitor_ddr.get()) + ";\n")
   fp.write("  constant CFG_MON_MEM_EN : integer := " + str(soc.noc.monitor_mem.get()) + ";\n")
   fp.write("  constant CFG_MON_NOC_INJECT_EN : integer := " + str(soc.noc.monitor_inj.get()) + ";\n")
@@ -112,6 +189,8 @@ def print_constants(fp, soc, esp_config):
   fp.write("  constant CFG_MON_LLC_EN : integer := " + str(soc.noc.monitor_llc.get()) + ";\n")
   fp.write("  constant CFG_MON_DVFS_EN : integer := " + str(soc.noc.monitor_dvfs.get()) + ";\n\n")
 
+  '''
+  # removed from cryo-ai
   fp.write("  ------ Coherence enabled\n")
   if esp_config.coherence:
     fp.write("  constant CFG_L2_ENABLE   : integer := 1;\n")
@@ -121,26 +200,48 @@ def print_constants(fp, soc, esp_config):
     fp.write("  constant CFG_L2_ENABLE   : integer := 0;\n")
     fp.write("  constant CFG_L2_DISABLE  : integer := 1;\n")
     fp.write("  constant CFG_LLC_ENABLE  : integer := 0;\n\n")
+  '''
 
   #
   fp.write("  ------ Number of components\n")
   fp.write("  constant CFG_NCPU_TILE : integer := " + str(esp_config.ncpu) + ";\n")
   fp.write("  constant CFG_NMEM_TILE : integer := " + str(esp_config.nmem) + ";\n")
   fp.write("  constant CFG_NSLM_TILE : integer := " + str(esp_config.nslm) + ";\n")
+  fp.write("  constant CFG_NSLMDDR_TILE : integer := " + str(esp_config.nslmddr) + ";\n")
   fp.write("  constant CFG_NL2 : integer := " + str(esp_config.nl2) + ";\n")
   fp.write("  constant CFG_NLLC : integer := " + str(esp_config.nllc) + ";\n")
-  fp.write("  constant CFG_NLLC_COHERENT : integer := " + str(esp_config.ncdma) + ";\n")
-  fp.write("  constant CFG_SLM_KBYTES : integer := " + str(esp_config.slm_kbytes) + ";\n\n")
+  fp.write("  constant CFG_NLLC_COHERENT : integer := " + str(esp_config.ncdma) + ";\n\n")
+  #fp.write("  constant CFG_SLM_KBYTES : integer := " + str(esp_config.slm_kbytes) + ";\n\n")
 
+  fp.write("  ------ AMBA settings\n")
+  fp.write("  constant CFG_DEFMST : integer := (0);\n")
+  fp.write("  constant CFG_RROBIN : integer := 1;\n")
+  fp.write("  constant CFG_SPLIT : integer := 0;\n")
+  fp.write("  constant CFG_FPNPEN : integer := 1;\n")
+  fp.write("  constant CFG_AHBIO : integer := 16#FFF#;\n")
+  fp.write("  constant CFG_AHB_MON : integer := 0;\n")
+  fp.write("  constant CFG_AHB_MONERR : integer := 0;\n")
+  fp.write("  constant CFG_AHB_MONWAR : integer := 0;\n")
+  fp.write("  constant CFG_AHB_DTRACE : integer := 0;\n\n")
   #
-  fp.write("  ------ Local-port Synchronizers are always present)\n")
-  fp.write("  constant CFG_HAS_SYNC : integer := 1;\n")
+  fp.write("  ------ Local-port synchronizers (always present)\n")
+  fp.write("  constant CFG_HAS_SYNC : integer := 1;\n\n")
+  fp.write("  ------ Domain voltage-frequency scaling (DVFS)\n")
   if esp_config.has_dvfs:
     fp.write("  constant CFG_HAS_DVFS : integer := 1;\n")
   else:
     fp.write("  constant CFG_HAS_DVFS : integer := 0;\n")
   fp.write("\n")
 
+  # added from cryo-ai
+  fp.write("  ------ Synthesis options\n")
+  fp.write("  constant CFG_SCAN : integer := 0;\n\n")
+   
+  #
+  fp.write("  ------ GRLIB debugging\n")
+  fp.write("  constant CFG_DUART : integer := 1;\n\n")
+  '''
+  # removed from cryo-ai
   #
   # private cache physical interrupt line
   L2_CACHE_PIRQ = 3
@@ -151,6 +252,7 @@ def print_constants(fp, soc, esp_config):
   fp.write("  ------ Caches interrupt line\n")
   fp.write("  constant CFG_SLD_LLC_CACHE_IRQ : integer := " + str(LLC_CACHE_PIRQ) + ";\n\n")
   fp.write("  constant CFG_SLD_L2_CACHE_IRQ : integer := " + str(L2_CACHE_PIRQ) + ";\n\n")
+  '''
 
 def main(argv):
 

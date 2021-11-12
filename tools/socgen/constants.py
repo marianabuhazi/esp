@@ -87,6 +87,7 @@ DDR_HADDR["ibex"] = 0x800
 
 # SLM base address
 SLM_HADDR = 0x040
+SLMDDR_HADDR = 0xC00
 
 # Main memory size (12 MSBs)
 DDR_SIZE = 0x400

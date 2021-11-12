@@ -10,16 +10,20 @@
 espcreator::espcreator(QWidget *parent,
                        std::string noc_width,
                        std::string tech_library,
-                       std::string mac_address)
+                       std::string mac_address,
+                       std::string board)
     : QMainWindow(parent), ui(new Ui::espcreator)
 {
     NOCX = 0;
     NOCY = 0;
     cpu_arch = TOSTRING(CPU_ARCH);
     std::string mac_addr = get_MAC_Addr(mac_address);
+    std::string fpga_board = board;
+    std::cout << "FPGA BOARD: " << fpga_board << "\n";
 
     ui->setupUi(this);
     ui->lineEdit_mac->setText(mac_addr.c_str());
+    ui->lineEdit_mac->setReadOnly(false);
     ui->lineEdit_tech->setText(tech_library.c_str());
     ui->lineEdit_board->setText(TOSTRING(BOARD));
     ui->spinBox_vf->setMinimum(1);
@@ -57,6 +61,7 @@ espcreator::espcreator(QWidget *parent,
     ui->lineEdit_nocw->setText("32");
     // ui->lineEdit_nocw->setText("64");
     ui->lineEdit_espmac->setText(get_ESP_MAC().c_str());
+    ui->lineEdit_espmac->setEnabled(true);
     // ui->lineEdit_espip->setText(get_ESP_IP().c_str());
 
     /*
@@ -164,6 +169,23 @@ espcreator::espcreator(QWidget *parent,
     ui->combo_implem->setEnabled(false);
 
     ui->pushButton_gen->setEnabled(true);
+
+    // UART
+    ui->stackedWidget_peripheral_uart->setCurrentIndex(1);
+
+    // JTAG
+    ui->stackedWidget_peripheral_jtag->setCurrentIndex(0);
+    
+    // SVGA
+    ui->checkBox_peripheral_svga->setChecked(false);
+    if (fpga_board.find("prof_pga") != std::string::npos)
+    {
+        ui->stackedWidget_peripheral_svga->setCurrentIndex(1);
+    } else {
+        ui->stackedWidget_peripheral_svga->setCurrentIndex(0);
+    }
+
+    read_config(true);
 }
 
 void espcreator::on_checkBox_caches_toggled(bool arg1)
@@ -277,6 +299,7 @@ std::string espcreator::get_nocw(int i, int j)
     return combo_arch_to_nocw[i][j];
 }
 // end added 06/30
+
 
 //
 // NoC Frame
@@ -525,6 +548,302 @@ void espcreator::update_address_map()
         }
     }
     addressMapChanged();
+}
+
+// working
+int espcreator::read_config(bool temporary)
+{
+    // fill in
+    std::string filename = ".esp_config";
+    bool warning = false;
+    if (temporary)
+    {
+        filename = get_esp_config_bak();
+        warning = true;
+        if (!isfile(filename))
+        {
+            filename = ".esp_config";
+            warning = false;
+            if (!isfile(filename))
+            {
+                return -1;
+            }
+        }
+    }
+    if (!isfile(filename))
+    {
+        std::cout << "Configuration file is not available\n";
+        return -1;
+    }
+    if (warning)
+    {
+        bool first = true;
+        if (isfile(".esp_config"))
+        {
+            std::fstream orig;
+            std::fstream bak;
+            orig.open(".esp_config", std::ios::in);
+            bak.open(get_esp_config_bak(), std::ios::in);
+
+            std::string line_orig;
+            std::string line_bak;
+            while(std::getline(bak, line_bak))
+            {
+                std::getline(orig, line_orig);
+                if (line_bak != line_orig)
+                {
+                    if (first)
+                    {
+                        std::cout << "WARNING: temporary configuration. Modifications are not reported into 'socmap.vhd' yet\n";
+                        first = false;
+                    }
+                    str_erase(line_orig, '\n');
+                    str_erase(line_bak, '\n');
+                    std::cout << "SAVED: " << line_orig << " -- TEMP: " << line_bak << "\n";
+                }
+            }
+            orig.close();
+            bak.close();
+        }
+    }
+    std::fstream fp;
+    fp.open(filename, std::ios::in);
+    // CPU architefcture
+    std::string line;
+    std::getline(fp, line);
+    std::vector<std::string> item;
+    item = str_split(line, ' ');
+    this->cpu_arch = item[2];
+    QString cpu_arch_q = QString::fromStdString(this->cpu_arch);
+    ui->combo_arch->setCurrentText(cpu_arch_q);
+    // CPU count (skip this info while rebuilding SoC config)
+    std::getline(fp, line);
+    // Scatter-gather
+    std::getline(fp, line);
+    if (line.find("CONFIG_HAS_SG = y") != std::string::npos)
+    {
+        // self.HAS_SG = True TODO: what is this? line 147 soc.py
+        ui->combo_data->setCurrentIndex(1);
+    } else {
+        ui->combo_data->setCurrentIndex(0);
+    }
+    // Topology
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    int rows;
+    rows = stoi(item[2]);
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    int cols;
+    cols = stoi(item[2]);
+    // create_topology
+    // Add columns
+    for (int y = 0; y < (int)frame_tile.size(); y++)
+        for (int x = frame_tile[y].size(); x < cols; x++)
+            frame_tile[y]
+                .push_back(new Tile(ui->frame_noc, ui->layout_noc, y, x, cpu_arch));
+
+    // Add rows
+    for (int y = frame_tile.size(); y < rows; y++)
+    {
+        frame_tile.push_back(std::vector<Tile *>());
+        for (int x = 0; x < cols; x++)
+            frame_tile[y]
+                .push_back(new Tile(ui->frame_noc, ui->layout_noc, y, x, cpu_arch));
+    }
+    for (int y = 0; y < (int)frame_tile.size(); y++)
+    {
+        for (int x = 0; x < (int)frame_tile[y].size(); x++)
+        {
+            frame_tile[y][x]->set_id(y * cols + x);
+            frame_tile[y][x]->set_vf_points_count(ui->spinBox_vf->value());
+        }
+    }
+    NOCX = cols;
+    NOCY = rows;
+    ui->spinBox_nocy->setValue(NOCY);
+    ui->spinBox_nocx->setValue(NOCX);
+    // CONFIG_CPU_CACHES = L2_SETS L2_WAYS LLC_SETS LLC_WAYS
+    std::getline(fp, line);
+    if (line.find("CONFIG_CACHE_EN = y") != std::string::npos)
+        ui->checkBox_caches->setChecked(true);
+    else
+        ui->checkBox_caches->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_CACHE_RTL = y") != std::string::npos)
+        ui->combo_implem->setCurrentText("ESP RTL");
+    else
+        ui->combo_implem->setCurrentText("ESP HLS");
+    // addition for CONFIG_CACHE_SPANDEX
+    std::getline(fp, line);
+    if (line.find("CONFIG_CACHE_SPANDEX = y") != std::string::npos)
+        ui->combo_implem->setCurrentText("SPANDEX HLS");
+
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    ui->combo_l2_sets->setCurrentText(QString::fromStdString(item[2] + " sets"));
+    ui->combo_l2_ways->setCurrentText(QString::fromStdString(item[3] + " ways"));
+    ui->combo_llc_sets->setCurrentText(QString::fromStdString(item[4] + " sets"));
+    ui->combo_llc_ways->setCurrentText(QString::fromStdString(item[5] + " ways"));
+    // CONFIG_ACC_CACHES = ACC_L2_SETS ACC_L2_WAYS
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    ui->combo_al2_sets->setCurrentText(QString::fromStdString(item[2] + " sets"));
+    ui->combo_al2_ways->setCurrentText(QString::fromStdString(item[3] + " ways"));
+    // CONFIG_SLM_KBYTES
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    ui->combo_slm->setCurrentText(QString::fromStdString(item[2]));
+    // Ethernet
+    std::getline(fp, line);
+    if (line.find("CONFIG_ETH_EN = y") != std::string::npos)
+        ui->checkBox_peripheral_ethernet->setChecked(true);
+    else
+        ui->checkBox_peripheral_ethernet->setChecked(false);
+    // SVGA
+    std::getline(fp, line);
+    if (line.find("CONFIG_SVGA_EN = y") != std::string::npos)
+        ui->checkBox_peripheral_svga->setChecked(true);
+    else
+        ui->checkBox_peripheral_svga->setChecked(false);
+    // Debug Link
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    std::string dsu_ip = item[2];
+    ui->lineEdit_mac->setText(QString::fromUtf8(dsu_ip.c_str()));
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    std:: string dsu_eth = item[2];
+    ui->lineEdit_espmac->setText(QString::fromUtf8(dsu_eth.c_str()));
+    // Monitors
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_DDR = y") != std::string::npos)
+        ui->checkBox_probe_mem_band->setChecked(true);
+    else
+        ui->checkBox_probe_mem_band->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_MEM = y") != std::string::npos)
+        ui->checkBox_probe_mem->setChecked(true);
+    else
+        ui->checkBox_probe_mem->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_INJ = y") != std::string::npos)
+        ui->checkBox_probe_inject->setChecked(true);
+    else
+        ui->checkBox_probe_inject->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_ROUTERS = y") != std::string::npos)
+        ui->checkBox_probe_noc_routers->setChecked(true);
+    else
+        ui->checkBox_probe_noc_routers->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_ACCELERATORS = y") != std::string::npos)
+        ui->checkBox_probe_acc->setChecked(true);
+    else
+        ui->checkBox_probe_acc->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_L2 = y") != std::string::npos)
+        ui->checkBox_probe_l2->setChecked(true);
+    else
+        ui->checkBox_probe_l2->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_LLC = y") != std::string::npos)
+        ui->checkBox_probe_llc->setChecked(true);
+    else
+        ui->checkBox_probe_llc->setChecked(false);
+    std::getline(fp, line);
+    if (line.find("CONFIG_MON_DVFS = y") != std::string::npos)
+        ui->checkBox_probe_dvfs->setChecked(true);
+    else
+        ui->checkBox_probe_dvfs->setChecked(false);
+    // Tiles configuration
+    std::vector<std::string> tokens;
+    for (int y = 0; y < NOCY; y++)
+    {
+        for (int x = 0; x < NOCX; x++)
+        {
+            std::getline(fp, line);
+            str_erase(line, '\n');
+            tokens = str_split(line, ' ');
+            if (tokens.size() > 1)
+            {
+                frame_tile[y][x]->set_type(tokens[4]);
+                frame_tile[y][x]->set_domain(tokens[5]);
+                frame_tile[y][x]->set_pll(tokens[6]);
+                frame_tile[y][x]->set_buf(tokens[7]);
+                int cache_en = ui->checkBox_caches->isChecked();
+                if ((tokens[3] == "cpu") and (cache_en))
+                    frame_tile[y][x]->set_cache("1");
+                if (tokens[3] == "acc")
+                {
+                    frame_tile[y][x]->set_acc_l2(tokens[9]);
+                    frame_tile[y][x]->set_ip(tokens[4]);
+                    frame_tile[y][x]->set_impl(tokens[4] + "_" + tokens[8]);
+                }
+            }
+        }
+    }
+    std::getline(fp, line);
+    std::getline(fp, line);
+    item = str_split(line, ' ');
+    int vf_points;
+    vf_points = stoi(item[2]);
+    ui->spinBox_vf->setValue(vf_points);
+    // Power annotation
+    for (int y = 0; y < NOCY; y++)
+    {
+        for (int x = 0; x < NOCX; x++)
+        {
+            std::getline(fp, line);
+            str_erase(line, '\n');
+            if (line.length() == 0)
+                return 0;
+            tokens = str_split(line, ' ');
+            // tile.create_characterization(self, self.noc.vf_points) self.noc.vf_points = ui->spinBox_vf TODO: fix?
+            std::cout << " frametile: " << frame_tile[y][x]->get_type() << "\n";
+            std::cout << " tokens: " << tokens[2] << "\n\n";
+            if (frame_tile[y][x]->get_ip() == tokens[2])
+            {
+                for (int vf = 0; vf < vf_points; vf++)
+                {
+                    frame_tile[y][x]->set_spin_boxes(vf * 3, tokens[3 + vf * 3]);
+                    frame_tile[y][x]->set_spin_boxes(vf * 3 + 1, tokens[3 + vf * 3 + 1]);
+                    frame_tile[y][x]->set_spin_boxes(vf * 3 + 2, tokens[3 + vf * 3 + 2]);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+// working
+std::string espcreator::get_esp_config_bak()
+{
+    std::string esp_config_bak = ".esp_config.bak.1"; // change later
+    return esp_config_bak;
+}
+
+bool espcreator::isfile(std::string filename)
+{
+    struct stat sb;
+    return (stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+}
+
+void espcreator::str_erase(std::string str, char erase)
+{
+    str.erase(std::remove(str.begin(), str.end(), erase), str.end());
+}
+
+std::vector<std::string> espcreator::str_split(std::string &s, char delimiter)
+{
+    std::stringstream ss(s);
+    std::string item;
+    std::vector<std::string> elems;
+    while (std::getline(ss, item, delimiter)) {
+        elems.push_back(item);
+        // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+    }
+    return elems;
 }
 
 QString espcreator::get_ok_bullet()
@@ -973,7 +1292,7 @@ void espcreator::on_pushButton_gen_clicked()
     else
         fp << "#CONFIG_CACHE_EN is not set\n";
 
-    // CONFIG_CACHE_RTL TODO: FIX
+    // CONFIG_CACHE_RTL
     QString combo_implem_q = ui->combo_implem->currentText();
     std::string combo_implem_s = combo_implem_q.toUtf8().constData();
     bool config_cache_rtl_set = false;
@@ -990,6 +1309,12 @@ void espcreator::on_pushButton_gen_clicked()
     }
     if (!config_cache_rtl_set)
         fp << "#CONFIG_CACHE_RTL is not set\n";
+
+    // CONFIG_CACHE_SPANDEX
+    if (combo_implem_s == "SPANDEX HLS")
+        fp << "CONFIG_CACHE_SPANDEX = y\n";
+    else
+        fp << "#CONFIG_CACHE_SPANDEX is not set\n";
 
     // CONFIG_CPU_CACHES
     QString l2_sets_q = ui->combo_l2_sets->currentText();
@@ -1018,6 +1343,24 @@ void espcreator::on_pushButton_gen_clicked()
 
     // CONFIG_SLM_KBYTES
     fp << "CONFIG_SLM_KBYTES = " << slm_s.c_str() << "\n";
+
+    // CONFIG_ETH_EN
+    if (ui->checkBox_peripheral_ethernet->isChecked())
+        fp << "CONFIG_ETH_EN = y\n";
+    else
+        fp << "#CONFIG_ETH_EN is not set\n";
+    
+    // CONFIG_SVGA_EN
+    if (ui->checkBox_peripheral_svga->isChecked())
+        fp << "CONFIG_SVGA_EN = y\n";
+    else
+        fp << "#CONFIG_SVGA_EN is not set\n";
+    
+    // CONFIG_DSU_IP
+    fp << "CONFIG_DSU_IP = " << ui->lineEdit_mac->text().toUtf8().constData() << "\n";
+
+    // CONFIG_DSU_ETH
+    fp << "CONFIG_DSU_ETH = " << ui->lineEdit_espmac->text().toUtf8().constData() << "\n";
 
     // CONFIG_MON_DDR
     if (ui->checkBox_probe_mem_band->isChecked())
@@ -1084,8 +1427,17 @@ void espcreator::on_pushButton_gen_clicked()
             fp << frame_tile[y][x]->get_domain() << " ";
             fp << frame_tile[y][x]->get_PLL() << " ";
             fp << frame_tile[y][x]->get_buf();
+            if (frame_tile[y][x]->get_type() == "slm")
+            {
+                fp << " " << frame_tile[y][x]->get_has_ddr_sel();
+            }
             if (frame_tile[y][x]->get_type() == "acc")
-                fp << " " << frame_tile[y][x]->get_impl_acc().c_str() << " " << frame_tile[y][x]->get_acc_l2() << " sld"; // change get_impl() to some other function
+            {
+                if (frame_tile[y][x]->get_third_party_acc())
+                    fp << " " << "impl" << " " << frame_tile[y][x]->get_acc_l2() << " " << frame_tile[y][x]->get_vendor(); // frame_tile[y][x]->get_impl_acc().c_str()
+                else
+                    fp << " " << frame_tile[y][x]->get_impl_acc().c_str() << " " << frame_tile[y][x]->get_acc_l2() << " sld";
+            }
             fp << "\n";
         }
     }

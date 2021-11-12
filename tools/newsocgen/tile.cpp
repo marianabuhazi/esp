@@ -8,6 +8,7 @@
 Tile::~Tile()
 {
     ip_list.clear();
+    ip_list_3.clear();
     impl_list.clear();
     delete id_l;
     delete type_sel;
@@ -126,6 +127,7 @@ Tile::Tile(QWidget *parent,
     ip_sel->addItem("");
     ip_sel->setToolTip(ip_sel->currentText());
     ip_sel->setMinimumWidth(90);
+    third_party_acc = false;
 
 
     // Power Information button
@@ -157,6 +159,12 @@ Tile::Tile(QWidget *parent,
     for (unsigned i = 0; i < ip_list.size(); i++) {
         ip_sel->addItem(ip_list[i].c_str());
         ip_sel->setItemData(i + 1, ip_list[i].c_str(), Qt::ToolTipRole);
+    }
+    std::string ip_path_3(tech_path + "/../../accelerators/third-party");
+    get_subdirs(ip_path_3, ip_list_3);
+    for (unsigned i = 0; i < ip_list_3.size(); i++) {
+        ip_sel->addItem(ip_list_3[i].c_str());
+        ip_sel->setItemData(i + 1, ip_list_3[i].c_str(), Qt::ToolTipRole);
     }
     ////////////////////////////////////////////////////////////////////////
     ip_sel->setEnabled(false);
@@ -356,6 +364,11 @@ std::string Tile::get_acc_l2()
     return to_string((int)has_caches->isChecked());
 }
 
+std::string Tile::get_has_ddr_sel()
+{
+    return to_string((int)has_ddr_sel->isChecked());
+}
+
 std::string Tile::get_ip_acc()
 {
     /*
@@ -384,6 +397,85 @@ std::string Tile::get_impl_acc()
     */
     std::string get_impl_s_sub = get_impl_s.substr(ip.length() + 1, get_impl_s.length() - ip.length() - 1);
     return get_impl_s_sub;
+}
+
+std::string Tile::get_vendor()
+{
+    if (third_party_acc)
+    {
+        std::string tech_path(TOSTRING(TECH_PATH));
+        std::string vendor_path(tech_path + "/../../accelerators/third-party/" + ip + "/vendor");
+        std::ifstream infile(vendor_path);
+        std::string sLine;
+        std::getline(infile, sLine);
+        return sLine;
+    } else {
+        return "sld";
+    }
+}
+
+bool Tile::get_third_party_acc()
+{
+    return third_party_acc;
+}
+
+void Tile::set_type(std::string type)
+{
+    std::string type_abbrev = "Accelerator";
+    for (unsigned int i = 0; i < tile_type.size(); i++)
+    {
+        if (type == tile_type[i][1])
+        {
+            type_abbrev = tile_type[i][0];
+        }
+    }
+    if (type == "IO")
+        type_abbrev = "Miscellaneous";
+    type_sel->setCurrentText(QString::fromStdString(type_abbrev));
+}
+
+void Tile::set_domain(std::string domain)
+{
+    domain_sel->setValue(stoi(domain));
+}
+
+void Tile::set_pll(std::string pll)
+{
+    has_pll_sel->setChecked(stoi(pll));
+    has_pll = stoi(pll);
+}
+
+void Tile::set_buf(std::string buf)
+{
+    extra_buf_sel->setChecked(stoi(buf));
+    extra_buf = stoi(buf);
+}
+
+void Tile::set_cache(std::string cache)
+{
+    has_cache_sel->setChecked(stoi(cache));
+}
+
+void Tile::set_ip(std::string ip)
+{
+    std::transform(ip.begin(), ip.end(), ip.begin(), [](unsigned char c){ return std::tolower(c); });
+    ip_sel->setCurrentText(QString::fromStdString(ip));
+}
+
+void Tile::set_impl(std::string impl)
+{
+    std::transform(impl.begin(), impl.end(), impl.begin(), [](unsigned char c){ return std::tolower(c); });
+    impl_sel->setCurrentText(QString::fromStdString(impl));
+}
+
+void Tile::set_spin_boxes(int index, std::string value)
+{
+    vf_points[index] = stof(value);
+}
+
+void Tile::set_acc_l2(std::string value)
+{
+    has_caches->setChecked(stoi(value));
 }
 
 void Tile::impl_reset()
@@ -546,9 +638,23 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
 
         impl_sel->setEnabled(true);
         */
+        third_party_acc = false;
+        for (unsigned i = 0; i < ip_list_3.size(); i++)
+        {
+            if (arg1.toStdString() == ip_list_3[i])
+                third_party_acc = true;
+        }
         std::string tech_path(TOSTRING(TECH_PATH));
         std::string impl_path(tech_path + "/acc/" + arg1.toStdString());
         std::vector<std::string> impl_dir_list;
+        get_subdirs(impl_path, impl_dir_list);
+        for (unsigned i = 0; i < impl_dir_list.size(); i++)
+        {
+            impl_sel->addItem(impl_dir_list[i].c_str());
+            impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
+        }
+        impl_dir_list.clear();
+        impl_path = tech_path + "/../../accelerators/third-party/" + arg1.toStdString();
         get_subdirs(impl_path, impl_dir_list);
         for (unsigned i = 0; i < impl_dir_list.size(); i++)
         {
@@ -564,6 +670,7 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
 
 void Tile::on_impl_sel_currentIndexChanged(const QString &arg1 __attribute__((unused)))
 {
+    impl_sel->setCurrentText(arg1);
     impl = impl_sel->currentText().toStdString();
     impl_sel->setToolTip(impl_sel->currentText());
 }

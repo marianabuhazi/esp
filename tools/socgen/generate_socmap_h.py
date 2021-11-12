@@ -12,6 +12,7 @@ from tkinter import *
 from constants import *
 
 def print_esplink_header(fp, esp_config, soc):
+
   # Get CPU base frequency
   with open("../../top.vhd") as top_fp:
     for line in top_fp:
@@ -27,6 +28,8 @@ def print_esplink_header(fp, esp_config, soc):
   fp.write("\n")
   fp.write("#define EDCL_IP \"" + soc.IP_ADDR + "\"\n")
   fp.write("#define BASE_FREQ " + str(CPU_FREQ) + "\n")
+  if soc.cache_spandex.get() == 1:
+    fp.write("#define USE_SPANDEX\n")
   fp.write("#define BOOTROM_BASE_ADDR " + hex(RST_ADDR[esp_config.cpu_arch]) + "\n")
   fp.write("#define RODATA_START_ADDR " + hex(RODATA_ADDR[esp_config.cpu_arch]) + "\n")
   fp.write("#define DRAM_BASE_ADDR 0x" + format(DDR_HADDR[esp_config.cpu_arch], '03X') + "00000\n")

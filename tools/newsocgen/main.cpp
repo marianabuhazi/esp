@@ -5,13 +5,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    if (argc != 4)
+    if (argc != 5)
     {
-        printf("usage: ./main <NOC_WIDTH> <TECH_LIB> <MAC_ADDRESS>\n");
+        printf("usage: ./main <NOC_WIDTH> <TECH_LIB> <MAC_ADDRESS> <FPGA_BOARD>\n");
         return 1;
     }
 
-    espcreator w(NULL, argv[1], argv[2], argv[3]);
+    espcreator w(NULL, argv[1], argv[2], argv[3], argv[4]);
 
     w.show();
 

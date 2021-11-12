@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
 #include <QFrame>
 #include <QLabel>
@@ -30,26 +31,38 @@ class Tile : public QFrame
     Q_OBJECT
 
 public:
-   Tile(QWidget *parent,
+    Tile(QWidget *parent,
         QGridLayout *parent_layout,
         unsigned y,
         unsigned x,
         std::string cpu_arch);
 
-   ~Tile();
+    ~Tile();
 
-   void set_id(unsigned id);
-   void set_vf_points_count(int vf);
-   std::string get_type();
-   std::string get_ip();
-   std::string get_domain();
-   std::string get_PLL();
-   std::string get_buf();
-   std::string get_impl();
-   std::string get_power();
-   std::string get_acc_l2();
-   std::string get_ip_acc();
-   std::string get_impl_acc();
+    void set_id(unsigned id);
+    void set_vf_points_count(int vf);
+    std::string get_type();
+    std::string get_ip();
+    std::string get_domain();
+    std::string get_PLL();
+    std::string get_buf();
+    std::string get_impl();
+    std::string get_power();
+    std::string get_acc_l2();
+    std::string get_has_ddr_sel();
+    std::string get_ip_acc();
+    std::string get_impl_acc();
+    std::string get_vendor();
+    bool get_third_party_acc();
+    void set_type(std::string type);
+    void set_domain(std::string domain);
+    void set_pll(std::string pll);
+    void set_buf(std::string buf);
+    void set_cache(std::string cache);
+    void set_ip(std::string ip);
+    void set_impl(std::string impl);
+    void set_spin_boxes(int index, std::string value);
+    void set_acc_l2(std::string value);
 
 private slots:
     void on_type_sel_currentIndexChanged(const QString &arg1);
@@ -80,9 +93,11 @@ private:
     QCheckBox *has_caches;
     QPushButton *power_popup;
     bool popup_active;
+    bool third_party_acc;
 
     std::vector<std::string> ip_list;
     std::vector<std::string> impl_list;
+    std::vector<std::string> ip_list_3;
 
     void tile_reset();
     void impl_reset();
