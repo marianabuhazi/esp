@@ -455,6 +455,7 @@ void espcreator::update_power_info()
         frame_power.pop_back();
     }
 
+    /*
     // Look for power domains different from zero
     FOREACH_TILE(y, x)
     {
@@ -467,13 +468,14 @@ void espcreator::update_power_info()
                               power_info_db);
         frame_power.push_back(pa);
     }
+    */
 }
 
 void espcreator::update_address_map()
 {
     REV_FOREACH_ADDRESS(i)
     {
-        ui->layout_addr->removeWidget(frame_address[i]);
+        //ui->layout_addr->removeWidget(frame_address[i]);
         delete frame_address[i];
         frame_address.pop_back();
     }
@@ -499,6 +501,7 @@ void espcreator::update_address_map()
     if (frame_tile[y][x]->type == TILE_MEMDBG || frame_tile[y][x]->type == TILE_MEM)
         mem_split++;
 
+    /*
     // Create address space
     FOREACH_TILE(y, x)
     {
@@ -548,6 +551,7 @@ void espcreator::update_address_map()
         }
     }
     addressMapChanged();
+    */
 }
 
 // working
@@ -891,6 +895,7 @@ void espcreator::on_combo_arch_currentIndexChanged(const QString &arg1)
 }
 // end added 06/30
 
+/*
 void espcreator::addressMapChanged()
 {
     std::vector<QString> error_msg;
@@ -902,9 +907,10 @@ void espcreator::addressMapChanged()
 
     ui->pushButton_addr_confirm->setEnabled(false);
     ui->pushButton_gen->setEnabled(true);
-    /* ui->pushButton_gen->setEnabled(true); */
+    // ui->pushButton_gen->setEnabled(true);
     ui->pushButton_pow_confirm->setEnabled(false);
 }
+*/
 
 // void espcreator::on_pushButton_cfg_clicked()
 // {
@@ -996,6 +1002,7 @@ void espcreator::on_pushButton_addr_validate_clicked()
             frame_address[j]->set_conflicting(true);
         }
     }
+    /*
     if (address_map_is_valid)
     {
         QString ok_bullet = get_ok_bullet();
@@ -1004,8 +1011,10 @@ void espcreator::on_pushButton_addr_validate_clicked()
         ui->textBrowser_addr->setHtml(ok);
         ui->pushButton_addr_confirm->setEnabled(true);
     }
+    */
 }
 
+/*
 void espcreator::on_pushButton_addr_confirm_clicked()
 {
     ui->pushButton_pow_confirm->setEnabled(true);
@@ -1019,6 +1028,7 @@ void espcreator::on_pushButton_pow_confirm_clicked()
     ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tab_soc));
     ui->tabWidget->setCurrentWidget(ui->tab_soc);
 }
+*/
 
 void espcreator::on_pushButton_gen_clicked()
 {
