@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     espcreator w(NULL, argv[1], argv[2], argv[3], argv[4]);
 
-    w.show();
+    w.showMaximized();
 
     return a.exec();
 }
