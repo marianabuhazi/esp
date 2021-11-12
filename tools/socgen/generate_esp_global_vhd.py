@@ -77,6 +77,7 @@ def print_global_constants(fp, soc):
   else:
     fp.write("  constants GLOB_CPU_LLSC : integer range 0 to 1 := 0\n\n")
     '''
+    # removed from cryo-ai branch
   fp.write("\n")
   # RTL caches
   if soc.cache_rtl.get() == 1:

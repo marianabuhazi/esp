@@ -164,10 +164,21 @@ class SoC_Config():
     line = fp.readline()
     if line.find("CONFIG_CACHE_RTL = y") != -1:
       self.cache_rtl.set(1)
-      self.cache_impl.set("SystemVerilog")
+      #self.cache_rtl.set(1)
+      self.cache_impl.set("ESP RTL") #SystemVerilog
+      line = fp.readline() # added
+      if line.find("CONFIG_CACHE_SPANDEX = y") != -1:
+        print("WARNING: Spandex RTL implementation is not available yet. Reverting to ESP RTL caches")
     else:
       self.cache_rtl.set(0)
       self.cache_impl.set("SystemC + HLS")
+      if line.find("CONFIG_CACHE_SPANDEX = y") != -1:
+        #self.cache_spandex.set(1)
+        self.cache_impl.set("SPANDEX HLS")
+      else:
+        #self.cache_spandex.set(0)
+        self.cache_impl.set("ESP HLS")
+      line = fp.readline()
     line = fp.readline()
     item = line.split()
     self.l2_sets.set(int(item[2]))
@@ -183,6 +194,25 @@ class SoC_Config():
     line = fp.readline()
     item = line.split()
     self.slm_kbytes.set(int(item[2]))
+    # Ethernet
+    line = fp.readline()
+    if line.find("CONFIG_ETH_EN = y") != -1:
+      self.eth_en.set(1)
+    else:
+      self.eth_en.set(0)
+    # SVGA
+    line = fp.readline()
+    if line.find("CONFIG_SVGA_EN = y") != -1:
+      self.svga_en.set(1)
+    else:
+      self.svga_en.set(0)
+    # Debug Link
+    line = fp.readline()
+    item = line.split()
+    self.dsu_ip = item[2]
+    line = fp.readline()
+    item = line.split()
+    self.dsu_eth = item[2]
     # Monitors
     line = fp.readline()
     if line.find("CONFIG_MON_DDR = y") != -1:
@@ -212,6 +242,7 @@ class SoC_Config():
     for y in range(0, self.noc.rows):
       for x in range(0, self.noc.cols):
         line = fp.readline().replace("\n","")
+        print(line)
         tile = self.noc.topology[y][x]
         tokens = line.split(' ')
         if len(tokens) > 1:
@@ -221,6 +252,8 @@ class SoC_Config():
           tile.has_clkbuf.set(int(tokens[7]))
           if tokens[3] == "cpu" and self.cache_en.get() == 1:
             tile.has_l2.set(1)
+          if tokens[3] == "slm":
+            tile.has_ddr.set(tokens[8])
           if tokens[3] == "acc":
             tile.point.set(tokens[8])
             tile.has_l2.set(tokens[9])
@@ -415,6 +448,8 @@ class SoC_Config():
     self.acc_l2_sets = IntVar()
     self.acc_l2_ways = IntVar()
     self.slm_kbytes = IntVar()
+    self.eth_en = IntVar() # addition
+    self.svga_en = IntVar()
     # CPU architecture
     self.CPU_ARCH = StringVar()
     self.cache_en = IntVar()
