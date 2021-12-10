@@ -107,6 +107,7 @@ slots:
     void update_address_map();
     void update_power_info();
     int read_config(bool temporary);
+    int write_config();
     std::string get_esp_config_bak();
     bool isfile(std::string filename);
     void str_erase(std::string str, char erase);

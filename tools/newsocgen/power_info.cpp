@@ -48,9 +48,6 @@ Power::Power(QWidget *parent,
     name->setFont(fixedFont);
     parent_layout->addWidget(name, power_line_number, 0, 1, 1, Qt::AlignLeft);
 
-    // std::stringstream stm;
-    // stm.str("");
-
     // Power Info
     bool missing_info = true;
     if (db.find(ip.c_str()) != db.end())

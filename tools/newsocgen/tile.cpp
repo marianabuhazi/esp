@@ -79,9 +79,6 @@ Tile::Tile(QWidget *parent,
     {
         type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
         type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
-        /* type_sel->addItem(tile_t_to_string(TILE_MEMDBG).c_str()); */
-        /* type_sel->setItemData(3, tile_t_to_string(TILE_MEMDBG).c_str(),
-         * Qt::ToolTipRole); */
         type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
         type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
         type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
@@ -93,9 +90,17 @@ Tile::Tile(QWidget *parent,
     {
         type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
         type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
-        /* type_sel->addItem(tile_t_to_string(TILE_MEMDBG).c_str()); */
-        /* type_sel->setItemData(3, tile_t_to_string(TILE_MEMDBG).c_str(),
-         * Qt::ToolTipRole); */
+        type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
+        type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
+        type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
+        type_sel->setItemData(4, tile_t_to_string(TILE_MISC).c_str(), Qt::ToolTipRole);
+        type_sel->addItem(tile_t_to_string(TILE_SLM).c_str());
+        type_sel->setItemData(5, tile_t_to_string(TILE_SLM).c_str(), Qt::ToolTipRole);
+    }
+    else if (cpu_arch == "ibex")
+    {
+        type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
+        type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
         type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
         type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
         type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
@@ -136,23 +141,6 @@ Tile::Tile(QWidget *parent,
     power_popup->setEnabled(false);
     connect(power_popup, &QPushButton::released, this, &Tile::on_power_popup);
 
-    ////////////////////////////////////////////////////////////////////////
-    // TODO: these are hard-coded accelerators. They need to be read
-    // from the tech directory as shown in the commented code below.
-    /*
-    ip_sel->addItem("aes");
-    ip_sel->addItem("rsa");
-    ip_sel->addItem("sha1");
-    ip_sel->addItem("sha2");
-    */
-
-    /* std::string tech_path(TOSTRING(TECH_PATH)); */ //ip == acc
-    /* std::string ip_path(tech_path + "/acc"); */
-    /* get_subdirs(ip_path, ip_list); */
-    /* for (unsigned i = 0; i < ip_list.size(); i++) { */
-    /* ip_sel->addItem(ip_list[i].c_str()); */
-    /* ip_sel->setItemData(i + 1, ip_list[i].c_str(), Qt::ToolTipRole); */
-    /* } */
     std::string tech_path(TOSTRING(TECH_PATH)); //ip == acc
     std::string ip_path(tech_path + "/acc");
     get_subdirs(ip_path, ip_list);
@@ -371,13 +359,6 @@ std::string Tile::get_has_ddr_sel()
 
 std::string Tile::get_ip_acc()
 {
-    /*
-    for (unsigned i = 0; i < ip_acc.size(); i++) 
-    {
-        if (ip == ip_acc[i][0])
-            return ip_acc[i][1];
-    }
-    */
     std::string ip_cap = ip;
     transform(ip_cap.begin(), ip_cap.end(),ip_cap.begin(), ::toupper);
     return ip_cap;
@@ -388,13 +369,6 @@ std::string Tile::get_impl_acc()
     QString get_impl_q = impl_sel->currentText();
     std::string get_impl_s = get_impl_q.toUtf8().constData();
 
-    /*
-    for (unsigned i = 0; i < impl_acc.size(); i++) 
-    {
-        if (get_impl_s == impl_acc[i][0])
-            return impl_acc[i][1];
-    }
-    */
     std::string get_impl_s_sub = get_impl_s.substr(ip.length() + 1, get_impl_s.length() - ip.length() - 1);
     return get_impl_s_sub;
 }
@@ -458,6 +432,7 @@ void Tile::set_cache(std::string cache)
 
 void Tile::set_ip(std::string ip)
 {
+    ip_sel->setCurrentText(QString::fromStdString(ip));
     std::transform(ip.begin(), ip.end(), ip.begin(), [](unsigned char c){ return std::tolower(c); });
     ip_sel->setCurrentText(QString::fromStdString(ip));
 }
@@ -583,12 +558,6 @@ void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
         socmap::set_background_color(this, color_cpu);
         domain_setEnabled(true);
         has_caches->setEnabled(false);
-        /* } else if (arg1 == tile_t_to_string(TILE_MEMDBG).c_str()) { */
-        /* type = TILE_MEMDBG; */
-        /* ip = "memdbg"; */
-        /* impl = "rtl"; */
-        /* set_background_color(this, color_mem); */
-        /* has_caches->setEnabled(false); */
     }
     else if (arg1 == tile_t_to_string(TILE_MEM).c_str())
     {
@@ -624,20 +593,6 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
     std::string test_s = test_q.toUtf8().constData();
     if (arg1 != "")
     {
-        /*
-        std::string tech_path(TOSTRING(TECH_PATH));
-        std::string ip_path(tech_path + "/acc/" + arg1.toStdString());
-        std::vector<std::string> impl_dir_list;
-        get_subdirs(ip_path, impl_dir_list);
-        parse_implementations(impl_dir_list, impl_list);
-        for (unsigned i = 0; i < impl_list.size(); i++)
-        {
-            // impl_sel->addItem(impl_list[i].c_str());
-            impl_sel->setItemData(i + 1, impl_list[i].c_str(), Qt::ToolTipRole);
-        }
-
-        impl_sel->setEnabled(true);
-        */
         third_party_acc = false;
         for (unsigned i = 0; i < ip_list_3.size(); i++)
         {
@@ -760,6 +715,7 @@ void Tile::on_power_popup()
         gridLayout->addWidget(spin_boxes[3 * v + 2], v + 1, 3);
         next_row = v + 1;
     }
+    // buttons (save, cancel)
     QPushButton *save_b = new QPushButton("&Save", popup);
     gridLayout->addWidget(save_b, next_row + 1, 1);
     connect(save_b, &QPushButton::released, popup, &QDialog::accept);
