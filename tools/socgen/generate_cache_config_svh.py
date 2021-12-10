@@ -14,7 +14,6 @@ def print_cache_config(fp, soc, esp_config):
   fp.write("`ifndef __CACHES_CFG_SVH__\n")
   fp.write("`define __CACHES_CFG_SVH__\n")
   fp.write("\n")
-  print(soc.CPU_ARCH.get())
   addr_bits = 32
   byte_bits = 2
   word_bits = 2

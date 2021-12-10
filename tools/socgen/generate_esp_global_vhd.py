@@ -76,7 +76,7 @@ def print_global_constants(fp, soc):
   if soc.CPU_ARCH.get() == "ariane":
     fp.write("  constant GLOB_CPU_LLSC : integer range 0 to 1 := 1;\n\n")
   else:
-    fp.write("  constant GLOB_CPU_LLSC : integer range 0 to 1 := 0\n\n")
+    fp.write("  constant GLOB_CPU_LLSC : integer range 0 to 1 := 0;\n\n")
     '''
     # removed from cryo-ai branch
   fp.write("\n")
@@ -253,6 +253,13 @@ def print_constants(fp, soc, esp_config):
   fp.write("  constant CFG_SLD_LLC_CACHE_IRQ : integer := " + str(LLC_CACHE_PIRQ) + ";\n\n")
   fp.write("  constant CFG_SLD_L2_CACHE_IRQ : integer := " + str(L2_CACHE_PIRQ) + ";\n\n")
   '''
+def update_noc_config(soc):
+  if soc.CPU_ARCH.get() == "ariane":
+    soc.DMA_WIDTH = 64
+  else:
+    soc.DMA_WIDTH = 32
+  soc.IPs = soclib.Components(soc.TECH, soc.DMA_WIDTH, soc.CPU_ARCH.get())
+  soc.update_list_of_ips()
 
 def main(argv):
 
@@ -268,6 +275,7 @@ def main(argv):
 
   soc = soclib.SoC_Config(DMA_WIDTH, TECH, LINUX_MAC, LEON3_STACK, True)
   soc.noc = noclib.NoC()
+  update_noc_config(soc)
   soc.read_config(False)
   esp_config = socgen.soc_config(soc)
 

@@ -29,10 +29,10 @@ def print_devtree(fp, soc, esp_config):
   fp.write("/ {\n")
   fp.write("  #address-cells = <2>;\n")
   fp.write("  #size-cells = <2>;\n")
-  if esp_config.cpu_arch == "ariane":
+  if soc.CPU_ARCH.get() == "ariane":
     fp.write("  compatible = \"eth,ariane-bare-dev\";\n")
     fp.write("  model = \"eth,ariane-bare\";\n")
-  elif esp_config.cpu_arch == "ibex":
+  elif soc.CPU_ARCH.get() == "ibex":
     fp.write("  compatible = \"lowrisc,ibex\";\n")
     fp.write("  model = \"lowrisc,ibex-small\";\n")
   fp.write("  chosen {\n")

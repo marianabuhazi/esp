@@ -1,3 +1,4 @@
+from thirdparty import *
 # Maximum number of AHB and APB slaves can also be increased, but Leon3 utility
 # mklinuximg, GRLIB AMBA package and bare-metal probe constants must be updated.
 # The related constants are defined in

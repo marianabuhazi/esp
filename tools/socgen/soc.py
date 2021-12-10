@@ -165,13 +165,13 @@ class SoC_Config():
     if line.find("CONFIG_CACHE_RTL = y") != -1:
       self.cache_spandex.set(0)
       self.cache_rtl.set(1)
-      #self.cache_rtl.set(1)
       self.cache_impl.set("ESP RTL") #SystemVerilog
       line = fp.readline() # added
       if line.find("CONFIG_CACHE_SPANDEX = y") != -1:
         print("WARNING: Spandex RTL implementation is not available yet. Reverting to ESP RTL caches")
     else:
       self.cache_rtl.set(0)
+      line = fp.readline()
       self.cache_impl.set("SystemC + HLS")
       if line.find("CONFIG_CACHE_SPANDEX = y") != -1:
         self.cache_spandex.set(1)
@@ -179,7 +179,6 @@ class SoC_Config():
       else:
         self.cache_spandex.set(0)
         self.cache_impl.set("ESP HLS")
-      line = fp.readline()
     line = fp.readline()
     item = line.split()
     self.l2_sets.set(int(item[2]))
@@ -243,7 +242,6 @@ class SoC_Config():
     for y in range(0, self.noc.rows):
       for x in range(0, self.noc.cols):
         line = fp.readline().replace("\n","")
-        print(line)
         tile = self.noc.topology[y][x]
         tokens = line.split(' ')
         if len(tokens) > 1:
