@@ -25,13 +25,3 @@ The overall flow is described below:
 ![socgen flow](img/socgen_flow.png "socgen flow")
 
 First, `esp_creator.py` creates the `.esp_config*` files, which are then used by the file generators. For each file generator in the named `generate_<file>.py`, the file `<file>` is created.
-
-## To do
-- The files that are generated in this `qt-gui2` branch must be checked to match the files generated from the `cryo-ai` branch
-  - To test if files match up, use the GUIs in both branches to generate identical SoCs and their respective `.esp_config` files. Once the eight different files are generated, use `$ diff <file_qt-gui2> <file_cryo-ai>` to check if there are any differences.
-  - It is known that the following files are not generated in the same manner:
-    - `esp_global.vhd`
-    - `riscv.dts`
-    - `socmap.vhd`
-  - The other five files may or may not be generated in the same manner - more testing (with different accelerators and more complex configurations) is needed
-  - Additionally, the code that generates the files in the `cryo-ai` branch can be found in `esp/tools/socgen/socmap_gen.py`
