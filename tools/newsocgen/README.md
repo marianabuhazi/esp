@@ -22,47 +22,46 @@ This directory is organized as follows:
 
 ## GUI Screenshots
 
-![gui 1](img/gui1.png "gui 1")
+![starting setup](img/gui1.png "starting setup")
 
 Above is a screenshot of the equivalent of the starting setup in the original GUI (`esp/tools/socgen/`).
 
-![gui 2](img/gui2.png "gui 2")
+![scrolling capabilities](img/gui2.png "scrolling capabilities")
 
 Above is a screenshot of the GUI that demonstrates the scrolling capabilities of the NoC.
 
-![gui 3](img/gui3.png "gui 3")
+![checking](img/gui3.png "checking")
 
 Above is a screenshot of the GUI that demonstrates the checking on clicking "Generate SoC Configuration File".
 
 ![power](img/power.png "power")
+
 Above is a screenshot of the "Power Information" window of a tile.
 
 ![save](img/save.png "save")
+
 Above is a screenshot of the save prompt window.
 
 ![scroll](img/scroll.png "scroll")
+
 Above is a screenshot of the scrolling feature of the tile grid. Once any dimension of the grid is greater than `3`, then scrollbars appear in the appropriate directions.
 
-![soc1](img/soc1.png "soc1")
+![configurations 1](img/soc1.png "configurations 1")
+
 Above is the screenshot of the top half of the configuration options.
 
-![soc2](img/soc2.png "soc2")
+![configurations 2](img/soc2.png "configurations 2")
+
 Above is the screenshot of the bottom half of the configuration options.
 
-## To do
+## To do/Known Issues
 
 - Add descriptions of other files in this `README.md`
-- From `cryo-ai` branch, fully implement:
-  - CPU section: FPU
-  - Peripherals section: UART, JTAG, Ethernet, SVGA
-  - Debug Link section: IP, MAC Addresses
-  - The screenshot of the `cryo-ai` branch configuration options is below:
-  ![cryo-ai config](img/cryo.png "cryo-ai config")
-- Load existing `.esp_config` or `.esp_config.bak.*` files on startup (starting configuration is currently fixed)
-- Implement vendor names (ex: `sld`) for accelerators in `.esp_config*` files
+- Implement vendor names (ex: `sld`) for accelerators in `.esp_config*` files and check for correctness
 - Make sure that `get_ip_acc()` and `get_impl_acc()` functions for accelerators in `.esp_config*` in `tile.cpp` correctly work for all accelerators
-- Update “make targets” such as `esp-xconfig`, `esp-config` `esp-defconfig`
+- Update “make targets” such as `esp-xconfig`, `esp-config` `esp-defconfig` to replace old GUI
 - Fix the "Power Information" button for CPU with nonzero "Clock domain" values
+- Lines corresponding to `case 8`, `case 10`, and `case 11` in `esp/socs/xilinx.../moc_espcreator.cpp` must be removed
 
 ## Dependencies
 - Running `$ qmake-qt5 --version` returns
