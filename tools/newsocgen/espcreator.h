@@ -74,13 +74,13 @@ slots:
 
     void on_pushButton_addr_validate_clicked();
 
-    void on_pushButton_addr_confirm_clicked();
+    // void on_pushButton_addr_confirm_clicked();
 
     void on_pushButton_gen_clicked();
 
-    void addressMapChanged();
+    // void addressMapChanged();
 
-    void on_pushButton_pow_confirm_clicked();
+    // void on_pushButton_pow_confirm_clicked();
 
   private:
     Ui::espcreator *ui;

@@ -55,6 +55,7 @@ espcreator::espcreator(QWidget *parent,
     ui->combo_arch->setEditable(true);
     ui->combo_arch->lineEdit()->setReadOnly(true);
     ui->combo_arch->lineEdit()->setAlignment(Qt::AlignCenter);
+    // TODO: use default value from constants.h
     // TODO: set the width depending on the chosen
     // processor (e.g., 32 leon3, 64 ariane, etc.)
     /* ui->lineEdit_arch->setText("leon3"); */
@@ -234,12 +235,10 @@ std::string espcreator::get_MAC_Addr(std::string mac)
     return mac;
 }
 
-// added 06/30
 std::string espcreator::get_nocw(int i, int j)
 {
     return combo_arch_to_nocw[i][j];
 }
-// end added 06/30
 
 
 //
@@ -298,8 +297,6 @@ void espcreator::on_pushButton_noc_clicked()
             frame_tile[y][x]->set_vf_points_count(ui->spinBox_vf->value());
         }
     }
-
-    /* ui->pushButton_cfg->setEnabled(true); */
 
     NOCX = new_nocx;
     NOCY = new_nocy;
@@ -484,7 +481,7 @@ int espcreator::read_config(bool temporary)
     }
     std::fstream fp;
     fp.open(filename, std::ios::in);
-    // CPU architefcture
+    // CPU architecture
     std::string line;
     std::getline(fp, line);
     std::vector<std::string> item;
@@ -694,7 +691,7 @@ int espcreator::read_config(bool temporary)
 // in progress
 std::string espcreator::get_esp_config_bak()
 {
-    std::string esp_config_bak = ".esp_config.bak.1"; // change later
+    std::string esp_config_bak = ".esp_config.bak.1"; // TODO: change later
     return esp_config_bak;
 }
 

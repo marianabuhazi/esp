@@ -142,7 +142,9 @@ Tile::Tile(QWidget *parent,
     connect(power_popup, &QPushButton::released, this, &Tile::on_power_popup);
 
     std::string tech_path(TOSTRING(TECH_PATH)); //ip == acc
+    std::cout << "tech_path: " << tech_path << "\n";
     std::string ip_path(tech_path + "/acc");
+    std::cout << "ip_path: " << ip_path << "\n";
     get_subdirs(ip_path, ip_list);
     for (unsigned i = 0; i < ip_list.size(); i++) {
         ip_sel->addItem(ip_list[i].c_str());
@@ -357,6 +359,7 @@ std::string Tile::get_has_ddr_sel()
     return to_string((int)has_ddr_sel->isChecked());
 }
 
+// TODO: check
 std::string Tile::get_ip_acc()
 {
     std::string ip_cap = ip;
@@ -364,6 +367,7 @@ std::string Tile::get_ip_acc()
     return ip_cap;
 }
 
+// TODO: check
 std::string Tile::get_impl_acc()
 {
     QString get_impl_q = impl_sel->currentText();
@@ -591,6 +595,9 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
 
     QString test_q = arg1;
     std::string test_s = test_q.toUtf8().constData();
+    ip = ip_sel->currentText().toStdString();
+    ip_sel->setToolTip(ip_sel->currentText());
+    impl_sel->setToolTip(impl_sel->currentText());
     if (arg1 != "")
     {
         third_party_acc = false;
@@ -601,6 +608,8 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
         }
         std::string tech_path(TOSTRING(TECH_PATH));
         std::string impl_path(tech_path + "/acc/" + arg1.toStdString());
+        // TODO: testing, remove later
+        std::cout << "IMPL_PATH1: " << impl_path << "\n";
         std::vector<std::string> impl_dir_list;
         get_subdirs(impl_path, impl_dir_list);
         for (unsigned i = 0; i < impl_dir_list.size(); i++)
@@ -609,18 +618,29 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
             impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
         }
         impl_dir_list.clear();
+        /*
         impl_path = tech_path + "/../../accelerators/third-party/" + arg1.toStdString();
+        // TODO: testing, remove later
+        std::cout << "IMPL_PATH2: " << impl_path << "\n";
         get_subdirs(impl_path, impl_dir_list);
         for (unsigned i = 0; i < impl_dir_list.size(); i++)
         {
             impl_sel->addItem(impl_dir_list[i].c_str());
             impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
         }
+        */
+        for (unsigned i = 0; i < third_party_impl.size(); i++)
+        {
+            if (ip == third_party_impl[i][0][0]) {
+                for (unsigned j = 0; j < third_party_impl[i][1].size(); j++)
+                {
+                    impl_sel->addItem(third_party_impl[i][1][j].c_str());
+                    impl_sel->setItemData(j + 1, third_party_impl[i][1][j].c_str(), Qt::ToolTipRole);
+                }
+            }
+        }
         impl_sel->setEnabled(true);
     }
-    ip = ip_sel->currentText().toStdString();
-    ip_sel->setToolTip(ip_sel->currentText());
-    impl_sel->setToolTip(impl_sel->currentText());
 }
 
 void Tile::on_impl_sel_currentIndexChanged(const QString &arg1 __attribute__((unused)))

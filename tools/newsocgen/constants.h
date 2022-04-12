@@ -14,7 +14,7 @@ const std::vector<std::vector<std::string>> combo_arch_to_nocw = {
     {"ibex",   "32"}
 };
 
-
+// TODO: add index for default value
 
 /* ---------- Cache Configuration ---------- */
 
@@ -27,6 +27,8 @@ const std::vector<std::string> l2_ways = {
 };
 
 // l2_ways_i
+// default option index
+// TODO: replace *_i with *_default
 const unsigned l2_ways_i = 1;
 
 // l2_sets
@@ -43,6 +45,7 @@ const std::vector<std::string> l2_sets = {
 };
 
 // l2_sets_i
+// default option index
 const unsigned l2_sets_i = 4;
 
 /* ----- llc ----- */
@@ -54,6 +57,7 @@ const std::vector<std::string> llc_ways = {
 };
 
 // llc_ways_i
+// default option index
 const unsigned llc_ways_i = 2;
 
 // llc_sets
@@ -120,6 +124,7 @@ const std::vector<std::vector<std::string>> implem_to_RTL = {
 };
 
 /* ----- combo_slm ----- */
+// TODO: refactor, look at GUI
 const std::vector<std::string> combo_slm = {
     "64",
     "128",
@@ -134,6 +139,7 @@ const std::vector<std::string> combo_slm = {
 const unsigned combo_slm_i = 2;
 
 /* ----- combo_data ----- */
+// TODO: refactor, location_strategy or something similar -- look at GUI
 const std::vector<std::string> combo_data = {
     "Bigphysical area",
     "Scatter/Gather"
@@ -152,21 +158,11 @@ const std::vector<std::vector<std::string>> tile_type = {
     {"Empty", "empty"}
 };
 
-// ip_acc
-const std::vector<std::vector<std::string>> ip_acc = {
-    {"dummy", "DUMMY_STRATUS"},
-    {"adder", "ADDER_VIVADO"}
-};
-
-// impl_acc
-const std::vector<std::vector<std::string>> impl_acc = {
-    {"dummy_basic_dma64", "basic_dma64"},
-    {"adder_dma32_w8", "dma32_w8"},
-    {"adder_dma32_w16", "dma32_w16"},
-    {"adder_dma32_w32", "dma32_w32"},
-    {"adder_dma64_w8", "dma64_w8"},
-    {"adder_dma64_w16", "dma64_w16"},
-    {"adder_dma64_w32", "dma64_w32"},
+// third-party impl
+// format: {{<ip name>}, {<impl>}, {<impl>}, ...}
+// TODO: test nv_medium
+const std::vector<std::vector<std::vector<std::string>>> third_party_impl = {
+    {{"NV_NVDLA"}, {"nv_small"}}
 };
 
 // NAPBS
@@ -192,6 +188,5 @@ const int NLLC_COHERENT_MAX = 64;
 
 // NACC_MAX
 const int NACC_MAX = NAPBS - 2 * NCPU_MAX - NMEM_MAX - NTILE_MAX - 8;
-
 
 #endif // CONSTANTS_H
