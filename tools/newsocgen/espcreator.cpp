@@ -3,23 +3,26 @@
 #include "constants.h"
 #include <QDebug>
 
+/* ------------------------------------------------------------------------- */
+/* -------------------------------- Classes -------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 //
 // Constructor
 //
-
 espcreator::espcreator(QWidget *parent,
-                       std::string noc_width,
-                       std::string tech_library,
+                       std::string noc_width, // not used, defined internally using combo_arch_to_nocw
+                       std::string tech_library, // TODO: check usage of three args
                        std::string mac_address,
                        std::string board)
     : QMainWindow(parent), ui(new Ui::espcreator)
 {
+    (void) noc_width;
     NOCX = 0;
     NOCY = 0;
     cpu_arch = TOSTRING(CPU_ARCH);
     std::string mac_addr = get_MAC_Addr(mac_address);
     std::string fpga_board = board;
-    std::cout << "FPGA BOARD: " << fpga_board << "\n";
 
     ui->setupUi(this);
     ui->lineEdit_mac->setText(mac_addr.c_str());
@@ -32,20 +35,20 @@ espcreator::espcreator(QWidget *parent,
     ui->combo_slm->setEditable(true);
     ui->combo_slm->lineEdit()->setReadOnly(true);
     ui->combo_slm->lineEdit()->setAlignment(Qt::AlignCenter);
-    for (unsigned i = 0; i < combo_slm.size(); i++)
+    for (unsigned i = 0; i < slm_kb_per_tile.size(); i++)
     {
-        ui->combo_slm->addItem(combo_slm[i].c_str());
+        ui->combo_slm->addItem(slm_kb_per_tile[i].c_str());
     }
-    ui->combo_slm->setCurrentIndex(combo_slm_i);
+    ui->combo_slm->setCurrentIndex(slm_kb_per_tile_default);
 
     ui->combo_data->setEditable(true);
     ui->combo_data->lineEdit()->setReadOnly(true);
     ui->combo_data->lineEdit()->setAlignment(Qt::AlignCenter);
-    for (unsigned i = 0; i < combo_data.size(); i++)
+    for (unsigned i = 0; i < data_allocation_strategy.size(); i++)
     {
-        ui->combo_data->addItem(combo_data[i].c_str());
+        ui->combo_data->addItem(data_allocation_strategy[i].c_str());
     }
-    ui->combo_data->setCurrentIndex(combo_data_i);
+    ui->combo_data->setCurrentIndex(data_allocation_strategy_default);
 
     for (unsigned i = 0; i < combo_arch_to_nocw.size(); i++)
     {
@@ -55,57 +58,53 @@ espcreator::espcreator(QWidget *parent,
     ui->combo_arch->setEditable(true);
     ui->combo_arch->lineEdit()->setReadOnly(true);
     ui->combo_arch->lineEdit()->setAlignment(Qt::AlignCenter);
-    // TODO: use default value from constants.h
-    // TODO: set the width depending on the chosen
-    // processor (e.g., 32 leon3, 64 ariane, etc.)
-    /* ui->lineEdit_arch->setText("leon3"); */
-    ui->lineEdit_nocw->setText("32");
-    // ui->lineEdit_nocw->setText("64");
+    ui->combo_arch->setCurrentIndex(combo_arch_default);
+    ui->lineEdit_nocw->setText(get_nocw(combo_arch_default, 1).c_str());
     ui->lineEdit_espmac->setText(get_ESP_MAC().c_str());
     ui->lineEdit_espmac->setEnabled(true);
-    // ui->lineEdit_espip->setText(get_ESP_IP().c_str());
+    ui->lineEdit_espip->setText(get_ESP_IP().c_str());
     ui->lineEdit_espip->setEnabled(true);
 
     for (unsigned i = 0; i < l2_ways.size(); i++)
     {
         ui->combo_l2_ways->addItem(l2_ways[i].c_str());
     }
-    ui->combo_l2_ways->setCurrentIndex(l2_ways_i);
+    ui->combo_l2_ways->setCurrentIndex(l2_ways_default);
     ui->combo_l2_ways->setEnabled(false);
 
     for (unsigned i = 0; i < l2_sets.size(); i++)
     {
         ui->combo_l2_sets->addItem(l2_sets[i].c_str());
     }
-    ui->combo_l2_sets->setCurrentIndex(l2_sets_i);
+    ui->combo_l2_sets->setCurrentIndex(l2_sets_default);
     ui->combo_l2_sets->setEnabled(false);
 
     for (unsigned i = 0; i < llc_ways.size(); i++)
     {
         ui->combo_llc_ways->addItem(llc_ways[i].c_str());
     }
-    ui->combo_llc_ways->setCurrentIndex(llc_ways_i);
+    ui->combo_llc_ways->setCurrentIndex(llc_ways_default);
     ui->combo_llc_ways->setEnabled(false);
 
     for (unsigned i = 0; i < llc_sets.size(); i++)
     {
         ui->combo_llc_sets->addItem(llc_sets[i].c_str());
     }
-    ui->combo_llc_sets->setCurrentIndex(llc_sets_i);
+    ui->combo_llc_sets->setCurrentIndex(llc_sets_default);
     ui->combo_llc_sets->setEnabled(false);
 
     for (unsigned i = 0; i < al2_ways.size(); i++)
     {
         ui->combo_al2_ways->addItem(al2_ways[i].c_str());
     }
-    ui->combo_al2_ways->setCurrentIndex(al2_ways_i);
+    ui->combo_al2_ways->setCurrentIndex(al2_ways_default);
     ui->combo_al2_ways->setEnabled(false);
 
     for (unsigned i = 0; i < al2_sets.size(); i++)
     {
         ui->combo_al2_sets->addItem(al2_sets[i].c_str());
     }
-    ui->combo_al2_sets->setCurrentIndex(al2_sets_i);
+    ui->combo_al2_sets->setCurrentIndex(al2_sets_default);
     ui->combo_al2_sets->setEnabled(false);
 
     for (unsigned i = 0; i < implem.size(); i++)
@@ -135,114 +134,20 @@ espcreator::espcreator(QWidget *parent,
     read_config(true);
 }
 
-void espcreator::on_checkBox_caches_toggled(bool arg1)
-{
-    if (arg1 == false)
-    {
-        ui->combo_l2_ways->setEnabled(false);
-        ui->combo_l2_sets->setEnabled(false);
-        ui->combo_llc_ways->setEnabled(false);
-        ui->combo_llc_sets->setEnabled(false);
-        ui->combo_al2_ways->setEnabled(false);
-        ui->combo_al2_sets->setEnabled(false);
-        ui->combo_implem->setEnabled(false);
-    }
-    else
-    {
-        ui->combo_l2_ways->setEnabled(true);
-        ui->combo_l2_sets->setEnabled(true);
-        ui->combo_llc_ways->setEnabled(true);
-        ui->combo_llc_sets->setEnabled(true);
-        ui->combo_al2_ways->setEnabled(true);
-        ui->combo_al2_sets->setEnabled(true);
-        ui->combo_implem->setEnabled(true);
-    }
-}
-
 //
 // Destructor
 //
-
 espcreator::~espcreator()
 {
     delete ui;
 }
 
-//
-//
-//
-
-std::string espcreator::get_ESP_IP()
-{
-    std::string str, ethipm, ethipl;
-    std::ifstream ifs("grlib_config.vhd");
-    while (std::getline(ifs, str))
-    {
-        if (str.find("CFG_ETH_IPM") != std::string::npos)
-        {
-            ethipm = str.substr(str.find("16#") + 3, 4);
-            /* printf("ethipm: %s\n", ethipm.c_str()); */
-        }
-
-        if (str.find("CFG_ETH_IPL") != std::string::npos)
-        {
-            ethipl = str.substr(str.find("16#") + 3, 4);
-            /* printf("ethipl: %s\n", ethipl.c_str()); */
-        }
-    }
-
-    char buf[20];
-    str = ethipm + ethipl;
-    int part1 = strtol(str.substr(0, 2).c_str(), NULL, 16);
-    int part2 = strtol(str.substr(2, 2).c_str(), NULL, 16);
-    int part3 = strtol(str.substr(4, 2).c_str(), NULL, 16);
-    int part4 = strtol(str.substr(6, 2).c_str(), NULL, 16);
-    sprintf(buf, "%d.%d.%d.%d", part1, part2, part3, part4);
-    /* printf("ethipm: %s\n", buf); */
-    return std::string(buf);
-}
-
-std::string espcreator::get_ESP_MAC()
-{
-    std::string str, ethipm, ethipl;
-    std::ifstream ifs("grlib_config.vhd");
-    while (std::getline(ifs, str))
-    {
-        if (str.find("CFG_ETH_ENM") != std::string::npos)
-        {
-            ethipm = str.substr(str.find("16#") + 3, 6);
-            /* printf("ethipm: %s\n", ethipm.c_str()); */
-        }
-
-        if (str.find("CFG_ETH_ENL") != std::string::npos)
-        {
-            ethipl = str.substr(str.find("16#") + 3, 6);
-            /* printf("ethipl: %s\n", ethipl.c_str()); */
-        }
-    }
-    str = ethipm + ethipl;
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-    /* printf("ethipm: %s\n", str.c_str()); */
-    return str;
-}
-
-std::string espcreator::get_MAC_Addr(std::string mac)
-{
-    int length = mac.length() + 3;
-    for (int i = 2; i < length; i += 3)
-        mac.insert(i, ":");
-    std::transform(mac.begin(), mac.end(), mac.begin(), ::toupper);
-    return mac;
-}
-
-std::string espcreator::get_nocw(int i, int j)
-{
-    return combo_arch_to_nocw[i][j];
-}
-
+/* ------------------------------------------------------------------------- */
+/* --------------------------------- Slots --------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 //
-// NoC Frame
+// Update NoC
 //
 void espcreator::on_pushButton_noc_clicked()
 {
@@ -302,24 +207,236 @@ void espcreator::on_pushButton_noc_clicked()
     NOCY = new_nocy;
 }
 
-void espcreator::check_enable_noc_update()
+//
+// Generate SoC Configuration File
+//
+// TODO: need to finish error checking
+void espcreator::on_pushButton_gen_clicked()
 {
-    if (ui->spinBox_nocx->value() > 0 && ui->spinBox_nocy->value() > 0)
-        ui->pushButton_noc->setEnabled(true);
-    else
-        ui->pushButton_noc->setEnabled(false);
+    // Error checking
+    bool gen_ok = true;
+    std::string errors_s = "";
+
+    // update_msg
+    int tot_tiles = NOCX * NOCY;
+    int tot_acc = 0;
+    int tot_cpu = 0;
+    int tot_mem = 0;
+    int tot_io = 0;
+    int tot_slm = 0;
+    for (unsigned int y = 0; y < NOCY; y++)
+    {
+        for (unsigned int x = 0; x < NOCX; x++)
+        {
+            if (frame_tile[y][x]->get_ip() == "acc")
+                tot_acc++;
+            if (frame_tile[y][x]->get_ip() == "cpu")
+                tot_cpu++;
+            if (frame_tile[y][x]->get_ip() == "mem")
+                tot_mem++;
+            if (frame_tile[y][x]->get_ip() == "misc")
+                tot_io++;
+            if (frame_tile[y][x]->get_ip() == "slm")
+                tot_slm++;
+        }
+    }
+    int cache_en = ui->checkBox_caches->isChecked();
+    int tot_full_coherent = 0;
+    int tot_llc_coherent = 0;
+    if (cache_en)
+    {
+        // tot_full_coherent =   + tot_cpu; TODO: fix
+        tot_llc_coherent = tot_acc;
+    }
+    int tot_clkbuf; // TODO: fix
+    QString slm_q = ui->combo_slm->currentText();
+    std::string slm_s = slm_q.toUtf8().constData();
+    int slm_kbytes = atoi(slm_s.c_str());
+    int tot_slm_size = tot_slm * slm_kbytes;
+    int regions; // TODO: fix
+    int socTECH; // TODO: fix
+    int llc_ways;
+    int llc_sets;
+    QString cpu_arch_q = ui->combo_arch->currentText();
+    std::string cpu_arch_s = cpu_arch_q.toUtf8().constData();
+    int clk_region_skip;
+
+    // TODO: number refers to line number in cryo-ai branch
+    // 616 NOCY > 8 or NOCX > 8
+    if (NOCY > 8 or NOCX > 8)
+    {
+        gen_ok = false;
+        errors_s += "Maximum number of rows and columns is 8\n";
+    }
+
+    // 618 tot_cpu == 0
+    if (tot_cpu == 0)
+    {
+        gen_ok = false;
+        errors_s += "At least one CPU is required\n";
+    }
+
+    // 620 tot_cpu > 1 and cache_en
+    if (tot_cpu > 1 and !cache_en)
+    {
+        gen_ok = false;
+        errors_s += "Caches are required for multicore SoCs\n";
+    }
+
+    // 622 tot_io == 0
+    if (tot_io == 0)
+    {
+        gen_ok = false;
+        errors_s += "At least one I/O tile is required\n";
+    }
+
+    // 624 tot_cpu > NCPU_MAX
+    if (tot_cpu > NCPU_MAX)
+    {
+        gen_ok = false;
+        errors_s += "Maximum number of supported CPUs is " + to_string(NCPU_MAX) + "\n";
+    }
+
+    // 626 tot_io > 1
+    if (tot_io > 1)
+    {
+        gen_ok = false;
+        errors_s += "Multiple I/O tiles are not supported\n";
+    }
+
+    // 628 tot_mem < 1 and tot_slm < 1
+    if (tot_mem < 1 and tot_slm < 1)
+    {
+        gen_ok = false;
+        errors_s += "There must be at least 1 memory tile or 1 SLM tile and no more than " + to_string(NMEM_MAX) + "\n";
+    }
+
+    // 630 tot_mem > NMEM_MAX TODO: fix typo
+    /*
+    if (tot_mem > NMEM_MAX)
+    {
+        gen_ok = false;
+        errors_s += "There must be no more than " + to_string(NMEM_MAX) + "\n";
+    }
+    */
+
+    // 632 tot_mem == 0 and CPU_ARCH != "ibex" TODO: fix
+
+    // 634 tot_mem == 0 and cache_en == 1
+    if (tot_mem == 0 and cache_en)
+    {
+        gen_ok = false;
+        errors_s += "There must be at least 1 memory tile to enable the ESP cache hierarchy\n";
+    }
+    
+    // 636 tot_mem == 2^i
+    int tot_mem_tmp = tot_mem;
+    while (tot_mem_tmp % 2 == 0 and tot_mem_tmp > 0)
+        tot_mem_tmp /= 2;
+    if (tot_mem_tmp != 1 and tot_mem_tmp != 0)
+    {
+        gen_ok = false;
+        errors_s += "Number of memory tiles must be a power of 2\n";
+    }
+
+    // 638 tot_slm > NSLM_MAX TODO: fix typo
+    if (tot_slm > NSLM_MAX)
+    {
+        gen_ok = false;
+        errors_s += "There must be no more than " + to_string(NSLM_MAX) + "\n";
+    }
+
+    // 640 tot_slm > 1 and slm_kbytes < 1024
+    if (tot_slm > 1 and slm_kbytes < 1024)
+    {
+        gen_ok = false;
+        errors_s += "SLM size must be 1024 KB or more if placing more than one SLM tile\n";
+    }
+
+
+    // 642 TECH != "gf12" and TECH != "virtexu" and tot_mem == 4 TODO: fix
+
+    // 644 llc_sets >= 8192 and llc_ways >= 16 and tot_mem == 1 TODO: fix
+
+    // 646 TECH == "virtexu" and tot_mem >= 2 and (NOCX < 3 or NOCY < 3) TODO: fix
+    
+    // 648 tot_acc > NACC_MAX TODO: fix typo
+    if (tot_acc > NACC_MAX)
+    {
+        gen_ok = false;
+        errors_s += "There must no more than " + to_string(NACC_MAX) + " (can be relaxed)\n";
+    }
+
+    // 650 tot_tiles > NTILE_MAX
+    if (tot_tiles > NTILE_MAX)
+    {
+        gen_ok = false;
+        errors_s += "Maximum number of supported tiles is " + to_string(NTILE_MAX) + "\n";
+    }
+
+    // 652 tot_full_coherent > NFULL_COHERENT_MAX
+    if (tot_full_coherent > NFULL_COHERENT_MAX)
+    {
+        gen_ok = false;
+        errors_s += "Maximum number of supported fully-coherent devices is " + to_string(NFULL_COHERENT_MAX) + "\n";
+    }
+
+    // 654 tot_llc_coherent > NLLC_COHERENT_MAX
+    if (tot_llc_coherent > NLLC_COHERENT_MAX)
+    {
+        gen_ok = false;
+        errors_s += "Maximum number of supported LLC_coherent devices is " + to_string(NLLC_COHERENT_MAX) + "\n";
+    }
+
+    // 656 tot_clkbuf > 9 TODO: fix
+
+    // 660 clk_region_skip > 0 TODO: fix
+
+    if (!gen_ok)
+    {
+        QString errors_q = QString::fromUtf8(errors_s.c_str());
+        QMessageBox::critical(this, "Errors", errors_q);
+        return;
+    }
+
+    // MessageBox
+    QMessageBox msgBox;
+    msgBox.setText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    int ret = msgBox.exec();
+
+    switch (ret)
+    {
+        case QMessageBox::Save:
+            break;
+        case QMessageBox::Cancel:
+            return;
+        default:
+            break;
+    }
+    write_config();
 }
 
-void espcreator::on_spinBox_nocy_valueChanged(int arg1 __attribute__((unused)))
-{
-    check_enable_noc_update();
-}
-
+//
+// NOCX Spinbox
+//
 void espcreator::on_spinBox_nocx_valueChanged(int arg1 __attribute__((unused)))
 {
     check_enable_noc_update();
 }
 
+//
+// NOCY Spinbox
+//
+void espcreator::on_spinBox_nocy_valueChanged(int arg1 __attribute__((unused)))
+{
+    check_enable_noc_update();
+}
+
+// 
+// VF Points Spinbox
+//
 void espcreator::on_spinBox_vf_valueChanged(int arg1 __attribute__((unused)))
 {
     for (unsigned int y = 0; y < NOCY; y++)
@@ -328,7 +445,63 @@ void espcreator::on_spinBox_vf_valueChanged(int arg1 __attribute__((unused)))
 }
 
 //
-// Configuration checks
+// Enable Caches Checkbox
+//
+void espcreator::on_checkBox_caches_toggled(bool arg1)
+{
+    if (arg1 == false)
+    {
+        ui->combo_l2_ways->setEnabled(false);
+        ui->combo_l2_sets->setEnabled(false);
+        ui->combo_llc_ways->setEnabled(false);
+        ui->combo_llc_sets->setEnabled(false);
+        ui->combo_al2_ways->setEnabled(false);
+        ui->combo_al2_sets->setEnabled(false);
+        ui->combo_implem->setEnabled(false);
+    }
+    else
+    {
+        ui->combo_l2_ways->setEnabled(true);
+        ui->combo_l2_sets->setEnabled(true);
+        ui->combo_llc_ways->setEnabled(true);
+        ui->combo_llc_sets->setEnabled(true);
+        ui->combo_al2_ways->setEnabled(true);
+        ui->combo_al2_sets->setEnabled(true);
+        ui->combo_implem->setEnabled(true);
+    }
+}
+
+//
+// CPU Architecture Dropdown Menu
+//
+void espcreator::on_combo_arch_currentIndexChanged(const QString &arg1)
+{
+    for (unsigned i = 0; i < combo_arch_to_nocw.size(); i++)
+    {
+        if (arg1.toStdString() == combo_arch_to_nocw[i][0])
+        {
+            ui->lineEdit_nocw->setText(get_nocw(i, 1).c_str());
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------- Functions ------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+//
+// Check for valid NOCX and NOCY
+//
+void espcreator::check_enable_noc_update()
+{
+    if (ui->spinBox_nocx->value() > 0 && ui->spinBox_nocy->value() > 0)
+        ui->pushButton_noc->setEnabled(true);
+    else
+        ui->pushButton_noc->setEnabled(false);
+}
+
+//
+// Check if tile is present
 //
 bool espcreator::check_present(tile_t type)
 {
@@ -338,6 +511,9 @@ bool espcreator::check_present(tile_t type)
     return false;
 }
 
+//
+// Check if tile is present but fewer than max_count
+//
 bool espcreator::check_present(tile_t type, unsigned max_count)
 {
     unsigned count = 0;
@@ -347,10 +523,12 @@ bool espcreator::check_present(tile_t type, unsigned max_count)
                 count++;
     if (count > 0 && count <= max_count)
         return true;
-    else
-        return false;
+    return false;
 }
 
+//
+// Check Clock Domains
+//
 bool espcreator::check_clock_domains()
 {
     std::map<int, int> domain;
@@ -383,50 +561,10 @@ bool espcreator::check_clock_domains()
 }
 
 //
-// Confiugration updates
+// Read Configuration File
 //
-void espcreator::update_power_info()
-{
-    REV_FOREACH_POW(i)
-    {
-        delete frame_power[i];
-        frame_power.pop_back();
-    }
-}
-
-void espcreator::update_address_map()
-{
-    REV_FOREACH_ADDRESS(i)
-    {
-        //ui->layout_addr->removeWidget(frame_address[i]);
-        delete frame_address[i];
-        frame_address.pop_back();
-    }
-
-    // Set accelerators starting address
-    unsigned cpu_arch_bits = 32;
-    unsigned long long accelerators_addr = 0;
-    unsigned long long accelerators_mask = 0;
-
-    if (cpu_arch == "leon3")
-    {
-        accelerators_addr = CFG_LEON3_AHB_APB_ADDR + CFG_LEON3_APB_ESP_ACCELERATORS_ADDR;
-        accelerators_mask = CFG_LEON3_APB_ESP_ACCELERATORS_MASK;
-        cpu_arch_bits = 32;
-    } 
-
-    // Count memory tiles
-    unsigned mem_split = 1;
-    FOREACH_TILE(y, x)
-    if (frame_tile[y][x]->type == TILE_MEMDBG || frame_tile[y][x]->type == TILE_MEM)
-        mem_split++;
-
-}
-
-// in progress
 int espcreator::read_config(bool temporary)
 {
-    // fill in
     std::string filename = ".esp_config";
     bool warning = false;
     if (temporary)
@@ -631,9 +769,9 @@ int espcreator::read_config(bool temporary)
         ui->checkBox_probe_dvfs->setChecked(false);
     // Tiles configuration
     std::vector<std::string> tokens;
-    for (int y = 0; y < NOCY; y++)
+    for (unsigned int y = 0; y < NOCY; y++)
     {
-        for (int x = 0; x < NOCX; x++)
+        for (unsigned int x = 0; x < NOCX; x++)
         {
             std::getline(fp, line);
             str_erase(line, '\n');
@@ -664,9 +802,9 @@ int espcreator::read_config(bool temporary)
     vf_points = stoi(item[2]);
     ui->spinBox_vf->setValue(vf_points);
     // Power annotation
-    for (int y = 0; y < NOCY; y++)
+    for (unsigned int y = 0; y < NOCY; y++)
     {
-        for (int x = 0; x < NOCX; x++)
+        for (unsigned int x = 0; x < NOCX; x++)
         {
             std::getline(fp, line);
             str_erase(line, '\n');
@@ -678,9 +816,9 @@ int espcreator::read_config(bool temporary)
             {
                 for (int vf = 0; vf < vf_points; vf++)
                 {
-                    frame_tile[y][x]->set_spin_boxes(vf * 3, tokens[3 + vf * 3]);
-                    frame_tile[y][x]->set_spin_boxes(vf * 3 + 1, tokens[3 + vf * 3 + 1]);
-                    frame_tile[y][x]->set_spin_boxes(vf * 3 + 2, tokens[3 + vf * 3 + 2]);
+                    frame_tile[y][x]->set_vf_spin_boxes(vf * 3, tokens[3 + vf * 3]);
+                    frame_tile[y][x]->set_vf_spin_boxes(vf * 3 + 1, tokens[3 + vf * 3 + 1]);
+                    frame_tile[y][x]->set_vf_spin_boxes(vf * 3 + 2, tokens[3 + vf * 3 + 2]);
                 }
             }
         }
@@ -688,299 +826,7 @@ int espcreator::read_config(bool temporary)
     return 0;
 }
 
-// in progress
-std::string espcreator::get_esp_config_bak()
-{
-    std::string esp_config_bak = ".esp_config.bak.1"; // TODO: change later
-    return esp_config_bak;
-}
-
-bool espcreator::isfile(std::string filename)
-{
-    struct stat sb;
-    return (stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
-}
-
-void espcreator::str_erase(std::string str, char erase)
-{
-    str.erase(std::remove(str.begin(), str.end(), erase), str.end());
-}
-
-std::vector<std::string> espcreator::str_split(std::string &s, char delimiter)
-{
-    std::stringstream ss(s);
-    std::string item;
-    std::vector<std::string> elems;
-    while (std::getline(ss, item, delimiter)) {
-        elems.push_back(item);
-        // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
-    }
-    return elems;
-}
-
-QString espcreator::get_ok_bullet()
-{
-    QString ok_bullet = "<span style=\" color:#0000ff;\" > ";
-    ok_bullet.append("<b># </b>");
-    ok_bullet.append("</span>");
-    ok_bullet.append("<span style=\" color:#000000;\" > ");
-    return ok_bullet;
-}
-
-QString espcreator::get_err_bullet()
-{
-    QString err_bullet = "<span style=\" color:#ff0c32;\" > ";
-    err_bullet.append("<b># </b>");
-    err_bullet.append("</span>");
-    err_bullet.append("<span style=\" color:#000000;\" > ");
-    return err_bullet;
-}
-
-void espcreator::on_combo_arch_currentIndexChanged(const QString &arg1)
-{
-    for (unsigned i = 0; i < combo_arch_to_nocw.size(); i++)
-    {
-        if (arg1.toStdString() == combo_arch_to_nocw[i][0])
-        {
-            ui->lineEdit_nocw->setText(get_nocw(i, 1).c_str());
-        }
-    }
-}
-
-void espcreator::on_pushButton_addr_reset_clicked()
-{
-    update_address_map();
-}
-
-void espcreator::on_pushButton_addr_validate_clicked()
-{
-    bool address_map_is_valid = true;
-    FOREACH_ADDRESS(i)
-    frame_address[i]->set_conflicting(false);
-    FOREACH_ADDRESS_PAIR(i, j)
-    {
-        if (frame_address[i]->base > frame_address[j]->end ||
-            frame_address[i]->end < frame_address[j]->base)
-        {
-            continue;
-        }
-        else
-        {
-            address_map_is_valid = false;
-            frame_address[i]->set_conflicting(true);
-            frame_address[j]->set_conflicting(true);
-        }
-    }
-}
-
-void espcreator::on_pushButton_gen_clicked()
-{
-    // Error checking
-    bool gen_ok = true;
-    std::string errors_s = "";
-
-    // update_msg
-    int tot_tiles = NOCX * NOCY;
-    int tot_acc = 0;
-    int tot_cpu = 0;
-    int tot_mem = 0;
-    int tot_io = 0;
-    int tot_slm = 0;
-    for (unsigned int y = 0; y < NOCY; y++)
-    {
-        for (unsigned int x = 0; x < NOCX; x++)
-        {
-            if (frame_tile[y][x]->get_ip() == "acc")
-                tot_acc++;
-            if (frame_tile[y][x]->get_ip() == "cpu")
-                tot_cpu++;
-            if (frame_tile[y][x]->get_ip() == "mem")
-                tot_mem++;
-            if (frame_tile[y][x]->get_ip() == "misc")
-                tot_io++;
-            if (frame_tile[y][x]->get_ip() == "slm")
-                tot_slm++;
-        }
-    }
-    int cache_en = ui->checkBox_caches->isChecked();
-    int tot_full_coherent = 0;
-    int tot_llc_coherent = 0;
-    if (cache_en)
-    {
-        // tot_full_coherent =   + tot_cpu; TODO: fix
-        tot_llc_coherent = tot_acc;
-    }
-    int tot_clkbuf; // TODO: fix
-    QString slm_q = ui->combo_slm->currentText();
-    std::string slm_s = slm_q.toUtf8().constData();
-    int slm_kbytes = atoi(slm_s.c_str());
-    int tot_slm_size = tot_slm * slm_kbytes;
-    int regions; // TODO: fix
-    int socTECH; // TODO: fix
-    int llc_ways;
-    int llc_sets;
-    QString cpu_arch_q = ui->combo_arch->currentText();
-    std::string cpu_arch_s = cpu_arch_q.toUtf8().constData();
-    int clk_region_skip;
-
-    // 616 NOCY > 8 or NOCX > 8
-    if (NOCY > 8 or NOCX > 8)
-    {
-        gen_ok = false;
-        errors_s += "Maximum number of rows and columns is 8\n";
-    }
-
-    // 618 tot_cpu == 0
-    if (tot_cpu == 0)
-    {
-        gen_ok = false;
-        errors_s += "At least one CPU is required\n";
-    }
-
-    // 620 tot_cpu > 1 and cache_en
-    if (tot_cpu > 1 and !cache_en)
-    {
-        gen_ok = false;
-        errors_s += "Caches are required for multicore SoCs\n";
-    }
-
-    // 622 tot_io == 0
-    if (tot_io == 0)
-    {
-        gen_ok = false;
-        errors_s += "At least one I/O tile is required\n";
-    }
-
-    // 624 tot_cpu > NCPU_MAX
-    if (tot_cpu > NCPU_MAX)
-    {
-        gen_ok = false;
-        errors_s += "Maximum number of supported CPUs is " + to_string(NCPU_MAX) + "\n";
-    }
-
-    // 626 tot_io > 1
-    if (tot_io > 1)
-    {
-        gen_ok = false;
-        errors_s += "Multiple I/O tiles are not supported\n";
-    }
-
-    // 628 tot_mem < 1 and tot_slm < 1
-    if (tot_mem < 1 and tot_slm < 1)
-    {
-        gen_ok = false;
-        errors_s += "There must be at least 1 memory tile or 1 SLM tile and no more than " + to_string(NMEM_MAX) + "\n";
-    }
-
-    // 630 tot_mem > NMEM_MAX TODO: fix typo
-    /*
-    if (tot_mem > NMEM_MAX)
-    {
-        gen_ok = false;
-        errors_s += "There must be no more than " + to_string(NMEM_MAX) + "\n";
-    }
-    */
-
-    // 632 tot_mem == 0 and CPU_ARCH != "ibex" TODO: fix
-
-    // 634 tot_mem == 0 and cache_en == 1
-    if (tot_mem == 0 and cache_en)
-    {
-        gen_ok = false;
-        errors_s += "There must be at least 1 memory tile to enable the ESP cache hierarchy\n";
-    }
-    
-    // 636 tot_mem == 2^i
-    int tot_mem_tmp = tot_mem;
-    while (tot_mem_tmp % 2 == 0 and tot_mem_tmp > 0)
-        tot_mem_tmp /= 2;
-    if (tot_mem_tmp != 1 and tot_mem_tmp != 0)
-    {
-        gen_ok = false;
-        errors_s += "Number of memory tiles must be a power of 2\n";
-    }
-
-    // 638 tot_slm > NSLM_MAX TODO: fix typo
-    if (tot_slm > NSLM_MAX)
-    {
-        gen_ok = false;
-        errors_s += "There must be no more than " + to_string(NSLM_MAX) + "\n";
-    }
-
-    // 640 tot_slm > 1 and slm_kbytes < 1024
-    if (tot_slm > 1 and slm_kbytes < 1024)
-    {
-        gen_ok = false;
-        errors_s += "SLM size must be 1024 KB or more if placing more than one SLM tile\n";
-    }
-
-
-    // 642 TECH != "gf12" and TECH != "virtexu" and tot_mem == 4 TODO: fix
-
-    // 644 llc_sets >= 8192 and llc_ways >= 16 and tot_mem == 1 TODO: fix
-
-    // 646 TECH == "virtexu" and tot_mem >= 2 and (NOCX < 3 or NOCY < 3) TODO: fix
-    
-    // 648 tot_acc > NACC_MAX TODO: fix typo
-    if (tot_acc > NACC_MAX)
-    {
-        gen_ok = false;
-        errors_s += "There must no more than " + to_string(NACC_MAX) + " (can be relaxed)\n";
-    }
-
-    // 650 tot_tiles > NTILE_MAX
-    if (tot_tiles > NTILE_MAX)
-    {
-        gen_ok = false;
-        errors_s += "Maximum number of supported tiles is " + to_string(NTILE_MAX) + "\n";
-    }
-
-    // 652 tot_full_coherent > NFULL_COHERENT_MAX
-    if (tot_full_coherent > NFULL_COHERENT_MAX)
-    {
-        gen_ok = false;
-        errors_s += "Maximum number of supported fully-coherent devices is " + to_string(NFULL_COHERENT_MAX) + "\n";
-    }
-
-    // 654 tot_llc_coherent > NLLC_COHERENT_MAX
-    if (tot_llc_coherent > NLLC_COHERENT_MAX)
-    {
-        gen_ok = false;
-        errors_s += "Maximum number of supported LLC_coherent devices is " + to_string(NLLC_COHERENT_MAX) + "\n";
-    }
-
-    // 656 tot_clkbuf > 9 TODO: fix
-
-    // 660 clk_region_skip > 0 TODO: fix
-
-    if (errors_s.length() > 0)
-    {
-        QString errors_q = QString::fromUtf8(errors_s.c_str());
-        QMessageBox::critical(this, "Errors", errors_q);
-        return;
-    }
-
-    // MessageBox
-    QMessageBox msgBox;
-    msgBox.setText("Do you want to save your changes?");
-    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Save);
-    int ret = msgBox.exec();
-
-    switch (ret)
-    {
-        case QMessageBox::Save:
-            std::cout << "Save\n";
-            break;
-        case QMessageBox::Cancel:
-            std::cout << "Cancel\n";
-            return;
-        default:
-            break;
-    }
-    write_config();
-}
-
+// Write configuration
 int espcreator::write_config()
 {
     // Determine backup configuration file name.
@@ -995,8 +841,6 @@ int espcreator::write_config()
         i++;
     }
     std::string bkp_file_name = cfg_file_name + ".bak." + to_string(i);
-
-    // std::ofstream cfg(cfg_file_name.c_str()); // removed
 
     // Write new configuration
     std::cerr << bkp_file_name.c_str() << "\n";
@@ -1245,11 +1089,138 @@ int espcreator::write_config()
     std::string system_2 = bkp_file_name.c_str();
     std::string system_3 = " socgen/esp/.esp_config";
     std::string sys = system_1 + system_2 + system_3;
-    system(sys.c_str());
+    if(system(sys.c_str()) < 0)
+    {
+        return -1;
+    }
 
     QMessageBox msgBox_saved;
     QString saved_msg = "New configuration file saved in " + QString::fromUtf8(bkp_file_name.c_str());
     msgBox_saved.setText(saved_msg);
     msgBox_saved.exec();
+
     return 0;
 }
+
+/* ------------------------------------------------------------------------- */
+/* --------------------------- Helper Functions ---------------------------- */
+/* ------------------------------------------------------------------------- */
+
+//
+// get ESP MAC
+//
+std::string espcreator::get_ESP_MAC()
+{
+    std::string str, ethipm, ethipl;
+    std::ifstream ifs("grlib_config.vhd");
+    while (std::getline(ifs, str))
+    {
+        if (str.find("CFG_ETH_ENM") != std::string::npos)
+        {
+            ethipm = str.substr(str.find("16#") + 3, 6);
+        }
+
+        if (str.find("CFG_ETH_ENL") != std::string::npos)
+        {
+            ethipl = str.substr(str.find("16#") + 3, 6);
+        }
+    }
+    str = ethipm + ethipl;
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+
+    return str;
+}
+
+//
+// get ESP IP
+//
+std::string espcreator::get_ESP_IP()
+{
+    std::string str, ethipm, ethipl;
+    std::ifstream ifs("grlib_config.vhd");
+    while (std::getline(ifs, str))
+    {
+        if (str.find("CFG_ETH_IPM") != std::string::npos)
+        {
+            ethipm = str.substr(str.find("16#") + 3, 4);
+        }
+
+        if (str.find("CFG_ETH_IPL") != std::string::npos)
+        {
+            ethipl = str.substr(str.find("16#") + 3, 4);
+        }
+    }
+
+    char buf[20];
+    str = ethipm + ethipl;
+    int part1 = strtol(str.substr(0, 2).c_str(), NULL, 16);
+    int part2 = strtol(str.substr(2, 2).c_str(), NULL, 16);
+    int part3 = strtol(str.substr(4, 2).c_str(), NULL, 16);
+    int part4 = strtol(str.substr(6, 2).c_str(), NULL, 16);
+    sprintf(buf, "%d.%d.%d.%d", part1, part2, part3, part4);
+
+    return std::string(buf);
+}
+
+//
+// get MAC Addr
+//
+std::string espcreator::get_MAC_Addr(std::string mac)
+{
+    int length = mac.length() + 3;
+    for (int i = 2; i < length; i += 3)
+        mac.insert(i, ":");
+    std::transform(mac.begin(), mac.end(), mac.begin(), ::toupper);
+    return mac;
+}
+
+//
+// get noc width
+//
+std::string espcreator::get_nocw(int i, int j)
+{
+    return combo_arch_to_nocw[i][j];
+}
+
+//
+// get .esp_config.bak file
+//
+std::string espcreator::get_esp_config_bak()
+{
+    std::string esp_config_bak = ".esp_config.bak.1";
+    return esp_config_bak;
+}
+
+//
+// split string by delimiter
+//
+std::vector<std::string> espcreator::str_split(std::string &s, char delimiter)
+{
+    std::stringstream ss(s);
+    std::string item;
+    std::vector<std::string> elems;
+    while (std::getline(ss, item, delimiter)) {
+        elems.push_back(item);
+        // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+    }
+    return elems;
+}
+
+//
+// erase character from string
+//
+void espcreator::str_erase(std::string str, char erase)
+{
+    str.erase(std::remove(str.begin(), str.end(), erase), str.end());
+}
+
+//
+// check if is file
+//
+bool espcreator::isfile(std::string filename)
+{
+    struct stat sb;
+    return (stat(filename.c_str(), &sb) == 0 && S_ISREG(sb.st_mode));
+}
+
+

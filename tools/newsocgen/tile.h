@@ -39,32 +39,36 @@ public:
 
     ~Tile();
 
-    void set_id(unsigned id);
-    void set_vf_points_count(int vf);
+    // Get Functions
     std::string get_type();
     std::string get_ip();
+    std::string get_impl();
+    std::string get_ip_acc();
+    std::string get_impl_acc();
     std::string get_domain();
     std::string get_PLL();
     std::string get_buf();
-    std::string get_impl();
     std::string get_power();
     std::string get_acc_l2();
     std::string get_has_ddr_sel();
-    std::string get_ip_acc();
-    std::string get_impl_acc();
     std::string get_vendor();
     bool get_third_party_acc();
+
+    // Set Functions
+    void set_id(unsigned id);
     void set_type(std::string type);
+    void set_ip(std::string ip);
+    void set_impl(std::string impl);
     void set_domain(std::string domain);
     void set_pll(std::string pll);
     void set_buf(std::string buf);
     void set_cache(std::string cache);
-    void set_ip(std::string ip);
-    void set_impl(std::string impl);
-    void set_spin_boxes(int index, std::string value);
     void set_acc_l2(std::string value);
+    void set_vf_points_count(int vf);
+    void set_vf_spin_boxes(int index, std::string value);
 
 private slots:
+    // Slots
     void on_type_sel_currentIndexChanged(const QString &arg1);
     void on_ip_sel_currentIndexChanged(const QString &arg1);
     void on_impl_sel_currentIndexChanged(const QString &arg1);
@@ -76,6 +80,7 @@ private slots:
     void on_power_popup();
 
 private:
+    // Variables
     QGridLayout *layout;
     QLabel *id_l;
     QComboBox *type_sel;
@@ -94,11 +99,11 @@ private:
     QPushButton *power_popup;
     bool popup_active;
     bool third_party_acc;
-
     std::vector<std::string> ip_list;
     std::vector<std::string> impl_list;
     std::vector<std::string> ip_list_3;
 
+    // Functions
     void tile_reset();
     void impl_reset();
     void domain_reset();
@@ -110,11 +115,11 @@ public:
     unsigned id;
     unsigned nocx;
     unsigned nocy;
+    unsigned domain;
     std::string cpu_arch;
-    tile_t type;
     std::string ip;
     std::string impl;
-    unsigned domain;
+    tile_t type;
     bool has_pll;
     bool extra_buf;
     bool has_cache;

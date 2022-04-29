@@ -2,26 +2,9 @@
 #include "socmap_utils.h"
 #include "constants.h"
 
-//
-// Destructor
-//
-Tile::~Tile()
-{
-    ip_list.clear();
-    ip_list_3.clear();
-    impl_list.clear();
-    delete id_l;
-    delete type_sel;
-    delete ip_sel_l;
-    delete ip_sel;
-    delete impl_sel_l;
-    delete impl_sel;
-    delete domain_sel_l;
-    delete domain_sel;
-    delete has_pll_sel;
-    delete extra_buf_sel;
-    delete layout;
-}
+/* ------------------------------------------------------------------------- */
+/* -------------------------------- Classes -------------------------------- */
+/* ------------------------------------------------------------------------- */
 
 //
 // Constructor
@@ -142,9 +125,7 @@ Tile::Tile(QWidget *parent,
     connect(power_popup, &QPushButton::released, this, &Tile::on_power_popup);
 
     std::string tech_path(TOSTRING(TECH_PATH)); //ip == acc
-    std::cout << "tech_path: " << tech_path << "\n";
     std::string ip_path(tech_path + "/acc");
-    std::cout << "ip_path: " << ip_path << "\n";
     get_subdirs(ip_path, ip_list);
     for (unsigned i = 0; i < ip_list.size(); i++) {
         ip_sel->addItem(ip_list[i].c_str());
@@ -279,22 +260,34 @@ Tile::Tile(QWidget *parent,
     parent_layout->addWidget(this, y, x, 1, 1);
 }
 
-void Tile::set_id(unsigned id)
+//
+// Destructor
+//
+Tile::~Tile()
 {
-    std::string s("Tile " + to_string(id) + ":");
-    id_l->setText(s.c_str());
-    this->id = id;
+    ip_list.clear();
+    ip_list_3.clear();
+    impl_list.clear();
+    delete id_l;
+    delete type_sel;
+    delete ip_sel_l;
+    delete ip_sel;
+    delete impl_sel_l;
+    delete impl_sel;
+    delete domain_sel_l;
+    delete domain_sel;
+    delete has_pll_sel;
+    delete extra_buf_sel;
+    delete layout;
 }
 
-void Tile::set_vf_points_count(int vf)
-{
-    this->vf_points_count = vf;
-    if ((int)vf_points.size() < 3 * vf)
-    {
-        vf_points.resize(3 * vf, 0);
-    }
-}
+/* ------------------------------------------------------------------------- */
+/* ----------------------------- Get Functions ----------------------------- */
+/* ------------------------------------------------------------------------- */
 
+//
+// get type
+//
 std::string Tile::get_type()
 {
     QString get_type_q = type_sel->currentText();
@@ -309,26 +302,17 @@ std::string Tile::get_type()
     return "n/a";
 }
 
+//
+// get ip
+//
 std::string Tile::get_ip()
 {
     return ip;
 }
 
-std::string Tile::get_domain()
-{
-    return to_string(domain_sel->value());
-}
-
-std::string Tile::get_PLL()
-{
-    return to_string(has_pll_sel->isChecked());
-}
-
-std::string Tile::get_buf()
-{
-    return to_string(extra_buf_sel->isChecked());
-}
-
+//
+// get impl
+//
 std::string Tile::get_impl()
 {
     QString get_impl_q = impl_sel->currentText();
@@ -336,6 +320,55 @@ std::string Tile::get_impl()
     return get_impl_s;
 }
 
+//
+// get ip acc
+//
+std::string Tile::get_ip_acc()
+{
+    std::string ip_cap = ip;
+    transform(ip_cap.begin(), ip_cap.end(),ip_cap.begin(), ::toupper);
+    return ip_cap;
+}
+
+//
+// get impl acc
+//
+std::string Tile::get_impl_acc()
+{
+    QString get_impl_q = impl_sel->currentText();
+    std::string get_impl_s = get_impl_q.toUtf8().constData();
+
+    std::string get_impl_s_sub = get_impl_s.substr(ip.length() + 1, get_impl_s.length() - ip.length() - 1);
+    return get_impl_s_sub;
+}
+
+//
+// get domain
+//
+std::string Tile::get_domain()
+{
+    return to_string(domain_sel->value());
+}
+
+//
+// get PLL
+//
+std::string Tile::get_PLL()
+{
+    return to_string(has_pll_sel->isChecked());
+}
+
+//
+// get buf
+//
+std::string Tile::get_buf()
+{
+    return to_string(extra_buf_sel->isChecked());
+}
+
+//
+// get power
+//
 std::string Tile::get_power()
 {
     std::string tile_power;
@@ -349,34 +382,25 @@ std::string Tile::get_power()
     return tile_power;
 }
 
+//
+// get acc l2
+//
 std::string Tile::get_acc_l2()
 {
     return to_string((int)has_caches->isChecked());
 }
 
+//
+// get has ddr sel
+//
 std::string Tile::get_has_ddr_sel()
 {
     return to_string((int)has_ddr_sel->isChecked());
 }
 
-// TODO: check
-std::string Tile::get_ip_acc()
-{
-    std::string ip_cap = ip;
-    transform(ip_cap.begin(), ip_cap.end(),ip_cap.begin(), ::toupper);
-    return ip_cap;
-}
-
-// TODO: check
-std::string Tile::get_impl_acc()
-{
-    QString get_impl_q = impl_sel->currentText();
-    std::string get_impl_s = get_impl_q.toUtf8().constData();
-
-    std::string get_impl_s_sub = get_impl_s.substr(ip.length() + 1, get_impl_s.length() - ip.length() - 1);
-    return get_impl_s_sub;
-}
-
+//
+// get vendor
+//
 std::string Tile::get_vendor()
 {
     if (third_party_acc)
@@ -392,11 +416,31 @@ std::string Tile::get_vendor()
     }
 }
 
+//
+// get third party acc
+//
 bool Tile::get_third_party_acc()
 {
     return third_party_acc;
 }
 
+/* ------------------------------------------------------------------------- */
+/* ----------------------------- Set Functions ----------------------------- */
+/* ------------------------------------------------------------------------- */
+
+//
+// set id
+//
+void Tile::set_id(unsigned id)
+{
+    std::string s("Tile " + to_string(id) + ":");
+    id_l->setText(s.c_str());
+    this->id = id;
+}
+
+//
+// set type
+//
 void Tile::set_type(std::string type)
 {
     std::string type_abbrev = "Accelerator";
@@ -412,28 +456,9 @@ void Tile::set_type(std::string type)
     type_sel->setCurrentText(QString::fromStdString(type_abbrev));
 }
 
-void Tile::set_domain(std::string domain)
-{
-    domain_sel->setValue(stoi(domain));
-}
-
-void Tile::set_pll(std::string pll)
-{
-    has_pll_sel->setChecked(stoi(pll));
-    has_pll = stoi(pll);
-}
-
-void Tile::set_buf(std::string buf)
-{
-    extra_buf_sel->setChecked(stoi(buf));
-    extra_buf = stoi(buf);
-}
-
-void Tile::set_cache(std::string cache)
-{
-    has_cache_sel->setChecked(stoi(cache));
-}
-
+//
+// set ip
+//
 void Tile::set_ip(std::string ip)
 {
     ip_sel->setCurrentText(QString::fromStdString(ip));
@@ -441,75 +466,84 @@ void Tile::set_ip(std::string ip)
     ip_sel->setCurrentText(QString::fromStdString(ip));
 }
 
+//
+// set impl
+//
 void Tile::set_impl(std::string impl)
 {
     std::transform(impl.begin(), impl.end(), impl.begin(), [](unsigned char c){ return std::tolower(c); });
     impl_sel->setCurrentText(QString::fromStdString(impl));
 }
 
-void Tile::set_spin_boxes(int index, std::string value)
+//
+// set domain
+//
+void Tile::set_domain(std::string domain)
 {
-    vf_points[index] = stof(value);
+    domain_sel->setValue(stoi(domain));
 }
 
+//
+// set PLL
+//
+void Tile::set_pll(std::string pll)
+{
+    has_pll_sel->setChecked(stoi(pll));
+    has_pll = stoi(pll);
+}
+
+//
+// set buf
+//
+void Tile::set_buf(std::string buf)
+{
+    extra_buf_sel->setChecked(stoi(buf));
+    extra_buf = stoi(buf);
+}
+
+//
+// set cache
+//
+void Tile::set_cache(std::string cache)
+{
+    has_cache_sel->setChecked(stoi(cache));
+}
+
+//
+// set acc l2
+//
 void Tile::set_acc_l2(std::string value)
 {
     has_caches->setChecked(stoi(value));
 }
 
-void Tile::impl_reset()
+//
+// set vf points
+//
+void Tile::set_vf_points_count(int vf)
 {
-    impl_sel->clear();
-    impl_sel->addItem("");
-    impl_sel->setCurrentIndex(0);
-    impl_sel->setEnabled(false);
-    impl_sel->setToolTip(impl_sel->currentText());
-    impl_list.clear();
-    impl = "";
+    this->vf_points_count = vf;
+    if ((int)vf_points.size() < 3 * vf)
+    {
+        vf_points.resize(3 * vf, 0);
+    }
 }
 
-void Tile::clocking_reset()
+//
+// set vf spin boxes
+//
+void Tile::set_vf_spin_boxes(int index, std::string value)
 {
-    has_pll_sel->setChecked(false);
-    has_pll = false;
-    extra_buf_sel->setChecked(false);
-    extra_buf = false;
+    vf_points[index] = stof(value);
 }
 
-void Tile::domain_reset()
-{
-    domain_sel->setValue(0);
-    domain = 0;
-    clocking_reset();
-}
+/* ------------------------------------------------------------------------- */
+/* --------------------------------- Slots --------------------------------- */
+/* ------------------------------------------------------------------------- */
 
-void Tile::tile_reset()
-{
-    type_sel->setToolTip(type_sel->currentText());
-    ip_sel->setCurrentIndex(0);
-    ip_sel->setEnabled(false);
-    ip = "empty"; // changed from ""
-    ip_sel->setToolTip(ip_sel->currentText());
-    impl_reset();
-    domain_reset();
-}
-
-void Tile::clocking_setEnabled(bool en)
-{
-    has_pll_sel->setEnabled(en);
-    extra_buf_sel->setEnabled(en);
-    has_cache_sel->setEnabled(en);
-    has_ddr_sel->setEnabled(en);
-    power_popup->setEnabled(en);
-}
-
-void Tile::domain_setEnabled(bool en)
-{
-    domain_sel->setEnabled(en);
-    if (!en)
-        clocking_setEnabled(en);
-}
-
+//
+// On type changed
+//
 void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
 {
     tile_reset();
@@ -541,7 +575,7 @@ void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
     else if (arg1 == tile_t_to_string(TILE_ACC).c_str())
     {
         type = TILE_ACC;
-        ip = "acc"; // added
+        ip = "acc";
         set_background_color(this, color_acc);
         ip_sel->setEnabled(true);
         domain_setEnabled(true);
@@ -557,7 +591,7 @@ void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
     else if (arg1 == tile_t_to_string(TILE_CPU).c_str())
     {
         type = TILE_CPU;
-        ip = "cpu"; // changed from cpu_arch
+        ip = "cpu";
         impl = "rtl";
         socmap::set_background_color(this, color_cpu);
         domain_setEnabled(true);
@@ -589,6 +623,9 @@ void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
     }
 }
 
+//
+// On ip changed
+//
 void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
 {
     impl_reset();
@@ -608,8 +645,6 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
         }
         std::string tech_path(TOSTRING(TECH_PATH));
         std::string impl_path(tech_path + "/acc/" + arg1.toStdString());
-        // TODO: testing, remove later
-        std::cout << "IMPL_PATH1: " << impl_path << "\n";
         std::vector<std::string> impl_dir_list;
         get_subdirs(impl_path, impl_dir_list);
         for (unsigned i = 0; i < impl_dir_list.size(); i++)
@@ -618,17 +653,6 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
             impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
         }
         impl_dir_list.clear();
-        /*
-        impl_path = tech_path + "/../../accelerators/third-party/" + arg1.toStdString();
-        // TODO: testing, remove later
-        std::cout << "IMPL_PATH2: " << impl_path << "\n";
-        get_subdirs(impl_path, impl_dir_list);
-        for (unsigned i = 0; i < impl_dir_list.size(); i++)
-        {
-            impl_sel->addItem(impl_dir_list[i].c_str());
-            impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
-        }
-        */
         for (unsigned i = 0; i < third_party_impl.size(); i++)
         {
             if (ip == third_party_impl[i][0][0]) {
@@ -643,6 +667,9 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
     }
 }
 
+//
+// On impl changed
+//
 void Tile::on_impl_sel_currentIndexChanged(const QString &arg1 __attribute__((unused)))
 {
     impl_sel->setCurrentText(arg1);
@@ -650,6 +677,9 @@ void Tile::on_impl_sel_currentIndexChanged(const QString &arg1 __attribute__((un
     impl_sel->setToolTip(impl_sel->currentText());
 }
 
+//
+// On domain changed
+//
 void Tile::on_domain_sel_valueChanged(int arg1)
 {
     domain = arg1;
@@ -664,6 +694,9 @@ void Tile::on_domain_sel_valueChanged(int arg1)
     }
 }
 
+//
+// On PLL changed
+//
 void Tile::on_has_pll_sel_toggled(bool arg1)
 {
     if (!arg1)
@@ -672,21 +705,33 @@ void Tile::on_has_pll_sel_toggled(bool arg1)
         has_pll = true;
 }
 
+//
+// On extra buf toggled
+//
 void Tile::on_extra_buf_sel_toggled(bool arg1)
 {
     extra_buf = arg1;
 }
 
+//
+// On cache toggled
+//
 void Tile::on_has_cache_sel_toggled(bool arg1)
 {
     has_cache = arg1;
 }
 
+//
+// On ddr toggled
+//
 void Tile::on_has_ddr_sel_toggled(bool arg1)
 {
     has_ddr = arg1;
 }
 
+//
+// On power popup
+//
 void Tile::on_power_popup()
 {
     if (this->popup_active)
@@ -754,3 +799,79 @@ void Tile::on_power_popup()
         }
     }
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------- Functions ------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+//
+// Reset tile
+//
+void Tile::tile_reset()
+{
+    type_sel->setToolTip(type_sel->currentText());
+    ip_sel->setCurrentIndex(0);
+    ip_sel->setEnabled(false);
+    ip = "empty";
+    ip_sel->setToolTip(ip_sel->currentText());
+    impl_reset();
+    domain_reset();
+}
+
+//
+// Reset impl
+//
+void Tile::impl_reset()
+{
+    impl_sel->clear();
+    impl_sel->addItem("");
+    impl_sel->setCurrentIndex(0);
+    impl_sel->setEnabled(false);
+    impl_sel->setToolTip(impl_sel->currentText());
+    impl_list.clear();
+    impl = "";
+}
+
+//
+// Reset domain
+//
+void Tile::domain_reset()
+{
+    domain_sel->setValue(0);
+    domain = 0;
+    clocking_reset();
+}
+
+//
+// Reset clocking
+//
+void Tile::clocking_reset()
+{
+    has_pll_sel->setChecked(false);
+    has_pll = false;
+    extra_buf_sel->setChecked(false);
+    extra_buf = false;
+}
+
+//
+// On enabled domain
+//
+void Tile::domain_setEnabled(bool en)
+{
+    domain_sel->setEnabled(en);
+    if (!en)
+        clocking_setEnabled(en);
+}
+
+//
+// On enabled clocking
+//
+void Tile::clocking_setEnabled(bool en)
+{
+    has_pll_sel->setEnabled(en);
+    extra_buf_sel->setEnabled(en);
+    has_cache_sel->setEnabled(en);
+    has_ddr_sel->setEnabled(en);
+    power_popup->setEnabled(en);
+}
+

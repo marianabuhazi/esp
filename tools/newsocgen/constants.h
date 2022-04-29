@@ -6,7 +6,6 @@
 #include <vector>
 
 /* ---------- combo_arch ---------- */
-
 // combo_arch options: {<name>, <noc_width>}
 const std::vector<std::vector<std::string>> combo_arch_to_nocw = {
     {"leon3",  "32"},
@@ -14,10 +13,11 @@ const std::vector<std::vector<std::string>> combo_arch_to_nocw = {
     {"ibex",   "32"}
 };
 
-// TODO: add index for default value
+// combo_arch_default
+// default option index
+const unsigned combo_arch_default = 1;
 
 /* ---------- Cache Configuration ---------- */
-
 /* ----- l2 ----- */
 // l2_ways
 const std::vector<std::string> l2_ways = {
@@ -26,10 +26,9 @@ const std::vector<std::string> l2_ways = {
     "8 ways"
 };
 
-// l2_ways_i
+// l2_ways_default
 // default option index
-// TODO: replace *_i with *_default
-const unsigned l2_ways_i = 1;
+const unsigned l2_ways_default = 1;
 
 // l2_sets
 const std::vector<std::string> l2_sets = {
@@ -44,9 +43,9 @@ const std::vector<std::string> l2_sets = {
     "8192 sets"
 };
 
-// l2_sets_i
+// l2_sets_default
 // default option index
-const unsigned l2_sets_i = 4;
+const unsigned l2_sets_default = 4;
 
 /* ----- llc ----- */
 // llc_ways
@@ -56,9 +55,9 @@ const std::vector<std::string> llc_ways = {
     "16 ways"
 };
 
-// llc_ways_i
+// llc_ways_default
 // default option index
-const unsigned llc_ways_i = 2;
+const unsigned llc_ways_default = 2;
 
 // llc_sets
 const std::vector<std::string> llc_sets = {
@@ -73,8 +72,8 @@ const std::vector<std::string> llc_sets = {
     "8192 sets"
 };
 
-// llc_sets_i
-const unsigned llc_sets_i = 5;
+// llc_sets_default
+const unsigned llc_sets_default = 5;
 
 /* ----- al2 ----- */
 // al2_ways
@@ -84,8 +83,8 @@ const std::vector<std::string> al2_ways = {
     "8 ways"
 };
 
-// al2_ways_i
-const unsigned al2_ways_i = 1;
+// al2_ways_default
+const unsigned al2_ways_default = 1;
 
 // al2 sets
 const std::vector<std::string> al2_sets = {
@@ -100,8 +99,8 @@ const std::vector<std::string> al2_sets = {
     "8192 sets"
 };
 
-// al2_sets_i
-const unsigned al2_sets_i = 4;
+// al2_sets_default
+const unsigned al2_sets_default = 4;
 
 /* ----- implem ----- */
 // implem
@@ -123,9 +122,8 @@ const std::vector<std::vector<std::string>> implem_to_RTL = {
     {"ESP HLS", "n"}
 };
 
-/* ----- combo_slm ----- */
-// TODO: refactor, look at GUI
-const std::vector<std::string> combo_slm = {
+/* ----- slm_kb_per_tile ----- */
+const std::vector<std::string> slm_kb_per_tile = {
     "64",
     "128",
     "256",
@@ -135,18 +133,17 @@ const std::vector<std::string> combo_slm = {
     "4096"
 };
 
-// combo_slm_i
-const unsigned combo_slm_i = 2;
+// combo_slm_default
+const unsigned slm_kb_per_tile_default = 2;
 
-/* ----- combo_data ----- */
-// TODO: refactor, location_strategy or something similar -- look at GUI
-const std::vector<std::string> combo_data = {
+/* ----- data_allocation_strategy ----- */
+const std::vector<std::string> data_allocation_strategy = {
     "Bigphysical area",
     "Scatter/Gather"
 };
 
-// combo_data_i
-const unsigned combo_data_i = 0;
+// combo_data_default
+const unsigned data_allocation_strategy_default = 0;
 
 // tile_type
 const std::vector<std::vector<std::string>> tile_type = {
@@ -159,8 +156,7 @@ const std::vector<std::vector<std::string>> tile_type = {
 };
 
 // third-party impl
-// format: {{<ip name>}, {<impl>}, {<impl>}, ...}
-// TODO: test nv_medium
+// format: { {<ip name>}, {<impl>, <impl>, ...} }
 const std::vector<std::vector<std::vector<std::string>>> third_party_impl = {
     {{"NV_NVDLA"}, {"nv_small"}}
 };

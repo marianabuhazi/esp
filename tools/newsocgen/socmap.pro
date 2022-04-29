@@ -15,17 +15,13 @@ TEMPLATE = app
 SOURCES += socmap_utils.cpp \
            tile.cpp \
            espcreator.cpp \
-           main.cpp \
-           address_map.cpp \
-           power_info.cpp
+           main.cpp
 
 
 
 HEADERS  += socmap_utils.h \
             tile.h \
-            espcreator.h \
-            address_map.h \
-            power_info.h
+            espcreator.h
 
 FORMS    += espcreator.ui
 
