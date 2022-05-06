@@ -45,6 +45,7 @@ public:
     std::string get_impl();
     std::string get_ip_acc();
     std::string get_impl_acc();
+    std::string get_impl_acc_3();
     std::string get_domain();
     std::string get_PLL();
     std::string get_buf();
@@ -53,6 +54,8 @@ public:
     std::string get_has_ddr_sel();
     std::string get_vendor();
     bool get_third_party_acc();
+    void get_list(const std::string path, QComboBox *sel);
+    void update_third_party_impl_list(std::string ip, QComboBox *impl_sel);
 
     // Set Functions
     void set_id(unsigned id);

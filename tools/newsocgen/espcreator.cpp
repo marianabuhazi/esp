@@ -633,7 +633,6 @@ int espcreator::read_config(bool temporary)
     std::getline(fp, line);
     if (line.find("CONFIG_HAS_SG = y") != std::string::npos)
     {
-        // self.HAS_SG = True TODO: what is this? line 147 soc.py
         ui->combo_data->setCurrentIndex(1);
     } else {
         ui->combo_data->setCurrentIndex(0);
@@ -811,7 +810,6 @@ int espcreator::read_config(bool temporary)
             if (line.length() == 0)
                 return 0;
             tokens = str_split(line, ' ');
-            // tile.create_characterization(self, self.noc.vf_points) self.noc.vf_points = ui->spinBox_vf TODO: fix?
             if (frame_tile[y][x]->get_ip() == tokens[2])
             {
                 for (int vf = 0; vf < vf_points; vf++)
@@ -1030,7 +1028,7 @@ int espcreator::write_config()
             if (frame_tile[y][x]->get_type() == "acc")
             {
                 if (frame_tile[y][x]->get_third_party_acc())
-                    fp << " " << "impl" << " " << frame_tile[y][x]->get_acc_l2() << " " << frame_tile[y][x]->get_vendor(); // frame_tile[y][x]->get_impl_acc().c_str()
+                    fp << " " << frame_tile[y][x]->get_impl_acc_3().c_str() << " " << frame_tile[y][x]->get_acc_l2() << " " << frame_tile[y][x]->get_vendor(); // frame_tile[y][x]->get_impl_acc().c_str()
                 else
                     fp << " " << frame_tile[y][x]->get_impl_acc().c_str() << " " << frame_tile[y][x]->get_acc_l2() << " sld";
             }
@@ -1055,7 +1053,6 @@ int espcreator::write_config()
     else
         fp << "#CONFIG_HAS_DVFS is not set\n";
 
-    // CONFIG_VF_POINTS TODO: fix
     fp << "CONFIG_VF_POINTS = " << to_string(ui->spinBox_vf->value()) << "\n";
 
     // POWER

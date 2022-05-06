@@ -58,44 +58,14 @@ Tile::Tile(QWidget *parent,
     type_sel->setItemData(1, tile_t_to_string(TILE_ACC).c_str(), Qt::ToolTipRole);
 
     this->cpu_arch = cpu_arch;
-    if (cpu_arch == "leon3")
-    {
-        type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
-        type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
-        type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
-        type_sel->setItemData(4, tile_t_to_string(TILE_MISC).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_SLM).c_str());
-        type_sel->setItemData(5, tile_t_to_string(TILE_SLM).c_str(), Qt::ToolTipRole);
-    }
-    else if (cpu_arch == "ariane")
-    {
-        type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
-        type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
-        type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
-        type_sel->setItemData(4, tile_t_to_string(TILE_MISC).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_SLM).c_str());
-        type_sel->setItemData(5, tile_t_to_string(TILE_SLM).c_str(), Qt::ToolTipRole);
-    }
-    else if (cpu_arch == "ibex")
-    {
-        type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
-        type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
-        type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
-        type_sel->setItemData(4, tile_t_to_string(TILE_MISC).c_str(), Qt::ToolTipRole);
-        type_sel->addItem(tile_t_to_string(TILE_SLM).c_str());
-        type_sel->setItemData(5, tile_t_to_string(TILE_SLM).c_str(), Qt::ToolTipRole);
-    }
-    else
-    {
-        std::string msg("Unsupported processor architecture (" + cpu_arch + ")");
-        die(msg);
-    }
+    type_sel->addItem(tile_t_to_string(TILE_CPU).c_str());
+    type_sel->setItemData(2, tile_t_to_string(TILE_CPU).c_str(), Qt::ToolTipRole);
+    type_sel->addItem(tile_t_to_string(TILE_MEM).c_str());
+    type_sel->setItemData(3, tile_t_to_string(TILE_MEM).c_str(), Qt::ToolTipRole);
+    type_sel->addItem(tile_t_to_string(TILE_MISC).c_str());
+    type_sel->setItemData(4, tile_t_to_string(TILE_MISC).c_str(), Qt::ToolTipRole);
+    type_sel->addItem(tile_t_to_string(TILE_SLM).c_str());
+    type_sel->setItemData(5, tile_t_to_string(TILE_SLM).c_str(), Qt::ToolTipRole);
     type_sel->setToolTip(type_sel->currentText());
     type = TILE_EMPTY;
     layout->addWidget(type_sel, 0, 1, 1, 3);
@@ -124,20 +94,9 @@ Tile::Tile(QWidget *parent,
     power_popup->setEnabled(false);
     connect(power_popup, &QPushButton::released, this, &Tile::on_power_popup);
 
-    std::string tech_path(TOSTRING(TECH_PATH)); //ip == acc
-    std::string ip_path(tech_path + "/acc");
-    get_subdirs(ip_path, ip_list);
-    for (unsigned i = 0; i < ip_list.size(); i++) {
-        ip_sel->addItem(ip_list[i].c_str());
-        ip_sel->setItemData(i + 1, ip_list[i].c_str(), Qt::ToolTipRole);
-    }
-    std::string ip_path_3(tech_path + "/../../accelerators/third-party");
-    get_subdirs(ip_path_3, ip_list_3);
-    for (unsigned i = 0; i < ip_list_3.size(); i++) {
-        ip_sel->addItem(ip_list_3[i].c_str());
-        ip_sel->setItemData(i + 1, ip_list_3[i].c_str(), Qt::ToolTipRole);
-    }
-    ////////////////////////////////////////////////////////////////////////
+    get_list(CONSTANT_IP_PATH, ip_sel);
+    get_list(CONSTANT_THIRD_PARTY_PATH, ip_sel);
+
     ip_sel->setEnabled(false);
     ip = "empty";
     layout->addWidget(ip_sel, 1, 1, 1, 2);
@@ -171,9 +130,9 @@ Tile::Tile(QWidget *parent,
     has_caches->setEnabled(false);
     layout->addWidget(has_caches, 4, 3, 1, 2);
 
-    ip_sel_l->setStyleSheet("color: rgba(184, 184, 184, 1);");
-    impl_sel_l->setStyleSheet("color: rgba(184, 184, 184, 1);");
-    has_caches->setStyleSheet("color: rgba(184, 184, 184, 1);");
+    ip_sel_l->setStyleSheet(color_gray);
+    impl_sel_l->setStyleSheet(color_gray);
+    has_caches->setStyleSheet(color_gray);
 
     // Domain selector
     domain_sel_l = new QLabel("Clock domain:", this);
@@ -343,6 +302,16 @@ std::string Tile::get_impl_acc()
 }
 
 //
+// get impl acc 3
+//
+std::string Tile::get_impl_acc_3()
+{
+    QString get_impl_q = impl_sel->currentText();
+    std::string get_impl_s = get_impl_q.toUtf8().constData();
+    return get_impl_s;
+}
+
+//
 // get domain
 //
 std::string Tile::get_domain()
@@ -405,8 +374,7 @@ std::string Tile::get_vendor()
 {
     if (third_party_acc)
     {
-        std::string tech_path(TOSTRING(TECH_PATH));
-        std::string vendor_path(tech_path + "/../../accelerators/third-party/" + ip + "/vendor");
+        std::string vendor_path(CONSTANT_THIRD_PARTY_PATH + ip + "/vendor");
         std::ifstream infile(vendor_path);
         std::string sLine;
         std::getline(infile, sLine);
@@ -422,6 +390,37 @@ std::string Tile::get_vendor()
 bool Tile::get_third_party_acc()
 {
     return third_party_acc;
+}
+
+//
+// get list
+//
+void Tile::get_list(const std::string path, QComboBox *sel)
+{
+    std::vector<std::string> list;
+
+    get_subdirs(path, list);
+    for (unsigned i = 0; i < list.size(); i++) {
+        sel->addItem(list[i].c_str());
+        sel->setItemData(i + 1, list[i].c_str(), Qt::ToolTipRole);
+    }
+}
+
+//
+// get third party impl list
+//
+void Tile::update_third_party_impl_list(std::string ip, QComboBox *impl_sel)
+{
+    for (unsigned i = 0; i < third_party_impl.size(); i++)
+    {
+        if (ip == third_party_impl[i][0][0]) {
+            for (unsigned j = 0; j < third_party_impl[i][1].size(); j++)
+            {
+                impl_sel->addItem(third_party_impl[i][1][j].c_str());
+                impl_sel->setItemData(j + 1, third_party_impl[i][1][j].c_str(), Qt::ToolTipRole);
+            }
+        }
+    }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -552,16 +551,16 @@ void Tile::on_type_sel_currentIndexChanged(const QString &arg1)
     if (arg1 != tile_t_to_string(TILE_ACC).c_str())
     {
 
-        ip_sel_l->setStyleSheet("color: rgba(184, 184, 184, 1);");
-        impl_sel_l->setStyleSheet("color: rgba(184, 184, 184, 1);");
-        has_caches->setStyleSheet("color: rgba(184, 184, 184, 1);");
+        ip_sel_l->setStyleSheet(color_gray);
+        impl_sel_l->setStyleSheet(color_gray);
+        has_caches->setStyleSheet(color_gray);
         has_caches->setEnabled(false);
     }
     else
     {
-        ip_sel_l->setStyleSheet("color: rgba(0, 0, 0, 1);");
-        impl_sel_l->setStyleSheet("color: rgba(0, 0, 0, 1);");
-        has_caches->setStyleSheet("color: rgba(0, 0, 0, 1);");
+        ip_sel_l->setStyleSheet(color_black);
+        impl_sel_l->setStyleSheet(color_black);
+        has_caches->setStyleSheet(color_black);
         has_caches->setEnabled(true);
     }
 
@@ -643,26 +642,9 @@ void Tile::on_ip_sel_currentIndexChanged(const QString &arg1)
             if (arg1.toStdString() == ip_list_3[i])
                 third_party_acc = true;
         }
-        std::string tech_path(TOSTRING(TECH_PATH));
-        std::string impl_path(tech_path + "/acc/" + arg1.toStdString());
-        std::vector<std::string> impl_dir_list;
-        get_subdirs(impl_path, impl_dir_list);
-        for (unsigned i = 0; i < impl_dir_list.size(); i++)
-        {
-            impl_sel->addItem(impl_dir_list[i].c_str());
-            impl_sel->setItemData(i + 1, impl_dir_list[i].c_str(), Qt::ToolTipRole);
-        }
-        impl_dir_list.clear();
-        for (unsigned i = 0; i < third_party_impl.size(); i++)
-        {
-            if (ip == third_party_impl[i][0][0]) {
-                for (unsigned j = 0; j < third_party_impl[i][1].size(); j++)
-                {
-                    impl_sel->addItem(third_party_impl[i][1][j].c_str());
-                    impl_sel->setItemData(j + 1, third_party_impl[i][1][j].c_str(), Qt::ToolTipRole);
-                }
-            }
-        }
+        std::string impl_path(CONSTANT_IP_PATH + arg1.toStdString());
+        get_list(impl_path, impl_sel);
+        update_third_party_impl_list(ip, impl_sel);
         impl_sel->setEnabled(true);
     }
 }

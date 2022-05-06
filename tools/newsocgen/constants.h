@@ -5,6 +5,11 @@
 #include <string>
 #include <vector>
 
+/* ---------- path names ---------- */
+const std::string CONSTANT_TECH_PATH(TOSTRING(TECH_PATH));
+const std::string CONSTANT_IP_PATH(CONSTANT_TECH_PATH + "/acc/");
+const std::string CONSTANT_THIRD_PARTY_PATH(CONSTANT_TECH_PATH + "/../../accelerators/third-party/");
+
 /* ---------- combo_arch ---------- */
 // combo_arch options: {<name>, <noc_width>}
 const std::vector<std::vector<std::string>> combo_arch_to_nocw = {
@@ -158,7 +163,7 @@ const std::vector<std::vector<std::string>> tile_type = {
 // third-party impl
 // format: { {<ip name>}, {<impl>, <impl>, ...} }
 const std::vector<std::vector<std::vector<std::string>>> third_party_impl = {
-    {{"NV_NVDLA"}, {"nv_small"}}
+    {{"NV_NVDLA"}, {"nv_small"}},
 };
 
 // NAPBS

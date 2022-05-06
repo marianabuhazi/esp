@@ -56,6 +56,8 @@ static const QColor color_cpu("#fb8072");
 static const QColor color_mem("#80b1d3");
 static const QColor color_misc("#fdb462");
 static const QColor color_slm("#d8a4ec");
+const QString color_black("color: rgba(0, 0, 0, 1);");
+const QString color_gray("color: rgba(184, 184, 184, 1);");
 
 typedef enum tile_enum
 {
