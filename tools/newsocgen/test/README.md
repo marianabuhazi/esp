@@ -14,7 +14,7 @@ These configurations should be named as `esp_config.bak.<n>` where `<n>` is a nu
 
 The usage of `test_config.sh` is
 ```
-$ ./setup.sh [OPTIONS] <soc> <n>
+$ ./test_config.sh [OPTIONS] <soc> <n>
 ```
 where `<soc>` is the directory name in `esp/socs/` (e.g. `xilinx-vc707-xc7vx485t`) and `<n>` is the number in the file `esp_config.bak.n`. The options available are `-h` for help and `-v` for verbose. The verbose flag will print out all the differences between the files, while omitting the verbose flag will only indicate which files are different.
 
