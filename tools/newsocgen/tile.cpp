@@ -114,10 +114,6 @@ Tile::Tile(QWidget *parent,
     impl_sel->setObjectName(QString::fromUtf8("ip_sel"));
     impl_sel->clear();
     impl_sel->addItem("");
-    // TODO: We need to use the HLS configurations like in the old gui.
-    // These are hard-coded just for testing but should be removed.
-    impl_sel->addItem("dma32");
-    impl_sel->addItem("dma64");
     impl_sel->setToolTip(impl_sel->currentText());
     impl_sel->setEnabled(false);
     impl = "none";
