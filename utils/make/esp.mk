@@ -46,13 +46,13 @@ NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/tile.cpp
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/tile.h
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.ui
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.h
-NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.h
-NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.h
+# NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.h
+# NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.h # TODO: look into removing
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/socmap_utils.h
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/espcreator.cpp
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/socmap_utils.cpp
-NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.cpp
-NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.cpp
+# NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/address_map.cpp
+# NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/power_info.cpp # TODO: look into removing
 NEWSOCMAP_DEPS += $(ESP_ROOT)/tools/newsocgen/constants.h
 
 esp_constants.h: $(ESP_ROOT)/utils/esp_constants.inc .grlib_config
@@ -118,9 +118,31 @@ newsocmap.mk: $(ESP_ROOT)/tools/newsocgen/socmap.pro
 newsocmap: newsocmap.mk $(NEWSOCMAP_DEPS) esp_constants.h
 	$(QUIET_MAKE) make --quiet -f $<
 
-newsocmap-run: newsocmap $(GRLIB_CFG_BUILD)/grlib_config.vhd
-	$(QUIET_RUN)./$< $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC)
+#newsocmap-xrun:
+newsocmap-xrun: newsocmap $(GRLIB_CFG_BUILD)/grlib_config.vhd
+	$(QUIET_RUN)./$< $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(BOARD)
 	@echo ""
+	@cd $(ESP_CFG_BUILD); \
+	echo $(PWD); \
+	echo "Running generate_power.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_power.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_mmi64.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_mmi64.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_cache_config_svh.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_cache_config_svh.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_esp_global_vhd.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_esp_global_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_riscv_dts.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_riscv_dts.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_S64esp.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_S64esp.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_socmap_h.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_h.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
+	echo "Running generate_socmap_vhd.py..."; \
+	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_socmap_vhd.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK)
+
+#newsocmap-run:
+newsocmap-run: newsocmap $(GRLIB_CFG_BUILD)/grlib_config.vhd
 	@cd $(ESP_CFG_BUILD); \
 	echo "Running generate_power.py..."; \
 	LD_LIBRARY_PATH="" python3 $(ESP_ROOT)/tools/socgen/generate_power.py $(NOC_WIDTH) $(TECHLIB) $(LINUX_MAC) $(LEON3_STACK); \
@@ -153,7 +175,7 @@ newsocmap-clean:
 newsocmap-distclean: newsocmap-clean
 	$(QUIET_CLEAN) $(RM) newsocmap
 
-.PHONY: newsocmap-clean newsocmap-distclean newsocmap-run
+.PHONY: newsocmap-clean newsocmap-distclean newsocmap-run newsocmap-xrun
 
 esp-config: $(ESP_CFG_BUILD)/socmap.vhd
 
