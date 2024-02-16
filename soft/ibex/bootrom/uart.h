@@ -1,15 +1,15 @@
 #pragma once
 
-#include <stdint.h>
 #include "esplink.h"
+#include <stdint.h>
 
 #define UART_BASE 0x60000100
 
-#define UART_DATA       (UART_BASE + 0x0)
-#define UART_STATUS     (UART_BASE + 0x4)
-#define UART_CONTROL    (UART_BASE + 0x8)
-#define UART_SCALER     (UART_BASE + 0xC)
-#define UART_FIFO_DBG   (UART_BASE + 0x10)
+#define UART_DATA     (UART_BASE + 0x0)
+#define UART_STATUS   (UART_BASE + 0x4)
+#define UART_CONTROL  (UART_BASE + 0x8)
+#define UART_SCALER   (UART_BASE + 0xC)
+#define UART_FIFO_DBG (UART_BASE + 0x10)
 
 #define UART_CTRL_RE 0x1
 #define UART_CTRL_TE 0x2

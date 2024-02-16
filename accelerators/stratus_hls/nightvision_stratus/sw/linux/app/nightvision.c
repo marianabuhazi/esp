@@ -50,9 +50,9 @@ typedef short pixel_t;
 #define MEDIAN_NELEM  (3 * 3)
 #define USE_SHIFT
 
-typedef float          fltPixel_t;
+typedef float fltPixel_t;
 typedef unsigned short senPixel_t;
-typedef int            algPixel_t;
+typedef int algPixel_t;
 
 #define ODD(A)    ((A)&0x01)
 #define EVEN(A)   (!ODD(A))
@@ -67,7 +67,7 @@ typedef int            algPixel_t;
 
 #define CLIP_INRANGE(LOW, VAL, HIGH) ((VAL) < (LOW) ? (LOW) : ((VAL) > (HIGH) ? (HIGH) : (VAL)))
 
-int dwt53_row_transpose(algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
+int dwt53_row_transpose(algPixel_t* data, algPixel_t* data2, int nrows, int ncols)
 {
     int i, j, cur;
 
@@ -117,7 +117,7 @@ int dwt53_row_transpose(algPixel_t *data, algPixel_t *data2, int nrows, int ncol
     return 0;
 }
 
-int dwt53_row_transpose_inverse(algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
+int dwt53_row_transpose_inverse(algPixel_t* data, algPixel_t* data2, int nrows, int ncols)
 {
     int i, j, cur;
     for (i = 0; i < nrows; i++) {
@@ -165,10 +165,10 @@ int dwt53_row_transpose_inverse(algPixel_t *data, algPixel_t *data2, int nrows, 
     return 0;
 }
 
-int dwt53_inverse(algPixel_t *data, int nrows, int ncols)
+int dwt53_inverse(algPixel_t* data, int nrows, int ncols)
 {
-    int         err   = 0;
-    algPixel_t *data2 = (algPixel_t *)calloc(nrows * ncols, sizeof(algPixel_t));
+    int err           = 0;
+    algPixel_t* data2 = (algPixel_t*)calloc(nrows * ncols, sizeof(algPixel_t));
     if (!data2) {
         perror("Could not allocate temp space for dwt53_inverse op");
         return -1;
@@ -182,10 +182,10 @@ int dwt53_inverse(algPixel_t *data, int nrows, int ncols)
     return err;
 }
 
-int dwt53(algPixel_t *data, int nrows, int ncols)
+int dwt53(algPixel_t* data, int nrows, int ncols)
 {
-    int         err   = 0;
-    algPixel_t *data2 = (algPixel_t *)calloc(nrows * ncols, sizeof(algPixel_t));
+    int err           = 0;
+    algPixel_t* data2 = (algPixel_t*)calloc(nrows * ncols, sizeof(algPixel_t));
     if (!data2) {
         fprintf(stderr, "File %s, Line %d, Memory Allocation Error", __FILE__, __LINE__);
         return -1;
@@ -205,24 +205,26 @@ int dwt53(algPixel_t *data, int nrows, int ncols)
     return err;
 }
 
-int hist(algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
+int hist(algPixel_t* streamA, int* h, int nRows, int nCols, int nBpp)
 {
     int nBins = 1 << nBpp;
     int nPxls = nRows * nCols;
     int i     = 0;
 
-    if (h == (int *)NULL) {
+    if (h == (int*)NULL) {
         fprintf(stderr, "File %s, Line %d, Memory Allocation Error\n", __FILE__, __LINE__);
         return -1;
     }
 
-    memset((void *)h, 0, nBins * sizeof(int));
+    memset((void*)h, 0, nBins * sizeof(int));
 
     for (i = 0; i < nPxls; i++) {
         if (streamA[i] >= nBins) {
-            fprintf(stderr, "File %s, Line %d, Range Error in hist() -- using max val ---", __FILE__, __LINE__);
+            fprintf(stderr, "File %s, Line %d, Range Error in hist() -- using max val ---",
+                    __FILE__, __LINE__);
             h[nBins - 1]++;
-        } else {
+        }
+        else {
             h[(int)streamA[i]]++;
         }
     }
@@ -230,12 +232,13 @@ int hist(algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
     return 0;
 }
 
-int histEq(algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int nInpBpp, int nOutBpp)
+int histEq(algPixel_t* streamA, algPixel_t* out, int* h, int nRows, int nCols, int nInpBpp,
+           int nOutBpp)
 {
-    int  nOutBins = (1 << nOutBpp);
-    int  nInpBins = (1 << nInpBpp);
-    int *CDF      = (int *)calloc(nInpBins, sizeof(int));
-    int *LUT      = (int *)calloc(nInpBins, sizeof(int));
+    int nOutBins = (1 << nOutBpp);
+    int nInpBins = (1 << nInpBpp);
+    int* CDF     = (int*)calloc(nInpBins, sizeof(int));
+    int* LUT     = (int*)calloc(nInpBins, sizeof(int));
 
     if (!(CDF && LUT)) { // Ok to call free() on potentially NULL pointer
         free(CDF);
@@ -272,24 +275,23 @@ int histEq(algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, i
     return 0;
 }
 
-int comparePxls(const void *arg1, const void *arg2)
+int comparePxls(const void* arg1, const void* arg2)
 {
-    algPixel_t *p1 = (algPixel_t *)arg1;
-    algPixel_t *p2 = (algPixel_t *)arg2;
+    algPixel_t* p1 = (algPixel_t*)arg1;
+    algPixel_t* p2 = (algPixel_t*)arg2;
 
-    if (*p1 < *p2)
-        return -1;
+    if (*p1 < *p2) return -1;
     else if (*p1 == *p2)
         return 0;
     else
         return 1;
 }
 
-int slowMedian3x3(algPixel_t *src, algPixel_t *dst, int nRows, int nCols)
+int slowMedian3x3(algPixel_t* src, algPixel_t* dst, int nRows, int nCols)
 {
-    int         i = 0, j = 0, k = 0;
-    int         r = 0, c = 0;
-    algPixel_t *pxlList = (algPixel_t *)calloc(MEDIAN_NELEM, sizeof(algPixel_t));
+    int i = 0, j = 0, k = 0;
+    int r = 0, c = 0;
+    algPixel_t* pxlList = (algPixel_t*)calloc(MEDIAN_NELEM, sizeof(algPixel_t));
 
     if (!pxlList) {
         fprintf(stderr, "File %s, Line %d, Memory Allocation Error\n", __FILE__, __LINE__);
@@ -304,7 +306,7 @@ int slowMedian3x3(algPixel_t *src, algPixel_t *dst, int nRows, int nCols)
                     pxlList[k++] = src[(r + i) * nCols + c + j];
                 }
             }
-            qsort((void *)pxlList, MEDIAN_NELEM, sizeof(algPixel_t), comparePxls);
+            qsort((void*)pxlList, MEDIAN_NELEM, sizeof(algPixel_t), comparePxls);
             // qsort() really not necessary for such a small array,
             // but it works and I don't care about speed right now.
             dst[r * nCols + c] = pxlList[4];
@@ -314,7 +316,7 @@ int slowMedian3x3(algPixel_t *src, algPixel_t *dst, int nRows, int nCols)
     return 0;
 }
 
-int nf(algPixel_t *streamA, algPixel_t *out, int nRows, int nCols)
+int nf(algPixel_t* streamA, algPixel_t* out, int nRows, int nCols)
 {
     int err = 0;
     err     = slowMedian3x3(streamA, out, nRows, nCols);
@@ -322,15 +324,15 @@ int nf(algPixel_t *streamA, algPixel_t *out, int nRows, int nCols)
     return err;
 }
 
-int readFrame(FILE *fp, void *image, int nPxls, int nBytesPerPxl, bool bSwap)
+int readFrame(FILE* fp, void* image, int nPxls, int nBytesPerPxl, bool bSwap)
 {
     /* __int64 *p64 = (__int64 *)image; */
-    unsigned long * p32       = (unsigned long *)image;
-    unsigned short *p16       = (unsigned short *)image;
-    int             nPxlsRead = 0;
-    int             i         = 0;
+    unsigned long* p32  = (unsigned long*)image;
+    unsigned short* p16 = (unsigned short*)image;
+    int nPxlsRead       = 0;
+    int i               = 0;
 
-    if (fp == (FILE *)NULL) {
+    if (fp == (FILE*)NULL) {
         fprintf(stderr, "File %s, Line %d, NULL fp passed to readFrame()\n", __FILE__, __LINE__);
         return -1;
     }
@@ -345,7 +347,8 @@ int readFrame(FILE *fp, void *image, int nPxls, int nBytesPerPxl, bool bSwap)
             if (nBytesPerPxl == sizeof(unsigned short)) {
                 *p16 = _byteswap_ushort(*p16);
                 p16++;
-            } else if (nBytesPerPxl == sizeof(unsigned long)) {
+            }
+            else if (nBytesPerPxl == sizeof(unsigned long)) {
                 *p32 = _byteswap_ulong(*p32);
                 p32++;
             }
@@ -362,25 +365,27 @@ int readFrame(FILE *fp, void *image, int nPxls, int nBytesPerPxl, bool bSwap)
 
 // Supply "." for srcDir if files reside in current working directory
 
-int readImage(void *image, char *srcDir, char *fileName, int nRows, int nCols, int nFrames, int nBytesPerPxl,
-              bool bSwap)
+int readImage(void* image, char* srcDir, char* fileName, int nRows, int nCols, int nFrames,
+              int nBytesPerPxl, bool bSwap)
 {
-    char *          origDir   = NULL;
-    __int64 *       p64       = (__int64 *)image;
-    unsigned long * p32       = (unsigned long *)image;
-    unsigned short *p16       = (unsigned short *)image;
-    int             nPxlsRead = 0;
-    int             i         = 0;
+    char* origDir       = NULL;
+    __int64* p64        = (__int64*)image;
+    unsigned long* p32  = (unsigned long*)image;
+    unsigned short* p16 = (unsigned short*)image;
+    int nPxlsRead       = 0;
+    int i               = 0;
 
     origDir = _getcwd(NULL, MAX_PATH);
     if (_chdir(srcDir) == -1) {
-        fprintf(stderr, "File %s, Line %d, Could not change to directory=%s\n", __FILE__, __LINE__, srcDir);
+        fprintf(stderr, "File %s, Line %d, Could not change to directory=%s\n", __FILE__, __LINE__,
+                srcDir);
         return -1;
     }
 
-    FILE *fp = fopen(fileName, "rb");
-    if (fp == (FILE *)NULL) {
-        fprintf(stderr, "File %s, Line %d, Could not open %s for reading\n", __FILE__, __LINE__, fileName);
+    FILE* fp = fopen(fileName, "rb");
+    if (fp == (FILE*)NULL) {
+        fprintf(stderr, "File %s, Line %d, Could not open %s for reading\n", __FILE__, __LINE__,
+                fileName);
         return -2;
     }
     nPxlsRead = fread(image, nBytesPerPxl, nRows * nCols * nFrames, fp);
@@ -391,10 +396,12 @@ int readImage(void *image, char *srcDir, char *fileName, int nRows, int nCols, i
             if (nBytesPerPxl == sizeof(unsigned short)) {
                 *p16 = _byteswap_ushort(*p16);
                 p16++;
-            } else if (nBytesPerPxl == sizeof(unsigned long)) {
+            }
+            else if (nBytesPerPxl == sizeof(unsigned long)) {
                 *p32 = _byteswap_ulong(*p32);
                 p32++;
-            } else if (nBytesPerPxl == sizeof(unsigned __int64)) {
+            }
+            else if (nBytesPerPxl == sizeof(unsigned __int64)) {
                 *p64 = _byteswap_uint64(*p64);
                 p64++;
             }
@@ -407,23 +414,24 @@ int readImage(void *image, char *srcDir, char *fileName, int nRows, int nCols, i
     return nPxlsRead;
 }
 
-int saveFrame(void *image, char *dstDir, char *baseFileName, int nRows, int nCols, int frameNo, int nBytesPerPxl,
-              bool bSwap)
+int saveFrame(void* image, char* dstDir, char* baseFileName, int nRows, int nCols, int frameNo,
+              int nBytesPerPxl, bool bSwap)
 {
     // char *origDir = NULL;
-    __int64 *       p64 = (__int64 *)image;
-    unsigned long * p32 = (unsigned long *)image;
-    unsigned short *p16 = (unsigned short *)image;
+    __int64* p64        = (__int64*)image;
+    unsigned long* p32  = (unsigned long*)image;
+    unsigned short* p16 = (unsigned short*)image;
 
     char fullFileName[MAX_PATH];
-    int  nPxlsToWrite = nRows * nCols;
+    int nPxlsToWrite = nRows * nCols;
     // int err = 0;
     int i = 0;
 
     // origDir = _getcwd(NULL, MAX_PATH);
 
     if (_chdir(dstDir) == -1) {
-        fprintf(stderr, "File %s, Line %d, Could not change to directory=%s\n", __FILE__, __LINE__, dstDir);
+        fprintf(stderr, "File %s, Line %d, Could not change to directory=%s\n", __FILE__, __LINE__,
+                dstDir);
         return -1;
     }
 
@@ -433,23 +441,27 @@ int saveFrame(void *image, char *dstDir, char *baseFileName, int nRows, int nCol
             if (nBytesPerPxl == sizeof(unsigned short)) {
                 *p16 = _byteswap_ushort(*p16);
                 p16++;
-            } else if (nBytesPerPxl == sizeof(unsigned long)) {
+            }
+            else if (nBytesPerPxl == sizeof(unsigned long)) {
                 *p32 = _byteswap_ulong(*p32);
                 p32++;
-            } else if (nBytesPerPxl == sizeof(unsigned __int64)) {
+            }
+            else if (nBytesPerPxl == sizeof(unsigned __int64)) {
                 *p64 = _byteswap_uint64(*p64);
                 p64++;
             }
         }
     }
-    FILE *fp = fopen(fullFileName, "wb");
-    if (fp == (FILE *)NULL) {
-        fprintf(stderr, "File %s, Line %d, Failed fopen() on file: %s\n", __FILE__, __LINE__, fullFileName);
+    FILE* fp = fopen(fullFileName, "wb");
+    if (fp == (FILE*)NULL) {
+        fprintf(stderr, "File %s, Line %d, Failed fopen() on file: %s\n", __FILE__, __LINE__,
+                fullFileName);
         return -1;
     }
-    if (fwrite((void *)image, nBytesPerPxl, nPxlsToWrite, fp) != (size_t)nPxlsToWrite) {
+    if (fwrite((void*)image, nBytesPerPxl, nPxlsToWrite, fp) != (size_t)nPxlsToWrite) {
         fclose(fp);
-        fprintf(stderr, "File %s, Line %d, Failed fwrite() on file: %s\n", __FILE__, __LINE__, fullFileName);
+        fprintf(stderr, "File %s, Line %d, Failed fwrite() on file: %s\n", __FILE__, __LINE__,
+                fullFileName);
         return -1;
     }
     fclose(fp);
@@ -457,19 +469,19 @@ int saveFrame(void *image, char *dstDir, char *baseFileName, int nRows, int nCol
     return nPxlsToWrite * nBytesPerPxl;
 }
 
-int ensemble_1(algPixel_t *streamA, algPixel_t *out, int nRows, int nCols, int nInpBpp, int nOutBpp)
+int ensemble_1(algPixel_t* streamA, algPixel_t* out, int nRows, int nCols, int nInpBpp, int nOutBpp)
 {
     // NF
     // H
     // HE
     // DWT
 
-    int         err       = 0;
-    int         i         = 0;
-    int         nHistBins = 1 << nInpBpp;
-    int *       h         = (int *)calloc(nHistBins, sizeof(int));
-    algPixel_t *wrkBuf1   = (algPixel_t *)calloc(nRows * nCols, sizeof(algPixel_t));
-    algPixel_t *wrkBuf2   = (algPixel_t *)calloc(nRows * nCols, sizeof(algPixel_t));
+    int err             = 0;
+    int i               = 0;
+    int nHistBins       = 1 << nInpBpp;
+    int* h              = (int*)calloc(nHistBins, sizeof(int));
+    algPixel_t* wrkBuf1 = (algPixel_t*)calloc(nRows * nCols, sizeof(algPixel_t));
+    algPixel_t* wrkBuf2 = (algPixel_t*)calloc(nRows * nCols, sizeof(algPixel_t));
 
     if (!(h && wrkBuf1 && wrkBuf2)) {
         free(h);
@@ -483,37 +495,35 @@ int ensemble_1(algPixel_t *streamA, algPixel_t *out, int nRows, int nCols, int n
     // memcpy(wrkBuf2, streamA, nRows * nCols * sizeof(algPixel_t));
     memset(wrkBuf2, 0, nRows * nCols * sizeof(algPixel_t));
 
-    FILE *fileInput = fopen("input.txt", "w");
+    FILE* fileInput = fopen("input.txt", "w");
     for (i = 0; i < nRows * nCols; i++) {
         fprintf(fileInput, "%d\n", wrkBuf1[i]);
     }
     fclose(fileInput);
 
     err          = nf(wrkBuf1, wrkBuf2, nRows, nCols);
-    FILE *fileNF = fopen("AfterNF.txt", "w");
+    FILE* fileNF = fopen("AfterNF.txt", "w");
     for (i = 0; i < nRows * nCols; i++) {
         fprintf(fileNF, "%d\n", wrkBuf2[i]);
     }
     fclose(fileNF);
 
     err            = hist(wrkBuf2, h, nRows, nCols, nInpBpp);
-    FILE *fileHist = fopen("AfterHist.txt", "w");
+    FILE* fileHist = fopen("AfterHist.txt", "w");
     for (i = 0; i < nHistBins; i++) {
         fprintf(fileHist, "%d\n", h[i]);
     }
     fclose(fileHist);
 
     err              = histEq(wrkBuf2, out, h, nRows, nCols, nInpBpp, nOutBpp);
-    FILE *fileHistEq = fopen("AfterHistEq.txt", "w");
+    FILE* fileHistEq = fopen("AfterHistEq.txt", "w");
     for (i = 0; i < nRows * nCols; i++) {
         fprintf(fileHistEq, "%d\n", out[i]);
     }
     fclose(fileHistEq);
 
-    if (DEFAULT_DO_DWT) {
-        err = dwt53(out, nRows, nCols);
-    }
-    FILE *fileDWT = fopen("AfterDWT.txt", "w");
+    if (DEFAULT_DO_DWT) { err = dwt53(out, nRows, nCols); }
+    FILE* fileDWT = fopen("AfterDWT.txt", "w");
     for (i = 0; i < nRows * nCols; i++) {
         fprintf(fileDWT, "%d\n", out[i]);
     }
@@ -531,51 +541,51 @@ int ensemble_1(algPixel_t *streamA, algPixel_t *out, int nRows, int nCols, int n
     return err;
 }
 
-static const char usage_str[] = "usage: ./nightvision_stratus.exe coherence infile [nimages] [ncols] [nrows] [-v]\n"
-                                "  coherence: none|llc-coh-dma|coh-dma|coh\n"
-                                "  infile : input file name (includes the path)\n\n"
-                                "Optional arguments:.\n"
-                                "  nimages : number of images to be processed. Default: 1\n"
-                                "  ncols: number of columns of input image. Default: 160\n"
-                                "  nrows: number of rows of input image. Default: 120\n\n\n"
-                                "The remaining option is only optional for 'test':\n"
-                                "  -v: enable verbose output for output-to-gold comparison\n"
-                                "Notice:\n"
-                                "  The ordering of the argument is important. For now nimages, nrows\n"
-                                "  and ncols should either be all present or not at all.\n";
+static const char usage_str[] =
+    "usage: ./nightvision_stratus.exe coherence infile [nimages] [ncols] [nrows] [-v]\n"
+    "  coherence: none|llc-coh-dma|coh-dma|coh\n"
+    "  infile : input file name (includes the path)\n\n"
+    "Optional arguments:.\n"
+    "  nimages : number of images to be processed. Default: 1\n"
+    "  ncols: number of columns of input image. Default: 160\n"
+    "  nrows: number of rows of input image. Default: 120\n\n\n"
+    "The remaining option is only optional for 'test':\n"
+    "  -v: enable verbose output for output-to-gold comparison\n"
+    "Notice:\n"
+    "  The ordering of the argument is important. For now nimages, nrows\n"
+    "  and ncols should either be all present or not at all.\n";
 
 struct nightvision_test {
-    struct test_info                  info;
+    struct test_info info;
     struct nightvision_stratus_access desc;
-    char *                            infile;
-    bool                              infile_is_raw;
-    unsigned                          nimages;
-    unsigned                          rows;
-    unsigned                          cols;
-    unsigned                          nbytespp;
-    unsigned                          swapbytes;
-    unsigned                          do_dwt;
-    unsigned                          nbpp_in;
-    unsigned                          nbpp_out;
-    pixel_t *                         hbuf;
-    int *                             sbuf_in;
-    int *                             sbuf_out;
-    bool                              verbose;
+    char* infile;
+    bool infile_is_raw;
+    unsigned nimages;
+    unsigned rows;
+    unsigned cols;
+    unsigned nbytespp;
+    unsigned swapbytes;
+    unsigned do_dwt;
+    unsigned nbpp_in;
+    unsigned nbpp_out;
+    pixel_t* hbuf;
+    int* sbuf_in;
+    int* sbuf_out;
+    bool verbose;
 };
 
-static inline struct nightvision_test *to_nightvision(struct test_info *info)
+static inline struct nightvision_test* to_nightvision(struct test_info* info)
 {
     return container_of(info, struct nightvision_test, info);
 }
 
-static int check_gold(int *gold, pixel_t *array, unsigned len, bool verbose)
+static int check_gold(int* gold, pixel_t* array, unsigned len, bool verbose)
 {
     int i;
     int rtn = 0;
     for (i = 0; i < len; i++) {
         if (((int)array[i]) != gold[i]) {
-            if (verbose)
-                printf("A[%d]: array=%d; gold=%d\n", i, (int)array[i], gold[i]);
+            if (verbose) printf("A[%d]: array=%d; gold=%d\n", i, (int)array[i], gold[i]);
             rtn++;
         }
     }
@@ -583,7 +593,7 @@ static int check_gold(int *gold, pixel_t *array, unsigned len, bool verbose)
     return rtn;
 }
 
-static void init_buf(struct nightvision_test *t)
+static void init_buf(struct nightvision_test* t)
 {
     // TODO load raw and repeat image in buffer as many times as nimages
 
@@ -593,19 +603,20 @@ static void init_buf(struct nightvision_test *t)
 
     printf("init buffers\n");
 
-    int             i = 0, j = 0, hbuf_i = 0;
-    unsigned        nPxls;
-    FILE *          fd = NULL;
-    unsigned short *rawBuf;
+    int i = 0, j = 0, hbuf_i = 0;
+    unsigned nPxls;
+    FILE* fd = NULL;
+    unsigned short* rawBuf;
 
     // open input file
     if (t->infile_is_raw) {
-        if ((fd = fopen(t->infile, "rb")) == (FILE *)NULL) {
+        if ((fd = fopen(t->infile, "rb")) == (FILE*)NULL) {
             printf("[ERROR] Could not open %s\n", t->infile);
             exit(1);
         }
-    } else {
-        if ((fd = fopen(t->infile, "r")) == (FILE *)NULL) {
+    }
+    else {
+        if ((fd = fopen(t->infile, "r")) == (FILE*)NULL) {
             printf("[ERROR] Could not open %s\n", t->infile);
             exit(1);
         }
@@ -613,7 +624,7 @@ static void init_buf(struct nightvision_test *t)
 
     // allocate buffers
     nPxls  = t->rows * t->cols;
-    rawBuf = (unsigned short *)calloc(nPxls, sizeof(unsigned short));
+    rawBuf = (unsigned short*)calloc(nPxls, sizeof(unsigned short));
 
     if (!rawBuf) {
         free(rawBuf);
@@ -627,9 +638,10 @@ static void init_buf(struct nightvision_test *t)
             printf("[ERROR] readFrame returns wrong number of pixels\n");
             exit(1);
         }
-    } else {
+    }
+    else {
         // read txt image file
-        int      i   = 0;
+        int i        = 0;
         uint16_t val = 0;
 
         fscanf(fd, "%hu", &val);
@@ -656,19 +668,19 @@ static void init_buf(struct nightvision_test *t)
     fclose(fd);
 }
 
-static inline size_t nightvision_size(struct nightvision_test *t)
+static inline size_t nightvision_size(struct nightvision_test* t)
 {
     return t->rows * t->cols * t->nimages * sizeof(int);
 }
 
-static inline size_t nightvision_size_opt(struct nightvision_test *t)
+static inline size_t nightvision_size_opt(struct nightvision_test* t)
 {
     return t->rows * t->cols * t->nimages * sizeof(short);
 }
 
-static void nightvision_alloc_buf(struct test_info *info)
+static void nightvision_alloc_buf(struct test_info* info)
 {
-    struct nightvision_test *t = to_nightvision(info);
+    struct nightvision_test* t = to_nightvision(info);
 
     t->hbuf = malloc0_check(nightvision_size_opt(t));
     if (!strcmp(info->cmd, "test")) {
@@ -677,26 +689,25 @@ static void nightvision_alloc_buf(struct test_info *info)
     }
 }
 
-static void nightvision_alloc_contig(struct test_info *info)
+static void nightvision_alloc_contig(struct test_info* info)
 {
-    struct nightvision_test *t = to_nightvision(info);
+    struct nightvision_test* t = to_nightvision(info);
 
     printf("HW buf size: %zu B\n", nightvision_size(t));
-    if (contig_alloc(nightvision_size(t), &info->contig) == NULL)
-        die_errno(__func__);
+    if (contig_alloc(nightvision_size(t), &info->contig) == NULL) die_errno(__func__);
 }
 
-static void nightvision_init_bufs(struct test_info *info)
+static void nightvision_init_bufs(struct test_info* info)
 {
-    struct nightvision_test *t = to_nightvision(info);
+    struct nightvision_test* t = to_nightvision(info);
 
     init_buf(t);
     contig_copy_to(info->contig, 0, t->hbuf, nightvision_size_opt(t));
 }
 
-static void nightvision_set_access(struct test_info *info)
+static void nightvision_set_access(struct test_info* info)
 {
-    struct nightvision_test *t = to_nightvision(info);
+    struct nightvision_test* t = to_nightvision(info);
 
     t->desc.nimages    = t->nimages;
     t->desc.rows       = t->rows;
@@ -706,14 +717,14 @@ static void nightvision_set_access(struct test_info *info)
     t->desc.dst_offset = 0;
 }
 
-static void nightvision_comp(struct test_info *info)
+static void nightvision_comp(struct test_info* info)
 {
-    struct nightvision_test *t      = to_nightvision(info);
-    int                      i      = 0;
-    int                      algErr = 0, numOut = 0;
+    struct nightvision_test* t = to_nightvision(info);
+    int i                      = 0;
+    int algErr = 0, numOut = 0;
 
-    int *buf_in  = NULL;
-    int *buf_out = NULL;
+    int* buf_in  = NULL;
+    int* buf_out = NULL;
 
     printf("nightvision_comp\n");
 
@@ -728,11 +739,12 @@ static void nightvision_comp(struct test_info *info)
         // save raw output image
         numOut = saveFrame(buf_out, ".", "ensemble1", t->rows, t->cols, 0, sizeof(int), false);
         assert(numOut == t->rows * t->cols * sizeof(int));
-    } else {
+    }
+    else {
         // save txt output image
 
-        FILE *fileOut = NULL;
-        if ((fileOut = fopen("out.txt", "w")) == (FILE *)NULL) {
+        FILE* fileOut = NULL;
+        if ((fileOut = fopen("out.txt", "w")) == (FILE*)NULL) {
             printf("[ERROR] Could not open out.txt\n");
             fclose(fileOut);
         }
@@ -772,11 +784,11 @@ static void nightvision_comp(struct test_info *info)
     /* printf("read gold output finish\n"); */
 }
 
-static bool nightvision_diff_ok(struct test_info *info)
+static bool nightvision_diff_ok(struct test_info* info)
 {
-    struct nightvision_test *t         = to_nightvision(info);
-    int                      total_err = 0;
-    int                      i;
+    struct nightvision_test* t = to_nightvision(info);
+    int total_err              = 0;
+    int i;
 
     contig_copy_from(t->hbuf, info->contig, 0, nightvision_size_opt(t));
 
@@ -784,20 +796,19 @@ static bool nightvision_diff_ok(struct test_info *info)
 
     err = check_gold(t->sbuf_out, t->hbuf, t->rows * t->cols * t->nimages, t->verbose);
 
-    FILE *fileSBUF = fopen("SBUF.txt", "w");
+    FILE* fileSBUF = fopen("SBUF.txt", "w");
     for (i = 0; i < t->rows * t->cols; i++) {
         fprintf(fileSBUF, "%d\n", t->sbuf_out[i]);
     }
     fclose(fileSBUF);
 
-    FILE *fileHBUF = fopen("HBUF.txt", "w");
+    FILE* fileHBUF = fopen("HBUF.txt", "w");
     for (i = 0; i < t->rows * t->cols; i++) {
         fprintf(fileHBUF, "%d\n", t->hbuf[i]);
     }
     fclose(fileHBUF);
 
-    if (err)
-        printf("%d mismatches\n", err);
+    if (err) printf("%d mismatches\n", err);
 
     total_err += err;
 
@@ -809,8 +820,7 @@ static bool nightvision_diff_ok(struct test_info *info)
         printf("\n");
     }
     */
-    if (total_err)
-        printf("%d mismatches in total\n", total_err);
+    if (total_err) printf("%d mismatches in total\n", total_err);
     return !total_err;
 }
 
@@ -844,13 +854,11 @@ static void NORETURN usage(void)
  * - word bitwidth and related data type, it should be extracted from the HLS config of
  *   the accelerator. NBPP_IN and NBPP_OUT.
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     printf("=== Helloo from nightvision\n");
-    if (argc < 3 || argc == 5 || argc > 7) {
-        usage();
-
-    } else {
+    if (argc < 3 || argc == 5 || argc > 7) { usage(); }
+    else {
         printf("\nCommand line arguments received:\n");
         printf("\tcoherence: %s\n", argv[1]);
 
@@ -864,7 +872,8 @@ int main(int argc, char *argv[])
             printf("\tnimages: %u\n", nightvision_test.nimages);
             printf("\tncols: %u\n", nightvision_test.cols);
             printf("\tnrows: %u\n", nightvision_test.rows);
-        } else {
+        }
+        else {
             nightvision_test.nimages = DEFAULT_NIMAGES;
             nightvision_test.rows    = DEFAULT_NROWS;
             nightvision_test.cols    = DEFAULT_NCOLS;
@@ -873,7 +882,8 @@ int main(int argc, char *argv[])
         if (argc == 4 || argc == 7) {
             if ((strcmp(argv[3], "-v") && argc == 4) || (strcmp(argv[6], "-v") && argc == 7)) {
                 usage();
-            } else {
+            }
+            else {
                 nightvision_test.verbose = true;
                 printf("\tverbose enabled\n");
             }

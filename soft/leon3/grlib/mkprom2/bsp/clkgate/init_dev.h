@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 struct init_dev {
-	uint32_t addr;
-	uint32_t value;
+    uint32_t addr;
+    uint32_t value;
 };
 
 /*
@@ -14,6 +14,6 @@ struct init_dev {
  * struct init_dev contains 32-bit addr and value fields. For each such pair,
  * write value to addr. The function returns when addr=NULL.
  */
-void init_dev(const struct init_dev *table);
+void init_dev(const struct init_dev* table);
 
 #endif

@@ -42,7 +42,8 @@ find_c_h_files() {
   local dir="$1"
   for file in "$dir"/*.c "$dir"/*.h; do
     if [[ -f "$file" ]]; then
-      clang-format-10 -i "$file"
+    #   clang-format-10 -i "$file"
+	echo "$file"
     fi
   done
 }
