@@ -46,9 +46,9 @@ typedef short pixel;
 /* Size of the contiguous chunks for scatter/gather */
 #define CHUNK_SHIFT 10
 #define CHUNK_SIZE  BIT(CHUNK_SHIFT)
-#define NCHUNK                                                                      \
-    ((NIGHTVISION_BUF_SIZE % CHUNK_SIZE == 0) ? (NIGHTVISION_BUF_SIZE / CHUNK_SIZE) \
-                                              : (NIGHTVISION_BUF_SIZE / CHUNK_SIZE) + 1)
+#define NCHUNK                                                                        \
+    ((NIGHTVISION_BUF_SIZE % CHUNK_SIZE == 0) ? (NIGHTVISION_BUF_SIZE / CHUNK_SIZE) : \
+                                                (NIGHTVISION_BUF_SIZE / CHUNK_SIZE) + 1)
 
 // User defined registers
 #define NIGHTVISION_NIMAGES_REG 0x40
@@ -56,12 +56,12 @@ typedef short pixel;
 #define NIGHTVISION_NCOLS_REG   0x48
 #define NIGHTVISION_DO_DWT_REG  0x4C
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    int                n;
-    int                ndev;
-    struct esp_device *espdevs = NULL;
-    unsigned           coherence;
+    int n;
+    int ndev;
+    struct esp_device* espdevs = NULL;
+    unsigned coherence;
 
     ndev = probe(&espdevs, VENDOR_SLD, SLD_NIGHTVISION, DEV_NAME);
     if (ndev <= 0) {
@@ -77,14 +77,14 @@ int main(int argc, char *argv[])
             /* TODO: Restore full test once ESP caches are integrated */
             coherence = ACC_COH_NONE;
 #endif
-            struct esp_device *dev = &espdevs[n];
-            int                done;
-            int                i, j;
-            unsigned **        ptable = NULL;
-            pixel *            mem;
-            pixel              gold[COLS * ROWS];
-            unsigned           errors         = 0;
-            int                scatter_gather = 1;
+            struct esp_device* dev = &espdevs[n];
+            int done;
+            int i, j;
+            unsigned** ptable = NULL;
+            pixel* mem;
+            pixel gold[COLS * ROWS];
+            unsigned errors    = 0;
+            int scatter_gather = 1;
 
             printf("******************** %s.%d ********************\n", DEV_NAME, n);
             printf("*** CHUNK_SIZE: %d\n", CHUNK_SIZE);
@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
             if (ioread32(dev, PT_NCHUNK_MAX_REG) == 0) {
                 printf("  -> scatter-gather DMA is disabled; revert to contiguous buffer.\n");
                 scatter_gather = 0;
-            } else {
+            }
+            else {
                 printf("  -> scatter-gather DMA is enabled.\n");
                 scatter_gather = 1;
             }
@@ -117,9 +118,9 @@ int main(int argc, char *argv[])
 
             if (scatter_gather) {
                 // Alocate and populate page table
-                ptable = aligned_malloc(NCHUNK * sizeof(unsigned *));
+                ptable = aligned_malloc(NCHUNK * sizeof(unsigned*));
                 for (i = 0; i < NCHUNK; i++)
-                    ptable[i] = (unsigned *)&mem[i * (CHUNK_SIZE / sizeof(pixel))];
+                    ptable[i] = (unsigned*)&mem[i * (CHUNK_SIZE / sizeof(pixel))];
                 printf("  ptable = %p\n", ptable);
                 printf("  nchunk = %lu\n", NCHUNK);
             }
@@ -144,7 +145,8 @@ int main(int argc, char *argv[])
                 iowrite32(dev, PT_SHIFT_REG, CHUNK_SHIFT);
                 iowrite32(dev, SRC_OFFSET_REG, 0);
                 iowrite32(dev, DST_OFFSET_REG, 0);
-            } else {
+            }
+            else {
                 iowrite32(dev, SRC_OFFSET_REG, (uintptr_t)mem);
                 iowrite32(dev, DST_OFFSET_REG, (uintptr_t)mem);
             }
@@ -188,14 +190,12 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (errors) {
-                printf("  ... FAIL: %d mismatches\n", errors);
-            } else {
+            if (errors) { printf("  ... FAIL: %d mismatches\n", errors); }
+            else {
                 printf("  ... PASS\n");
             }
 
-            if (scatter_gather)
-                aligned_free(ptable);
+            if (scatter_gather) aligned_free(ptable);
             aligned_free(mem);
 
             printf("**************************************************\n\n");
