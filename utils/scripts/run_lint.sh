@@ -20,9 +20,10 @@ descend_and_check() {
   local cwd="$3"
 
   # Call functions to find specific file types in the current directory
-  find_c_h_files "$dir"
+#   find_c_h_files "$dir"
+	# find_cpp_files "$dir"
 #   find_py_files "$dir"
-#   find_vhd_files "$dir"
+	find_vhd_files "$dir"
 #   find_v_files "$dir"
 
   for item in "$dir"/*; do
@@ -38,45 +39,58 @@ descend_and_check() {
 }
 
 # Function to find .c and .h files in the current directory
-find_c_h_files() {
-  local dir="$1"
-  for file in "$dir"/*.c "$dir"/*.h; do
-    if [[ -f "$file" ]]; then
-    #   clang-format-10 -i "$file"
-	echo "$file"
-    fi
-  done
-}
+# find_c_h_files() {
+#   local dir="$1"
+#   for file in "$dir"/*.c "$dir"/*.h; do
+#     if [[ -f "$file" ]]; then
+#     #   clang-format-10 -i "$file"
+# 	echo "$file"
+#     fi
+#   done
+# }
 
-# # Function to find .py files in the current directory
+# Function to find .cpp files in the current directory
+# find_cpp_files() {
+#   local dir="$1"
+#   for file in "$dir"/*.cpp; do
+#     if [[ -f "$file" ]]; then
+#     clang-format-10 -i "$file"
+# 	#echo "$file"
+#     fi
+#   done
+# }
+
+# Function to find .py files in the current directory
 # find_py_files() {
 #   local dir="$1"
 #   for file in "$dir"/*.py; do
 #     if [[ -f "$file" ]]; then
 #       echo "$(basename "$file")"
+# 	  python3 -m autopep8 -i -a -a "$file"
 #     fi
 #   done
 # }
 
 # # Function to find .vhd files in the current directory
-# find_vhd_files() {
-#   local dir="$1"
-#   for file in "$dir"/*.vhd; do
-#     if [[ -f "$file" ]]; then
-#       echo "$(basename "$file")"
-#     fi
-#   done
-# }
+find_vhd_files() {
+  local dir="$1"
+  for file in "$dir"/*.vhd; do
+    if [[ -f "$file" ]]; then
+    #   echo "$(basename "$file")"
+	vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
+    fi
+  done
+}
 
 # # Function to find .v files in the current directory
 # find_v_files() {
 #   local dir="$1"
-#   for file in "$dir"/*.v; do
+#   for file in "$dir"/*.v "$dir"/*.sv; do
 #     if [[ -f "$file" ]]; then
-#       echo "$(basename "$file")"
+# 	  verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file"
 #     fi
 #   done
-#}
+# }
 
 # Get the current working directory
 cwd="$(git rev-parse --show-toplevel)"
