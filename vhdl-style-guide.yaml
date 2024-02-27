@@ -1,0 +1,22 @@
+rules:
+  global:
+    indent_style: 'spaces'
+    indent_size: 4
+  constant_004:
+     case: 'upper'
+     prefix_exceptions:
+       - 'G_'
+     suffix_exceptions:
+       - '_G'
+     case_exceptions:
+       = 'IEEE'
+  length_001 :
+     length : 120
+  generic_map_008:
+    align_paren : "yes"
+  port_map_008:
+    align_paren : "yes"
+  port_012:
+    fixable: True
+
+  
