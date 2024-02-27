@@ -30,7 +30,18 @@ descend_and_check() {
     if [[ -d "$item" ]]; then
       # Check if the directory is a submodule
       if is_submodule "$item" "$gitmodules" "$cwd"; then
-        continue
+		case "$item" in
+			*/rtl/caches/esp-caches|*/accelerators/stratus_hls/common/inc|*/rtl/caches/spandex-caches)
+				# If it matches, descend into the submodule
+				descend_and_check "$item" "$gitmodules" "$cwd"
+				;;
+			*)
+				# If it doesn't match, skip the submodule
+				continue
+				;;
+			esac
+
+        # continue
       fi
       # Print the directory and recursively descend into it
       descend_and_check "$item" "$gitmodules" "$cwd"
@@ -52,7 +63,7 @@ descend_and_check() {
 # Function to find .cpp files in the current directory
 # find_cpp_files() {
 #   local dir="$1"
-#   for file in "$dir"/*.cpp; do
+#   for file in "$dir"/*.cpp "$dir"/*.hpp; do
 #     if [[ -f "$file" ]]; then
 #     clang-format-10 -i "$file"
 # 	#echo "$file"
@@ -77,7 +88,8 @@ find_vhd_files() {
   for file in "$dir"/*.vhd; do
     if [[ -f "$file" ]]; then
     #   echo "$(basename "$file")"
-	vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
+	echo "Descending into: $item"
+	# vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
     fi
   done
 }
