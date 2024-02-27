@@ -16,7 +16,7 @@
 --
 --  You should have received a copy of the GNU General Public License
 --  along with this program; if not, write to the Free Software
---  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+--  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -----------------------------------------------------------------------------
 -- Entity:      dsu
 -- File:        dsu.vhd
@@ -25,51 +25,66 @@
 ------------------------------------------------------------------------------
 
 library ieee;
-use ieee.std_logic_1164.all;
-use work.amba.all;
-use work.stdlib.all;
-use work.devices.all;
-use work.leon3.all;
-use work.gencomp.all;
+  use ieee.std_logic_1164.all;
+  use work.amba.all;
+  use work.stdlib.all;
+  use work.devices.all;
+  use work.leon3.all;
+  use work.gencomp.all;
 
 entity dsu3 is
   generic (
-    hindex  : integer := 0;
-    haddr   : integer := 16#900#;
-    hmask   : integer := 16#f00#;
-    ncpu    : integer := 1;
-    tbits   : integer := 30; -- timer bits (instruction trace time tag)
-    tech    : integer := DEFMEMTECH; 
-    irq     : integer := 0; 
-    kbytes  : integer := 0;
-    testen  : integer := 0;
-    bwidth  : integer := 32;
-    ahbpf   : integer := 0
+    hindex : integer := 0;
+    haddr  : integer := 16#900#;
+    hmask  : integer := 16#f00#;
+    ncpu   : integer := 1;
+    tbits  : integer := 30; -- timer bits (instruction trace time tag)
+    tech   : integer := DEFMEMTECH;
+    irq    : integer := 0;
+    kbytes : integer := 0;
+    testen : integer := 0;
+    bwidth : integer := 32;
+    ahbpf  : integer := 0
   );
   port (
-    rst    : in  std_ulogic;
-    clk    : in  std_ulogic;
-    ahbmi  : in  ahb_mst_in_type;
-    ahbsi  : in  ahb_slv_in_type;
-    ahbso  : out ahb_slv_out_type;
-    dbgi   : in l3_debug_out_vector(0 to NCPU-1);
-    dbgo   : out l3_debug_in_vector(0 to NCPU-1);
-    dsui   : in dsu_in_type;
-    dsuo   : out dsu_out_type
+    rst   : in    std_ulogic;
+    clk   : in    std_ulogic;
+    ahbmi : in    ahb_mst_in_type;
+    ahbsi : in    ahb_slv_in_type;
+    ahbso : out   ahb_slv_out_type;
+    dbgi  : in    l3_debug_out_vector(0 to ncpu - 1);
+    dbgo  : out   l3_debug_in_vector(0 to ncpu - 1);
+    dsui  : in    dsu_in_type;
+    dsuo  : out   dsu_out_type
   );
-end; 
+end entity dsu3;
 
 architecture rtl of dsu3 is
 
-  signal  gnd, vcc : std_ulogic;
+  signal gnd, vcc : std_ulogic;
 
 begin
 
   gnd <= '0'; vcc <= '1';
-  
-  x0 : dsu3x generic map (hindex, haddr, hmask, ncpu, tbits, tech, irq, kbytes, 0, testen, bwidth, ahbpf)
-    port map (rst, gnd, clk, ahbmi, ahbsi, ahbso, ahbsi, dbgi, dbgo, dsui, dsuo, vcc
-              );  
-  
-end;
+
+  x0 : component dsu3x
+    generic map (
+hindex, haddr, hmask, ncpu, tbits, tech, irq, kbytes, 0, testen, bwidth, ahbpf
+    )
+    port map (
+rst,
+ gnd,
+ clk,
+ ahbmi,
+ ahbsi,
+ ahbso,
+ ahbsi,
+ dbgi,
+ dbgo,
+ dsui,
+ dsuo,
+ vcc
+    );
+
+end architecture rtl;
 
