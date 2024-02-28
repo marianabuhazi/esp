@@ -62,7 +62,7 @@ find_c_h_files() {
   local dir="$1"
   for file in "$dir"/*.c "$dir"/*.h; do
     if [[ -f "$file" ]]; then
-      clang-format-10 -i "$file"
+      clang-format-10 -i "$file" > /dev/null 2>&1
     fi
   done
 }
@@ -72,7 +72,7 @@ find_cpp_hpp_files() {
   local dir="$1"
   for file in "$dir"/*.cpp "$dir"/*.hpp; do
     if [[ -f "$file" ]]; then
-      clang-format-10 -i "$file"
+      clang-format-10 -i "$file" > /dev/null 2>&1
     fi
   done
 }
@@ -82,7 +82,7 @@ find_py_files() {
   local dir="$1"
   for file in "$dir"/*.py; do
     if [[ -f "$file" ]]; then
-	  python3 -m autopep8 -i -a -a "$file"
+	  python3 -m autopep8 -i -a -a "$file" > /dev/null 2>&1
     fi
   done
 }
@@ -92,7 +92,7 @@ find_v_files() {
   local dir="$1"
   for file in "$dir"/*.v "$dir"/*.sv; do
     if [[ -f "$file" ]]; then
- 	  verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file"
+ 	  verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file" > /dev/null 2>&1
 	fi
   done
 }
@@ -102,7 +102,7 @@ find_vhd_files() {
   local dir="$1"
   for file in "$dir"/*.vhd; do
     if [[ -f "$file" ]]; then
-	  vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
+	  vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml -of summary > /dev/null 2>&1
     fi
   done
 }
@@ -117,11 +117,21 @@ while [[ $# -gt 0 ]]; do
     -t | --type )
       shift
       case "$1" in
-        c ) format_style="find_c_h_files";;
-        cpp ) format_style="find_cpp_hpp_files";;
-        vhdl ) format_style="find_vhd_files";;
-        v ) format_style="find_v_files";;
-        py ) format_style="find_py_files";;
+        c ) format_style="find_c_h_files" 
+			echo "Starting formatting for C files ..."
+			echo -e "This should be quick! Approx: 5 mins \U0001F680";;
+        cpp ) format_style="find_cpp_hpp_files"
+			  echo "Starting formatting for C++ files ..."
+			  echo -e "This should be quick! Approx: 5 mins \U0001F680";;
+        vhdl ) format_style="find_vhd_files"
+			   echo "Starting formatting for VHDL files ..."
+			   echo -e "This may take a while, be patient! Approx: 30-40 mins \U0001F691";;
+        v ) format_style="find_v_files" 
+			echo "Starting formatting for Verilog/SystemVerilog files ..."
+			echo -e "This may take a while, be patient. Approx: 15 mins \U0001F691";;
+        py ) format_style="find_py_files" 
+			 echo "Starting formatting for Python files ..."
+			 echo -e "This should be quick! Approx: 5 mins \U0001F680";;
         * )
           echo "Invalid formatting option. Valid options include: c, cpp, vhdl, v, py"
           exit 1
@@ -148,3 +158,6 @@ if [ -z "$format_style" ]; then
 fi
 
 descend_and_format "$cwd" "$gitmodules" "$cwd" "$format_style"
+echo ""
+echo ""
+echo -e "\xE2\x9C\xa8 Done formatting!"
