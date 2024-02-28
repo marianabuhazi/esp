@@ -20,11 +20,18 @@ descend_and_check() {
   local cwd="$3"
 
   # Call functions to find specific file types in the current directory
-  find_c_h_files "$dir"
+#   find_c_h_files "$dir"
 	# find_cpp_hpp_files "$dir"
 #   find_py_files "$dir"
 	# find_vhd_files "$dir"
 #   find_v_files "$dir"
+
+  case "$dir" in
+    */rtl/caches/esp-caches|*/accelerators/stratus_hls/common/inc|*/rtl/caches/spandex-caches)
+      find_py_files "$dir"
+	  find_cpp_hpp_files "$dir"
+      ;;
+  esac
 
   for item in "$dir"/*; do
     if [[ -d "$item" ]]; then
@@ -50,15 +57,15 @@ descend_and_check() {
 }
 
 # Function to find .c and .h files in the current directory
-find_c_h_files() {
-  local dir="$1"
-  for file in "$dir"/*.c "$dir"/*.h; do
-    if [[ -f "$file" ]]; then
-      clang-format-10 -i "$file"
-	# echo "$file"
-    fi
-  done
-}
+# find_c_h_files() {
+#   local dir="$1"
+#   for file in "$dir"/*.c "$dir"/*.h; do
+#     if [[ -f "$file" ]]; then
+#       clang-format-10 -i "$file"
+# 	# echo "$file"
+#     fi
+#   done
+# }
 
 # Function to find .cpp files in the current directory
 find_cpp_hpp_files() {
@@ -72,15 +79,15 @@ find_cpp_hpp_files() {
 }
 
 # Function to find .py files in the current directory
-# find_py_files() {
-#   local dir="$1"
-#   for file in "$dir"/*.py; do
-#     if [[ -f "$file" ]]; then
-#       echo "$(basename "$file")"
-# 	  python3 -m autopep8 -i -a -a "$file"
-#     fi
-#   done
-# }
+find_py_files() {
+  local dir="$1"
+  for file in "$dir"/*.py; do
+    if [[ -f "$file" ]]; then
+      echo "$(basename "$file")"
+	#   python3 -m autopep8 -i -a -a "$file"
+    fi
+  done
+}
 
 # # Function to find .vhd files in the current directory
 # find_vhd_files() {
