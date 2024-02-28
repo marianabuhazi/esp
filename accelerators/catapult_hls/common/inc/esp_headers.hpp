@@ -4,9 +4,9 @@
 #ifndef __ESP_HEADERS_HPP__
 #define __ESP_HEADERS_HPP__
 
+#include "esp_dma_info.hpp"
 #include "esp_types.hpp"
 #include "esp_utils.hpp"
-#include "esp_dma_info.hpp"
 
 //#include <connections/connections.h>
 

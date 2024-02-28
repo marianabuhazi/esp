@@ -6,42 +6,36 @@
 
 #pragma once
 
-#include <sstream>
-#include <ac_int.h>
-#include <ac_fixed.h>
 #include "<accelerator_name>_specs.hpp"
+#include <ac_fixed.h>
+#include <ac_int.h>
+#include <sstream>
 
 //
 // Configuration parameters for the accelerator.
 //
 
-struct conf_info_t
-{
+struct conf_info_t {
 
     /* <<--params-->> */
 
-    static const unsigned int width = 32*/* <<--nparam-->> */;
-    template <unsigned int Size> void Marshall(Marshaller <Size> &m) {
-        /* <<--marsh-->> */
-    }
+    static const unsigned int width = 32 * /* <<--nparam-->> */;
+    template <unsigned int Size> void Marshall(Marshaller<Size> &m) { /* <<--marsh-->> */ }
 
     //
     // constructors
     //
-    conf_info_t()
-    {
-        /* <<--ctor-->> */
-    }
+    conf_info_t() { /* <<--ctor-->> */ }
 
     conf_info_t(
         /* <<--ctor-args-->> */
-        )
+    )
     {
         /* <<--ctor-custom-->> */
     }
 
     // VCD dumping function
-   inline friend void sc_trace(sc_trace_file *tf, const conf_info_t &v, const std::string &NAME)
+    inline friend void sc_trace(sc_trace_file *tf, const conf_info_t &v, const std::string &NAME)
     {
         /* <<--sctrc-->> */
 
@@ -51,7 +45,7 @@ struct conf_info_t
     }
 
     // redirection operator
-    friend ostream& operator << (ostream& os, conf_info_t const &conf_info)
+    friend ostream &operator<<(ostream &os, conf_info_t const &conf_info)
     {
         os << "{";
         /* <<--print-->> */
@@ -61,7 +55,6 @@ struct conf_info_t
         os << "}";
         return os;
     }
-
 };
 
 #endif // __MAC_CONF_INFO_HPP__
