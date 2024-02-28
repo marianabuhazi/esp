@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <math.h>
 #include <defines.h>
+#include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -26,16 +26,15 @@ void evict(int *ptr, int offset, int ways, int max_range, int hsize)
     /* 	ptr_char = (char *) ptr; */
     /* } */
 
-    for (i = 0; i <= ways; i++)
-    {
-	curr_offset += tag_offset;
-	/* curr_offset = curr_offset % max_range; */
+    for (i = 0; i <= ways; i++) {
+        curr_offset += tag_offset;
+        /* curr_offset = curr_offset % max_range; */
 
-	/* if (hsize == WORD) */
-	ptr[curr_offset] = 0xEEEEEEEE;
-	/* else if (hsize == HALFWORD) */
-	/*     ptr_short[curr_offset] = 0xEEEE; */
-	/* else */
-	/*     ptr_char[curr_offset] = 0xEE; */
+        /* if (hsize == WORD) */
+        ptr[curr_offset] = 0xEEEEEEEE;
+        /* else if (hsize == HALFWORD) */
+        /*     ptr_short[curr_offset] = 0xEEEE; */
+        /* else */
+        /*     ptr_char[curr_offset] = 0xEE; */
     }
 }
