@@ -20,10 +20,10 @@ descend_and_check() {
   local cwd="$3"
 
   # Call functions to find specific file types in the current directory
-#   find_c_h_files "$dir"
-	# find_cpp_files "$dir"
+  find_c_h_files "$dir"
+	# find_cpp_hpp_files "$dir"
 #   find_py_files "$dir"
-	find_vhd_files "$dir"
+	# find_vhd_files "$dir"
 #   find_v_files "$dir"
 
   for item in "$dir"/*; do
@@ -50,26 +50,26 @@ descend_and_check() {
 }
 
 # Function to find .c and .h files in the current directory
-# find_c_h_files() {
-#   local dir="$1"
-#   for file in "$dir"/*.c "$dir"/*.h; do
-#     if [[ -f "$file" ]]; then
-#     #   clang-format-10 -i "$file"
-# 	echo "$file"
-#     fi
-#   done
-# }
+find_c_h_files() {
+  local dir="$1"
+  for file in "$dir"/*.c "$dir"/*.h; do
+    if [[ -f "$file" ]]; then
+      clang-format-10 -i "$file"
+	# echo "$file"
+    fi
+  done
+}
 
 # Function to find .cpp files in the current directory
-# find_cpp_files() {
-#   local dir="$1"
-#   for file in "$dir"/*.cpp "$dir"/*.hpp; do
-#     if [[ -f "$file" ]]; then
-#     clang-format-10 -i "$file"
-# 	#echo "$file"
-#     fi
-#   done
-# }
+find_cpp_hpp_files() {
+  local dir="$1"
+  for file in "$dir"/*.cpp "$dir"/*.hpp; do
+    if [[ -f "$file" ]]; then
+    	clang-format-10 -i "$file"
+	# echo "$file"
+    fi
+  done
+}
 
 # Function to find .py files in the current directory
 # find_py_files() {
@@ -83,16 +83,16 @@ descend_and_check() {
 # }
 
 # # Function to find .vhd files in the current directory
-find_vhd_files() {
-  local dir="$1"
-  for file in "$dir"/*.vhd; do
-    if [[ -f "$file" ]]; then
-    #   echo "$(basename "$file")"
-	echo "Descending into: $item"
-	# vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
-    fi
-  done
-}
+# find_vhd_files() {
+#   local dir="$1"
+#   echo "Descending into: $dir"
+#   for file in "$dir"/*.vhd; do
+#     if [[ -f "$file" ]]; then
+#     #   echo "$(basename "$file")"
+# 	# vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml
+#     fi
+#   done
+# }
 
 # # Function to find .v files in the current directory
 # find_v_files() {
