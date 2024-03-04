@@ -23,6 +23,9 @@ modified_files=$(echo "$modified_files" | sed "s|^|$root_dir/|")
 echo "Formatting..."
 echo ""
 
+# Store files that encountered errors during formatting
+error_files=""
+success_files=""
 
 for file in $modified_files; do
     type="${file##*.}"
@@ -30,17 +33,33 @@ for file in $modified_files; do
     # Call appropriate formatting tool based on file extension
     case "$type" in
         c | h | cpp | hpp)
-            clang-format-10 -i "$file" > /dev/null 2>&1;;
+            clang-format-10 -i "$file" > /dev/null 2>&1 && success_files="$success_files $file" || error_files="$error_files $file";;
         py)
-            python3 -m autopep8 -i -a -a "$file" > /dev/null 2>&1;;
-		v) 
-			verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file" > /dev/null 2>&1;;
-        vhdl)
-            vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml -of summary > /dev/null 2>&1;;
+            python3 -m autopep8 -i -a -a "$file" > /dev/null 2>&1 && success_files="$success_files $file" || error_files="$error_files $file";;
+        v) 
+            verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file" > /dev/null 2>&1 && 
+			success_files="$success_files $file" || error_files="$error_files $file";;
+        vhd)
+            vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml -of summary > /dev/null 2>&1 && success_files="$success_files $file" || error_files="$error_files $file";;
         *)
             echo "Skipping formatting for $file (unsupported extension)." ;;
     esac
 done 
 
+if [ -n "$success_files" ]; then
+    echo -e "\033[32mThe following files were successfully formatted:\033[0m"
+    for file in $success_files; do
+        echo "   - $file"
+    done
+fi
+
+if [ -n "$error_files" ]; then
+    echo -e "\033[31mThere were errors formatting the following files:\033[0m"
+    for file in $error_files; do
+        echo "   - $file"
+    done
+fi
+
+echo ""
 echo -e "\U00002728 Done formatting!"
-echo "The files have been modified in place."
+
