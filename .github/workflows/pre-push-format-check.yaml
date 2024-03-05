@@ -44,7 +44,7 @@ jobs:
           source ~/.bashrc
 
       - name: Navigate to script directory
-        run: cd cd $GITHUB_WORKSPACE/utils/scripts
+        run: cd $GITHUB_WORKSPACE/utils/scripts
 
       - name: Run format check
         run: |
