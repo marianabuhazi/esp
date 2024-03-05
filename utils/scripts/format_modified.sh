@@ -113,8 +113,6 @@ while [[ $# -gt 0 ]]; do
             ;;
 		-g)
             is_github_actions=true
-			action="Check"
-            all_files=true
             ;;
         -h|--help)
             usage
