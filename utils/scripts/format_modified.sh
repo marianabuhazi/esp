@@ -171,7 +171,7 @@ if [ "$all_files" = true ]; then
 
     for file in $modified_files; do
 		echo -n "$action""ing $(basename "$file")..."
-		if ! format_file "/home/espuser/esp/$file" "$action"; then
+		if ! format_file "$file" "$action"; then
 			error_files="$error_files $file"
 		fi
 	done
