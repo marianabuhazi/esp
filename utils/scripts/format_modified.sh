@@ -61,7 +61,7 @@ esac
     local output
     case "$type" in
         c | h | cpp | hpp)
-            output=$(clang-format $clang_format_edit "$file_to_format" 2>&1);;
+            output=$(clang-format-10 $clang_format_edit "$file_to_format" 2>&1);;
         py)
             output=$(python3 -m autopep8 $autopep8_edit -a -a "$file_to_format" 2>&1);;
         sv | v) 
@@ -137,8 +137,10 @@ if [ -n "$file_to_format" ]; then
 	echo -n "$action""ing $file_to_format..."
     if format_file "$file_to_format" "$action"; then
 		echo -e "\U00002728 $action""ing done!"
+		exit 0
 	else
 		echo -e "\u274C $action""ing failed!"
+		exit 1
 	fi
 
 	exit 0
@@ -151,6 +153,7 @@ if [ "$all_files" = true ]; then
 	if [ "$is_github_actions" = true ]; then
 		modified_files=$(git diff --name-only HEAD^..HEAD | grep -E '\.(c|h|cpp|hpp|py|v|sv|vhd)$')
 	fi
+
     if [ -z "$modified_files" ]; then
         echo -e "No modified files found."
         exit 0
@@ -170,7 +173,7 @@ if [ "$all_files" = true ]; then
 
     for file in $modified_files; do
 		echo -n "$action""ing $(basename "$file")..."
-		if ! format_file "$file" "$action"; then
+		if ! format_file "/home/espuser/esp/$file" "$action"; then
 			error_files="$error_files $file"
 		fi
 	done
@@ -179,8 +182,10 @@ if [ "$all_files" = true ]; then
 	echo ""
 	if [ -n "$error_files" ]; then
 		echo -e "\u274C $action""ing failed!"
+		exit 1
 	else
 		echo -e "\U00002728 $action""ing done!"
+		exit 0
 	fi
 else
     usage
