@@ -3,69 +3,145 @@
 root_dir=$(git rev-parse --show-toplevel)
 
 usage() {
-    echo "ESP modified file formatter ✨🛠️"
+    echo "ESP modified file format checker ✨🛠️"
     echo ""
     echo "Usage: $0 [OPTIONS]"
-    echo "  -h, --help         Display this help message"
-    echo "  -a, --all          Format all modified files tracked by Git"
-    echo "  -f <file>          Specify a file to format"
+    echo "  -h      Display this help message"
+	echo ""
+    echo "  -f      Fix formatting for file(s)"
+	echo "  -c      Check formatting for file(s)"
+    echo "  -a      Apply to all"  
     echo ""
-    echo "Example:"
-    echo "  $0 -a                        # Format all modified files"
-    echo "  $0 -f myfile.py              # Format a specific file"
+    echo "Examples:"
+    echo "  $0 -fa                    # Fix all modified files in-place"
+    echo "  $0 -f myfile.py           # Fix myfile.py in-place"
+	echo "  $0 -ca                    # Report violations for all modified files"
+    echo "  $0 -c myfile.py           # Report violations for myfile.py"
     exit 1
 }
 
 format_file() {
     local file_to_format="$1"
+	local action="$2"
     local type="${file_to_format##*.}"
+
+	case "$action" in
+    Formatt)
+        case "$type" in
+            c | h | cpp | hpp)
+                clang_format_edit="-i" ;;
+            py)
+                autopep8_edit="-i" ;;
+            sv | v) 
+                verible_edit="--inplace" ;;
+            vhd)
+                vsg_edit="--fix" ;;
+        esac
+        ;;
+    Check)
+		case "$type" in
+            c | h | cpp | hpp)
+                clang_format_edit="--dry-run" ;;
+            py)
+                autopep8_edit="--list-fixes" ;;
+            sv | v) 
+                verible_edit="--verify";;
+            vhd)
+                ;;
+        esac
+		;;
+    *)
+        echo "Unknown action: $action" >&2
+        usage
+        ;;
+esac
 
     local output
     case "$type" in
         c | h | cpp | hpp)
-            output=$(clang-format-10 -i "$file_to_format" 2>&1) ;;
+            output=$(clang-format-10 $clang_format_edit "$file_to_format" 2>&1);;
         py)
-            output=$(python3 -m autopep8 -i -a -a "$file_to_format" 2>&1) ;;
+            output=$(python3 -m autopep8 $autopep8_edit -a -a "$file_to_format" 2>&1);;
         sv | v) 
-            output=$(verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file_to_format" 2>&1) ;;
+            output=$(verible-verilog-format $verible_edit --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file_to_format" 2>&1) ;;
         vhd)
-            output=$(vsg -f "$file_to_format" --fix -c ~/esp/vhdl-style-guide.yaml 2>&1) ;;
+            output=$(vsg -f "$file_to_format" $vsg_edit -c ~/esp/vhdl-style-guide.yaml 2>&1) ;;
     esac
 
-    if [ $? -eq 0 ]; then
+	if [ $? -eq 0 ]; then
 		echo -e " \033[32mSUCCESS\033[0m"
-		echo ""
         return 0
     else
 		echo -e " \033[31mFAILED\033[0m"
-        echo -e "  $output"
+        echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
     fi
+
+    # if [ "$action" = "Check" ]; then
+    #     if [ -n "$output" ]; then
+	# 		echo -e " \033[31mFAILED\033[0m"
+    #         echo "$output" | sed 's/^/  /'
+	# 		echo ""
+    #     else
+	# 		echo -e " \033[32mSUCCESS\033[0m"
+	# 		echo ""
+    #     fi
+    # else
+    #     if [ -n "$output" ]; then
+    #         echo -e " \033[31mFAILED\033[0m"
+    #         echo "$output" | sed 's/^/  /'
+    #         echo ""
+    #         return 1
+    #     else
+    #         echo -e " \033[32mSUCCESS\033[0m"
+    #         echo ""
+    #         return 0
+    #     fi
+    # fi
 }
 
-while getopts ":haf:" opt; do
-    case ${opt} in
-        h)
-            usage
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        -f)
+            if [[ -z $2 || $2 == -* ]]; then
+                echo "Option -f requires an argument." >&2
+                usage
+            fi
+            action="Formatt"
+            file_to_format="$2"
+            shift
             ;;
-        a)
+        -fa)
+            action="Formatt"
             all_files=true
             ;;
-        f)
-            file_to_format=$OPTARG
+        -c)
+            if [[ -z $2 || $2 == -* ]]; then
+                echo "Option -c requires an argument." >&2
+                usage
+            fi
+            action="Check"
+            file_to_format="$2"
+            shift
             ;;
-        \?)
-            echo "Invalid option: -$OPTARG" >&2
+        -ca)
+            action="Check"
+            all_files=true
+            ;;
+        -h|--help)
             usage
             ;;
-        :)
-            echo "Option -$OPTARG requires an argument." >&2
+        *)
+            echo "Unknown option: $1" >&2
             usage
             ;;
     esac
+    shift
 done
-shift $((OPTIND -1))
+
 
 if [ -n "$file_to_format" ]; then
 	if [ ! -f "$file_to_format" ]; then
@@ -73,11 +149,11 @@ if [ -n "$file_to_format" ]; then
         exit 1
     fi
 
-    echo -n "Formatting $file_to_format..."
-    if format_file "$file_to_format"; then
-		echo -e "\U00002728 Done formatting!"
+	echo -n "$action""ing $file_to_format..."
+    if format_file "$file_to_format" "$action"; then
+		echo -e "\U00002728 $action""ing done!"
 	else
-		echo -e "\u274C Formatting failed!"
+		echo -e "\u274C $action""ing failed!"
 	fi
 
 	exit 0
@@ -105,8 +181,8 @@ if [ "$all_files" = true ]; then
     success_files=""
 
     for file in $modified_files; do
-		echo -n "Formatting $(basename "$file")..."
-		if ! format_file "$file"; then
+		echo -n "$action""ing $(basename "$file")..."
+		if ! format_file "$file" "$action"; then
 			error_files="$error_files $file"
 		fi
 	done
@@ -114,9 +190,9 @@ if [ "$all_files" = true ]; then
 
 	echo ""
 	if [ -n "$error_files" ]; then
-		echo -e "\u274C Formatting failed!"
+		echo -e "\u274C $action""ing failed!"
 	else
-		echo -e "\U00002728 Done formatting!"
+		echo -e "\U00002728 $action""ing done!"
 	fi
 else
     usage
