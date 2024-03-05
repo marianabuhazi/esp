@@ -51,8 +51,8 @@ jobs:
 
       - name: Run format check
         run: |
-          chmod +x format_modified.sh
-          if ! ./format_modified.sh -g -ca; then
+          chmod +x $GITHUB_WORKSPACE/utils/scripts/format_modified.sh
+          if ! ./$GITHUB_WORKSPACE/utils/scripts/format_modified.sh -g -ca; then
             echo "Code format check failed. Please fix the formatting issues."
             exit 1
           fi
