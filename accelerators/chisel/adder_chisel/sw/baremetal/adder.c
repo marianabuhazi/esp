@@ -20,6 +20,7 @@ static unsigned DMA_WORD_PER_BEAT(unsigned _st)
 
 
 #define SLD_ADDER 0x013
+
 #define DEV_NAME "sld,adder_chisel"
 
 /* <<--params-->> */
