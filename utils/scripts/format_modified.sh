@@ -69,7 +69,7 @@ esac
         sv | v) 
             output=$(verible-verilog-format $verible_edit --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file_to_format" 2>&1) ;;
         vhd)
-            output=$(vsg -f "$file_to_format" $vsg_edit -c ~/esp/vhdl-style-guide.yaml 2>&1) ;;
+            output=$(vsg -f "$file_to_format" $vsg_edit -c $GITHUB_WORKSPACE/vhdl-style-guide.yaml 2>&1) ;;
     esac
 
 	if [ $? -eq 0 ]; then
