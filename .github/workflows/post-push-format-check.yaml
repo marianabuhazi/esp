@@ -1,11 +1,11 @@
-name: Pre-push Format Checker
+name: Post-push Format Checker
 
 on:
   push:
     branches:
-      - '*'
-    paths-ignore:
-      - 'README.md'  # Ignore files you don't want to trigger the workflow for
+      - dev
+      - master
+      - demo
 
 jobs:
   format-check:
