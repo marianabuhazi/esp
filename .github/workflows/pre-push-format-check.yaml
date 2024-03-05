@@ -1,0 +1,51 @@
+name: Pre-push Format Checker
+
+on:
+  push:
+    branches:
+      - '*'
+    paths-ignore:
+      - 'README.md'  # Ignore files you don't want to trigger the workflow for
+
+jobs:
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install vsg
+        run: |
+          pip3 install vsg
+          echo 'export PATH="$PATH:/home/espuser/.local/bin/"' >> ~/.bashrc
+
+      - name: Install clang-format-10
+        run: |
+          sudo apt-get install -y clang-format-10
+
+      - name: Install autopep8
+        run: |
+          pip3 install autopep8
+
+      - name: Install Verible
+        run: |
+          wget https://github.com/chipsalliance/verible/releases/download/v0.0-3545-ge4028f19/verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+          tar -xvf verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+          rm verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+          mv verible-v0.0-3545-ge4028f19/ verible 
+          export PATH=$PATH:/home/espuser/verible/bin
+          echo 'export PATH="$PATH:/home/espuser/verible/bin"' >> ~/.bashrc
+
+      - name: Source .bashrc
+        run: |
+          source ~/.bashrc
+
+      - name: Run format check
+        run: |
+          chmod +x format_modified.sh
+          if ! ./format_modified.sh -g -ca; then
+            echo "Code format check failed. Please fix the formatting issues."
+            exit 1
+          fi

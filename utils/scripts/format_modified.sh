@@ -1,6 +1,7 @@
 #!/bin/bash
 
 root_dir=$(git rev-parse --show-toplevel)
+is_github_actions=false
 
 usage() {
     echo "ESP modified file format checker ✨🛠️"
@@ -11,6 +12,7 @@ usage() {
     echo "  -f      Fix formatting for file(s)"
 	echo "  -c      Check formatting for file(s)"
     echo "  -a      Apply to all"  
+	echo "  -g      Run as Github Actions pre-push workflow"  
     echo ""
     echo "Examples:"
     echo "  $0 -fa                    # Fix all modified files in-place"
@@ -109,6 +111,11 @@ while [[ $# -gt 0 ]]; do
             action="Check"
             all_files=true
             ;;
+		-g)
+            is_github_actions=true
+			action="Check"
+            all_files=true
+            ;;
         -h|--help)
             usage
             ;;
@@ -141,6 +148,9 @@ fi
 if [ "$all_files" = true ]; then
     modified_files=$(git status --porcelain | grep -E '^ M|^??' | awk '$2 ~ /\.(c|h|cpp|hpp|py|v|sv|vhd)$/ {print $2}')
 
+	if [ "$is_github_actions" = true ]; then
+		modified_files=$(git diff --name-only HEAD^..HEAD | grep -E '\.(c|h|cpp|hpp|py|v|sv|vhd)$')
+	fi
     if [ -z "$modified_files" ]; then
         echo -e "No modified files found."
         exit 0
