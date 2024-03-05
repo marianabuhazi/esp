@@ -8,13 +8,13 @@
 
 # Display usage instructions
 display_usage() {
-  echo "Recursively format all files in the /esp repository."
+  echo "Recursively format all files in the /esp repository. 🛠️ ✨"
   echo ""
   echo "Usage: $0 [-t {c, cpp, vhdl, v, py}]"
   echo "Options:"
   echo "  -t, --type {c, cpp, vhdl, v, py}  Specify the type of files to format."
   echo "                                    Supported options: c, cpp, vhdl, v, py"
-  echo "  -h, --h , --help                  Display this help message."
+  echo "  -h, --help                         Display this help message."
 }
 
 # Check if a directory is a submodule
