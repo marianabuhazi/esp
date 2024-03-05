@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Install vsg
         run: |
@@ -45,14 +47,11 @@ jobs:
 
       - name: Navigate to script directory
         run: cd $GITHUB_WORKSPACE/utils/scripts
-      
-      - name: List directory contents
-        run: ls -la $GITHUB_WORKSPACE/utils/scripts
 
       - name: Run format check
         run: |
           chmod +x $GITHUB_WORKSPACE/utils/scripts/format_modified.sh
           if ! $GITHUB_WORKSPACE/utils/scripts/format_modified.sh -g -ca; then
-            echo "Code format check failed. Please fix the formatting issues."
-            exit 1
+            echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
+            exit 1 
           fi
