@@ -44,12 +44,12 @@ jobs:
           source ~/.bashrc
 
       - name: Navigate to script directory
-        run: cd ~/esp/utils/scripts
+        run: cd cd $GITHUB_WORKSPACE/utils/scripts
 
       - name: Run format check
         run: |
           chmod +x format_modified.sh
-          if ! ~/esp/utils/scripts./format_modified.sh -g -ca; then
+          if ! ./format_modified.sh -g -ca; then
             echo "Code format check failed. Please fix the formatting issues."
             exit 1
           fi
