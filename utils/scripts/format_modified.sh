@@ -77,28 +77,6 @@ esac
 		echo ""
         return 1
     fi
-
-    # if [ "$action" = "Check" ]; then
-    #     if [ -n "$output" ]; then
-	# 		echo -e " \033[31mFAILED\033[0m"
-    #         echo "$output" | sed 's/^/  /'
-	# 		echo ""
-    #     else
-	# 		echo -e " \033[32mSUCCESS\033[0m"
-	# 		echo ""
-    #     fi
-    # else
-    #     if [ -n "$output" ]; then
-    #         echo -e " \033[31mFAILED\033[0m"
-    #         echo "$output" | sed 's/^/  /'
-    #         echo ""
-    #         return 1
-    #     else
-    #         echo -e " \033[32mSUCCESS\033[0m"
-    #         echo ""
-    #         return 0
-    #     fi
-    # fi
 }
 
 while [[ $# -gt 0 ]]; do
