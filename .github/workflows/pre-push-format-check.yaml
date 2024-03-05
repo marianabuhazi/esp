@@ -42,9 +42,9 @@ jobs:
       - name: Source .bashrc
         run: |
           source ~/.bashrc
-          
+
       - name: Navigate to script directory
-        run: cd /utils/scripts
+        run: cd ~/esp/utils/scripts
 
       - name: Run format check
         run: |
