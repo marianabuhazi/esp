@@ -47,7 +47,7 @@ jobs:
         run: cd $GITHUB_WORKSPACE/utils/scripts
       
       - name: List directory contents
-      run: ls -la $GITHUB_WORKSPACE/utils/scripts
+        run: ls -la $GITHUB_WORKSPACE/utils/scripts
 
       - name: Run format check
         run: |
