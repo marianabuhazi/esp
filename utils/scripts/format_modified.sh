@@ -61,7 +61,7 @@ esac
     local output
     case "$type" in
         c | h | cpp | hpp)
-            output=$(clang-format-10 $clang_format_edit "$file_to_format" 2>&1);;
+            output=$(clang-format $clang_format_edit "$file_to_format" 2>&1);;
         py)
             output=$(python3 -m autopep8 $autopep8_edit -a -a "$file_to_format" 2>&1);;
         sv | v) 
