@@ -45,6 +45,9 @@ jobs:
 
       - name: Navigate to script directory
         run: cd $GITHUB_WORKSPACE/utils/scripts
+      
+      - name: List directory contents
+      run: ls -la $GITHUB_WORKSPACE/utils/scripts
 
       - name: Run format check
         run: |
