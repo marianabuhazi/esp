@@ -1,0 +1,11 @@
+name: Make Test
+on: workflow_dispatch
+jobs:
+  example-job:
+    runs-on: self-hosted
+    steps:
+      - name: Navigate to directory
+        run: cd ~/esp/socs/xilinx-vc707-xc7vx485t
+        run: echo "Navigated to proper directory."
+      - name: Run behavioral simulation
+        run: make cholesky_stratus-sim
