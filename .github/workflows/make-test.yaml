@@ -4,9 +4,8 @@ jobs:
   example-job:
     runs-on: self-hosted
     steps:
-      - name: Navigate to directory
+      - name: Run behavioral sim
         run: |
           cd ~/esp/socs/xilinx-vc707-xc7vx485t
           pwd
-      - name: Run behavioral simulation
-        run: make cholesky_stratus-exe
+          make cholesky_stratus-exe
