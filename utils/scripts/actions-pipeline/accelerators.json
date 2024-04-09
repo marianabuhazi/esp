@@ -1,0 +1,17 @@
+{
+	"accelerators": [
+	  {
+		"name": "cholesky_stratus",
+		"path": "accelerators/stratus_hls/cholesky_stratus",
+		"behavioral": "cholesky_stratus-exe",
+		"sim": "cholesky_stratus-sim"
+	  },
+	  {
+		"name": "dummy_stratus",
+		"path": "accelerators/stratus_hls/dummy_stratus",
+		"behavioral": "dummy_stratus-exe",
+		"sim": "dummy_stratus-sim"
+	  }
+	]
+  }
+  
