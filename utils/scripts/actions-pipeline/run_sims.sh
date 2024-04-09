@@ -1,20 +1,21 @@
 #!/bin/bash
 
+list_descendants() {
+  local children=$(ps -o pid= --ppid "$1")
+
+  for pid in $children; do
+    list_descendants "$pid"
+  done
+
+  echo "$children"
+}
+
 cleanup() {
-    echo "Terminating..."
-
-    script_pid=$$
-
-    # Find all process groups associated with the script
-    pgids=$(ps -o pgid= -p $(pgrep -P $script_pid))
-
-    # Kill all process groups
-    for pgid in $pgids; do
-        echo "Killing process group $pgid"
-        kill -- "-$pgid"
-    done
-	echo "Exiting..."
-	exit
+  echo "Terminating all child processes and their descendants..."
+  local descendants=$(list_descendants $$)
+  kill $descendants
+  echo "Exiting..."
+  exit
 }
 
 # Trap SIGINT signal (Ctrl+C) to run cleanup function
@@ -36,6 +37,7 @@ for ((i=0; i<CORES; i++)); do
 done
 
 results=()
+child_processes=() 
 
 min_core=0
 min_jobs=100
@@ -48,7 +50,12 @@ for accelerator_name in "${modified_accelerators[@]}"; do
     done
 
     echo "Starting RTL simulation for $accelerator_name on CPU core $min_core"
-    setsid ./run_job.sh "$accelerator_name" "$min_core" &
+	sim=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.sim')
+
+    (cd ~/esp/socs/xilinx-vc707-xc7vx485t && taskset -c "$min_core" setsid make "$sim" > "logs/hls/${accelerator_name}_sim.log" 2>&1) &
+	child_processes+=("$!")
+
+	echo "Process ${child_processes[-1]}"
 
     ((core_jobs[$min_core]++))
 	min_jobs=${core_jobs[$min_core]}
@@ -57,7 +64,6 @@ done
 # Wait for all jobs to finish
 echo ""
 echo "Waiting for all jobs to finish..."
-wait
 
 # Check the exit status of each job and store the result
 for accelerator_name in "${modified_accelerators[@]}"; do
