@@ -1,0 +1,15 @@
+name: Regression Test
+on:
+  push:
+    branches:
+      - pipeline-sandbox
+
+jobs:
+  example-job:
+    runs-on: self-hosted
+    steps:
+      - name: Run RTL simulations
+        run: |
+          cd $HOME/esp/utils/scripts/actions-pipeline
+          pwd
+          ./run_sims.sh
