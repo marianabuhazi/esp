@@ -45,6 +45,7 @@ done
 
 results=()
 child_processes=()
+pass_jobs_file="passing_accelerators"
 
 min_core=0
 min_jobs=100
@@ -57,9 +58,9 @@ for accelerator_name in "${modified_accelerators[@]}"; do
     done
 
     echo "Starting RTL simulation for $accelerator_name on CPU core $min_core"
-    sim=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.sim')
+    sim=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.behavioral')
 
-    (cd ~/esp/socs/xilinx-vc707-xc7vx485t && taskset -c "$min_core" setsid make "$sim" > "logs/hls/${accelerator_name}_sim.log" 2>&1) &
+    (cd ~/esp/socs/xilinx-vc707-xc7vx485t && taskset -c "$min_core" setsid make "$sim" > "logs/hls/${accelerator_name}_exe.log" 2>&1) &
     child_processes+=("$!")
 
     job_names[$!]="$accelerator_name"  # Associate PID with accelerator name
@@ -77,8 +78,10 @@ echo "Waiting for all jobs to finish..."
 for pid in "${child_processes[@]}"; do
     wait "$pid"
     if [ $? -eq 0 ]; then
-        if grep -q "validation: passed!" "$HOME/esp/socs/xilinx-vc707-xc7vx485t/logs/hls/${job_names[$pid]}_sim.log"; then
-            results+=("${job_names[$pid]}: pass")  # Print accelerator name with result
+        validation_passed_count=$(grep -o "validation passed!" "$HOME/esp/socs/xilinx-vc707-xc7vx485t/logs/hls/${job_names[$pid]}_exe.log" | wc -l)
+        if [ "$validation_passed_count" -eq 1 ]; then
+            results+=("${job_names[$pid]}: pass") # Print accelerator name with result
+            echo "${job_names[$pid]}" >> "$pass_jobs_file"
         else
             results+=("${job_names[$pid]}: fail")  # Print accelerator name with result
         fi
