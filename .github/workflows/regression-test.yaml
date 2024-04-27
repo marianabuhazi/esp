@@ -5,10 +5,12 @@ on:
       - pipeline-sandbox
 
 jobs:
-  example-job:
+  end2end:
     runs-on: self-hosted
     steps:
-      - name: Run RTL simulations
+      - name: Discover modified accelerators
+        id: discover_accelerators
         run: |
           cd $HOME/esp/utils/scripts/actions-pipeline
-          ./get_modified_accelerators.sh
+          modified_accelerators=$(./get_modified_accelerators.sh)
+          echo "::set-output name=modified_accelerators::$modified_accelerators"
