@@ -14,4 +14,5 @@ jobs:
           ./get_modified_accelerators.sh
       - name: Run behavioral simulations
         run: |
+          cd $HOME/esp/utils/scripts/actions-pipeline
           ./run_sims.sh
