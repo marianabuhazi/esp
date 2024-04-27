@@ -11,8 +11,4 @@ jobs:
       - name: Run RTL simulations
         run: |
           cd $HOME/esp/utils/scripts/actions-pipeline
-          ./run_sims.sh
-      - name: Run esp-config
-        run: |
-          cd $HOME/esp/utils/scripts/actions-pipeline
-          ./run_esp-config.sh
+          ./get_modified_accelerators.sh
