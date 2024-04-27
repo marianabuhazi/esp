@@ -23,7 +23,6 @@ cleanup() {
   exit
 }
 
-
 # Trap SIGINT signal (Ctrl+C) to run cleanup function
 trap cleanup SIGINT
 
@@ -31,7 +30,7 @@ echo "Getting modified accelerators..."
 source get_modified_accelerators.sh
 
 echo ""
-echo "Sourcing tools"
+echo "Exporting tools..."
 source /opt/cad/scripts/tools_env.sh
 echo ""
 
@@ -56,7 +55,7 @@ for accelerator_name in "${modified_accelerators[@]}"; do
     done
 
     echo "Starting RTL simulation for $accelerator_name on CPU core $min_core"
-    hls=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.hls')
+    hls=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.behavioral')
 
     (cd ~/esp/socs/xilinx-vc707-xc7vx485t && taskset -c "$min_core" setsid make "$hls" > "logs/hls/${accelerator_name}_test.log" 2>&1) &
     child_processes+=("$!")
@@ -76,5 +75,6 @@ echo "Waiting for all jobs to finish..."
 for pid in "${child_processes[@]}"; do
     wait "$pid"
     # Print the latest job result with accelerator name
-	echo "HLS completed for acc: ${job_names[$pid]}"
+	echo "HLS completed for accelerator:"
+	echo "-- ${job_names[$pid]}"
 done
