@@ -55,7 +55,7 @@ for accelerator_name in "${modified_accelerators[@]}"; do
     done
 
     echo "Starting RTL simulation for $accelerator_name on CPU core $min_core"
-    hls=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.behavioral')
+    hls=$(jq --arg name "$accelerator_name" '.accelerators[] | select(.name == $name)' "$ACCELERATORS" | jq -r '.hls')
 
     (cd ~/esp/socs/xilinx-vc707-xc7vx485t && taskset -c "$min_core" setsid make "$hls" > "logs/hls/${accelerator_name}_test.log" 2>&1) &
     child_processes+=("$!")
