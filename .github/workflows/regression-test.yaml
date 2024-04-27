@@ -5,12 +5,10 @@ on:
       - pipeline-sandbox
 
 jobs:
-  end2end:
+  regression:
     runs-on: self-hosted
     steps:
       - name: Discover modified accelerators
-        id: discover_accelerators
         run: |
           cd $HOME/esp/utils/scripts/actions-pipeline
-          modified_accelerators=$(./get_modified_accelerators.sh)
-          echo "::set-output name=modified_accelerators::$modified_accelerators"
+          ./get_modified_accelerators.sh

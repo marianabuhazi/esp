@@ -25,5 +25,7 @@ for file in $modified_files; do
     done < <(jq -c '.accelerators[]' "$ACCELERATORS")
 done
 
-echo "Modified Accelerators:"
-echo "${modified_accelerators[@]}"
+echo "Modified accelerators:"
+for acc in "${modified_accelerators[@]}"; do
+	echo "-- $acc"
+done
