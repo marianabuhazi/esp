@@ -25,3 +25,8 @@ for accelerator in "${accelerators[@]}"; do
 
     latest_versions["$accelerator"]="${latest_version#*_*_}"
 done
+
+echo "Successful HLS work folders:"
+for accelerator in "${!latest_versions[@]}"; do
+    echo "-- $accelerator: ${latest_versions[$accelerator]}"
+done

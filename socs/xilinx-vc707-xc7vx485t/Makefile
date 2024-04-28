@@ -44,18 +44,18 @@ TOP_VLOG_SIM_SRCS +=
 
 
 ### Xilinx Vivado hw_server ###
-FPGA_HOST=goliah
+FPGA_HOST=goliah.cs.columbia.edu
 XIL_HW_SERVER_PORT=3132
 
 
 ### Network configuration ###
 
 # IP address or host name of the host connected to the FPGA
-UART_IP=goliah
+UART_IP=goliah.cs.columbia.edu
 UART_PORT=4332
 
 # SSH IP address or host name of the ESP Linux instance or gateway
-SSH_IP=espgate
+SSH_IP=espgate.cs.columbia.edu
 SSH_PORT=5509
 
 # ESPLink IP address or gateway (DO NOT USE HOST NAME)
