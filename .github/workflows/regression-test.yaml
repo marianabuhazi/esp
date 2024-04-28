@@ -8,14 +8,14 @@ jobs:
   regression:
     runs-on: self-hosted
     steps:
-      # - name: Discover modified accelerators
-      #   run: |
-      #     cd $HOME/esp/utils/scripts/actions-pipeline
-      #     ./get_modified_accelerators.sh
-      # - name: Run HLS
-      #   run: |
-      #     cd $HOME/esp/utils/scripts/actions-pipeline
-      #     ./run_sims.sh
+      - name: Discover modified accelerators
+        run: |
+          cd $HOME/esp/utils/scripts/actions-pipeline
+          ./get_modified_accelerators.sh
+      - name: Run HLS
+        run: |
+          cd $HOME/esp/utils/scripts/actions-pipeline
+          ./run_sims.sh
       - name: Generate bitstream and program FPGA
         run: |
           cd $HOME/esp/utils/scripts/actions-pipeline
