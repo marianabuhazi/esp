@@ -23,7 +23,7 @@ for accelerator in "${!latest_versions[@]}"; do
 	# make esp-config
 	# make vivado-syn &> "$vivado_syn"
 	echo "make vivado-syn"
-	if [ -s "top.bit" ]; then
+	if [ -s "systest.c" ]; then
 		# make soft
 		# make fpga-program &> "$fpga_program"
 		# if grep -q ERROR "$fpga_program"; then
