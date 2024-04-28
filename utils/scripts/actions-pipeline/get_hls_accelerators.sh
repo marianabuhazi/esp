@@ -1,32 +1,46 @@
 #!/bin/bash
 
+# Output styles
+NC='\033[0m' 
+BOLD='\033[1m'
+EMOJI_CHECK="\xE2\x9C\x94"
+
+# Navigate to the acc HLS directory
 cd "$HOME/esp/tech/virtex7/"
 directory="acc"
 
 accelerators=()
 
+# All sub-directories in virtex7/acc represent accelerators post-HLS
+# Iterate over them
 for dir in "$directory"/*/; do
-    accelerator_name=$(basename "$dir")
-    accelerators+=("$accelerator_name")
+    if [ -d "$dir" ]; then  # Check if the directory exists
+        accelerator_name=$(basename "$dir")
+        accelerators+=("$accelerator_name")
+    fi
 done
 
-declare -A latest_versions
+# Create a dictionary to map accelerator to its dma size
+declare -A dma
 
+# Iterate over available dma sizes
+# Pick the greatest one
 for accelerator in "${accelerators[@]}"; do
-    versions=()
-    for version_dir in "$directory/$accelerator"/*/; do
-        version=$(basename "$version_dir")
-        versions+=("$version")
+    sizes=()
+    for size_dir in "$directory/$accelerator"/*/; do
+        size=$(basename "$size_dir")
+        sizes+=("$size")
     done
     
-    sorted_versions=($(printf "%s\n" "${versions[@]}" | sort))
-    
-    latest_version="${sorted_versions[-1]}"
-
-    latest_versions["$accelerator"]="${latest_version#*_*_}"
+    sorted_sizes=($(printf "%s\n" "${sizes[@]}" | sort))
+    dma["$accelerator"]="${sorted_sizes[-1]#*_*_}"
 done
 
-echo "Successful HLS work folders:"
-for accelerator in "${!latest_versions[@]}"; do
-    echo "-- $accelerator: ${latest_versions[$accelerator]}"
-done
+echo -e "${BOLD}HLS SUCCEEDED FOR...${NC}"
+if [ ${#dma[@]} -eq 0 ]; then
+    echo "0 accelerators"
+else
+    for accelerator in "${!dma[@]}"; do
+        echo -e "  ${EMOJI_CHECK} [${dma[$accelerator]}] $accelerator"
+    done
+fi
