@@ -1,19 +1,27 @@
 #!/bin/bash
 
-ACCELERATORS="accelerators.json"
+# Output styles
+NC='\033[0m' 
+BOLD='\033[1m'
+EMOJI_CHECK="\xE2\x9C\x94"
 
+# Configuration:
+# Defines what accelerators to consider changes for.
+ACCELERATORS="accelerators.json"
 if [ ! -f "$ACCELERATORS" ]; then
-    echo "$ACCELERATORS file not found."
+    echo -e "${RED}Error:${NC} $ACCELERATORS file not found."
     exit 1
 fi
 
+# Get all the files that were modified compared to master branch.
 modified_files=$(git diff master --name-only)
 
 modified_accelerators=()
 
 # Loop through each modified file
+# Check whether it's an accelerator we should consider
+# If it is, add it as a "modified accelerator"
 for file in $modified_files; do
-    # Loop through each accelerator
     while read -r accelerator; do
         path=$(jq -r '.path' <<< "$accelerator")
         if [[ "$file" == "$path"* ]]; then
@@ -25,7 +33,7 @@ for file in $modified_files; do
     done < <(jq -c '.accelerators[]' "$ACCELERATORS")
 done
 
-echo "Modified accelerators:"
+echo -e "${BOLD}MODIFIED ACCELERATORS:${NC}"
 for acc in "${modified_accelerators[@]}"; do
-	echo "-- $acc"
+    echo -e "  ${EMOJI_CHECK} $acc"
 done
