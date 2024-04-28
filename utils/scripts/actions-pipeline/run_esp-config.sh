@@ -36,7 +36,7 @@ for accelerator in "${!latest_versions[@]}"; do
 		# rm "$fpga_program"
 		make uart &
         uart_pid=$!
-		echo "THE PID IS uart_pid"
+		echo "THE PID IS $uart_pid"
         make fpga-run
         kill -9 "$uart_pid"
 		mv minicom.log "$minicom"
