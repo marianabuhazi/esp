@@ -12,6 +12,9 @@ source "get_hls_accelerators.sh"
 defconfig="$HOME/esp/socs/defconfig/esp_xilinx-vc707-xc7vx485t_defconfig"
 esp_config="$HOME/esp/socs/xilinx-vc707-xc7vx485t/socgen/esp/.esp_config"
 
+# FPGA run
+fpga_run="$HOME/esp/utils/scripts/actions-pipeline/./run_fpga_program.sh"
+
 for accelerator in "${!dma[@]}"; do
     accelerator_upper=$(echo "$accelerator" | tr '[:lower:]' '[:upper:]')
 
@@ -52,7 +55,7 @@ for accelerator in "${!dma[@]}"; do
 	make vivado-syn > "$vivado_syn" 2>&1
 
 	# Run FPGA-program if bitstream gen suceeds
-	if [ -s "systest.c" ]; then
+	if [ -s "top.bit" ]; then
 		make fpga-program > "$fpga_program" 2>&1
 		if grep -q ERROR "$fpga_program"; then
 			echo ""
@@ -66,16 +69,16 @@ for accelerator in "${!dma[@]}"; do
 			echo ""
 		fi
 
-		# Open minicom
-		make uart > "$minicom" 2>&1 &
-        uart_pid=$!
+		# Open Minicom in the foreground
+		socat pty,link=ttyV0,waitslave,mode=777 tcp:goliah.cs.columbia.edu:4332 &
+		socat_pid=$!
+		sleep 2
+		VIRTUAL_DEVICE=$(readlink ttyV0)
 
-		# Run fpga program
-        make fpga-run > "$run" 2>&1
-		sleep 5
-		
-		# Log minicom output and kill
-		wait "$uart_pid"
+		# Run fpga program in the background
+		$fpga_run > "$run" 2>&1 &
+		minicom -p "$VIRTUAL_DEVICE" -C "$minicom"
+		kill -9 "$socat_pid"
 	else
 		echo -e "${BOLD}BITSTREAM GENERATION FAILED...${NC}"
 		echo -e "  - $accelerator"
