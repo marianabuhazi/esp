@@ -11,7 +11,7 @@ ttyV0:
 	@sleep 1
 
 uart: ttyV0
-	@VIRTUAL_DEVICE=$$(readlink ttyV0); minicom -p $$VIRTUAL_DEVICE -C minicom.log;
+	@VIRTUAL_DEVICE=$$(readlink ttyV0); minicom -p $$VIRTUAL_DEVICE;
 
 ifneq ($(DISPLAY),)
 xuart: ttyV0
