@@ -45,17 +45,10 @@ jobs:
       - name: Source .bashrc
         run: |
           source ~/.bashrc
-
-      - name: Navigate to script directory
+      - name: Run code formatting check
         run: |
-          cd $GITHUB_WORKSPACE
-          pwd
-
-      # - name: Run code formatting check
-      #   run: |
-      #     pwd
-      #     chmod +x $GITHUB_WORKSPACE/utils/scripts/code-format/format_modified.sh
-      #     if ! $GITHUB_WORKSPACE/utils/scripts/code-format/format_modified.sh -g -ca; then
-      #       echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
-      #       exit 1 
-      #     fi
+          chmod +x $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/format_modified.sh
+          if ! $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/format_modified.sh -g -ca; then
+            echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
+            exit 1 
+          fi
