@@ -70,14 +70,18 @@ for accelerator in "${!dma[@]}"; do
 		fi
 
 		# Open Minicom in the foreground
+		echo -e "${BOLD}OPENING MINICOM...${NC}"
+		echo ""
 		socat pty,link=ttyV0,waitslave,mode=777 tcp:goliah.cs.columbia.edu:4332 &
 		socat_pid=$!
 		sleep 2
 		VIRTUAL_DEVICE=$(readlink ttyV0)
 
 		# Run fpga program in the background
+		echo -e "${BOLD}WRITING RESULTS TO MINICOM...${NC}"
+		echo ""
 		$fpga_run > "$run" 2>&1 &
-		minicom -p "$VIRTUAL_DEVICE" -C "$minicom"
+		minicom -p "$VIRTUAL_DEVICE" -C "$minicom" 2>&1
 		kill -9 "$socat_pid"
 	else
 		echo -e "${BOLD}BITSTREAM GENERATION FAILED...${NC}"
