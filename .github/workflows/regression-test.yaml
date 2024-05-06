@@ -47,13 +47,13 @@ jobs:
           source ~/.bashrc
 
       - name: Navigate to script directory
-        run: cd $GITHUB_WORKSPACE/utils/scripts
+        run: cd $HOME/utils/scripts
 
       - name: Run code formatting check
         run: |
           pwd
-          chmod +x $GITHUB_WORKSPACE/utils/scripts/code-format/format_modified.sh
-          if ! $GITHUB_WORKSPACE/utils/scripts/code-format/format_modified.sh -g -ca; then
+          chmod +x $HOME/utils/scripts/code-format/format_modified.sh
+          if ! $HOME/utils/scripts/code-format/format_modified.sh -g -ca; then
             echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
             exit 1 
           fi
