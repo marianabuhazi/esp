@@ -57,7 +57,9 @@ jobs:
           . ~/.bashrc
       - name: Run code formatting check
         run: |
-          cd $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/
+          pwd
+          cd esp/utils/scripts/actions-pipeline/code-format/
+          pwd
           chmod +x format_modified.sh
           if [ -n "$(git rev-parse --show-toplevel 2>/dev/null)" ]; then
             if ! ./format_modified.sh -g -ca; then
