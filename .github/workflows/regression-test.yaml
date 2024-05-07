@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Install vsg
         run: |
@@ -53,6 +53,12 @@ jobs:
       - name: Source .bashrc
         run: |
           . ~/.bashrc
+
+      - name: Set directory ownership
+        run: sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+
+      - name: Configure Git
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: Run code formatting check
         run: |
