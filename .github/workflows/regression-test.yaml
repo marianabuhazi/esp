@@ -57,5 +57,6 @@ jobs:
           . ~/.bashrc
       - name: Run code formatting check
         run: |
+          cd utils
           pwd
 
