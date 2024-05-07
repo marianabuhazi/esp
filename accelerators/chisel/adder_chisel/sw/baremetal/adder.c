@@ -49,7 +49,7 @@ static unsigned mem_size;
 #define ADDER_READADDR_REG 0x40
 
 
-static int validate_buf(token_t *out, int *gold)
+static int validate_buf(token_t * out, int *gold)
 {
 	unsigned errors = 0;
 
