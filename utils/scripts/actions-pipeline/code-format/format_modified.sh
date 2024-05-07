@@ -78,7 +78,7 @@ esac
     case "$type" in
         c | h | cpp | hpp)
 		# Format with clang-format-10
-            output=$(clang-format-10 $clang_format_edit "$file_to_format");;
+            output=$(clang-format-10 $clang_format_edit "$file_to_format" 2>&1);;
         py)
 		# Format with autopep8
             output=$(python3 -m autopep8 $autopep8_edit -a -a "$file_to_format" 2>&1);;
@@ -92,15 +92,15 @@ esac
 
 	# If no errors were encountered while formatting, return SUCCESS
 	# Else return FAILED
-	if [ $? -eq 0 ]; then
-		echo -e " ${GREEN}SUCCESS${NC}"
-        return 0
-    else
-		echo -e " ${RED}FAILED${NC}"
-        echo "$output" | sed 's/^/  /'
+	if [ $? -eq 0 ] && ! echo "$output" | grep -qi "warning"; then
+    	echo -e "${GREEN}SUCCESS${NC}"
+    	return 0
+	else
+		echo -e "${RED}FAILED${NC}"
+		echo "$output" | sed 's/^/  /'
 		echo ""
-        return 1
-    fi
+		return 1
+	fi
 }
 
 # Based on the command-line flags, determine whether to format in-place or check
