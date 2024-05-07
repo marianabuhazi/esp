@@ -1,10 +1,15 @@
 #!/bin/bash
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+#   This program recurses through all directories in  #
+#   the /esp repository and formats all files using   #
+#   clang-format-10, autopep8, verible, or vsg.       #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-	# # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-	#   This program recurses through all directories in  #
-	#   the /esp repository and formats all files using   #
-	#   clang-format-10, autopep8, verible, or vsg.       #
-	# # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Output styles
+NC='\033[0m' 
+BOLD='\033[1m'
+GREEN='\033[32m'
+RED='\033[31m'
 
 # Display usage instructions
 display_usage() {
@@ -68,12 +73,12 @@ find_c_h_files() {
 	  echo -n "Formatting $(basename "$file")..."
       output=$(clang-format-10 -i "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
       else
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
 		echo ""
         return 0
     fi
@@ -89,12 +94,12 @@ find_cpp_hpp_files() {
 	  echo -n "Formatting $(basename "$file")..."
       output=$(clang-format-10 -i "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
       else
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
 		echo ""
         return 0
       fi
@@ -111,12 +116,12 @@ find_py_files() {
 	  echo -n "Formatting $(basename "$file")..."
 	  output=$(python3 -m autopep8 -i -a -a "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
       else
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
 		echo ""
         return 0
       fi
@@ -133,12 +138,12 @@ find_v_files() {
 	  echo -n "Formatting $(basename "$file")..."
  	  output=$(verible-verilog-format --inplace --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
       else
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
 		echo ""
         return 0
       fi
@@ -155,12 +160,12 @@ find_vhd_files() {
 	  echo -n "Formatting $(basename "$file")..."
 	  output=$(vsg -f "$file" --fix -c ~/esp/vhdl-style-guide.yaml -of summary 2>&1)
 	  if [ ! $? -eq 0 ]; then
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
       else
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
 		echo ""
         return 0
       fi

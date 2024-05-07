@@ -3,6 +3,17 @@
 root_dir=$(git rev-parse --show-toplevel)
 is_github_actions=false
 
+# Output styles
+NC='\033[0m' 
+BOLD='\033[1m'
+GREEN='\033[32m'
+RED='\033[31m'
+EMOJI_CHECK="\xE2\x9C\x94"
+MAG_GLASS='\U0001F50E'
+EMOJI_X='\u274C'
+EMOJI_SPARKLES='\U00002728'
+
+# Display usage instructions
 usage() {
     echo "ESP format checker ✨🛠️"
 	echo "Report violations or format files in-place."
@@ -29,6 +40,8 @@ format_file() {
 	local action="$2"
     local type="${file_to_format##*.}"
 
+	# Parse file extension type and decide which formatting tool to use
+	# Add the corresponding flags based on whether we are formatting or checking
 	case "$action" in
     Formatt)
         case "$type" in
@@ -60,29 +73,38 @@ format_file() {
         ;;
 esac
 
+	# Apply formatting tool based on file extension type
     local output
     case "$type" in
         c | h | cpp | hpp)
+		# Format with clang-format-10
             output=$(clang-format-10 $clang_format_edit "$file_to_format" 2>&1);;
         py)
+		# Format with autopep8
             output=$(python3 -m autopep8 $autopep8_edit -a -a "$file_to_format" 2>&1);;
         sv | v) 
+		# Format with verible
             output=$(verible-verilog-format $verible_edit --port_declarations_alignment=preserve -assignment_statement_alignment=align --indentation_spaces=4 "$file_to_format" 2>&1) ;;
         vhd)
+		# Format with vhdl-style-guide
             output=$(vsg -f "$file_to_format" $vsg_edit -c ~/esp/vhdl-style-guide.yaml 2>&1) ;;
     esac
 
+	# If no errors were encountered while formatting, return SUCCESS
+	# Else return FAILED
 	if [ $? -eq 0 ]; then
-		echo -e " \033[32mSUCCESS\033[0m"
+		echo -e " ${GREEN}SUCCESS${NC}"
         return 0
     else
-		echo -e " \033[31mFAILED\033[0m"
+		echo -e " ${RED}FAILED${NC}"
         echo "$output" | sed 's/^/  /'
 		echo ""
         return 1
     fi
 }
 
+# Based on the command-line flags, determine whether to format in-place or check
+# Call the appropriate action
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -127,7 +149,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-
+# User must specify a file to format if the -f flag is called
 if [ -n "$file_to_format" ]; then
 	if [ ! -f "$file_to_format" ]; then
         echo "$0: Error: File '$file_to_format' not found." >&2
@@ -136,10 +158,10 @@ if [ -n "$file_to_format" ]; then
 
 	echo -n "$action""ing $file_to_format..."
     if format_file "$file_to_format" "$action"; then
-		echo -e "\U00002728 $action""ing done!"
+		echo -e "${EMOJI_SPARKLES} $action""ing done!"
 		exit 0
 	else
-		echo -e "\u274C $action""ing failed!"
+		echo -e "${EMOJI_X} $action""ing failed!"
 		exit 1
 	fi
 
@@ -147,6 +169,7 @@ if [ -n "$file_to_format" ]; then
 fi
 
 
+# Check all modified files of the file types: C/C++, Python, Verilog/SystemVerilog, VHDL
 if [ "$all_files" = true ]; then
     modified_files=$(git status --porcelain | grep -E '^ M|^??' | awk '$2 ~ /\.(c|h|cpp|hpp|py|v|sv|vhd)$/ {print $2}')
 
@@ -159,8 +182,9 @@ if [ "$all_files" = true ]; then
         exit 0
     fi
 
+	# List the number of modified files found
     modified_count=$(echo "$modified_files" | wc -l)
-    echo -e "\U0001F50E Found $modified_count modified files:"
+    echo -e "${MAG_GLASS} Found $modified_count modified files:"
     echo ""
     for file in $modified_files; do
         echo "   - $file"
@@ -171,6 +195,7 @@ if [ "$all_files" = true ]; then
     error_files=""
     success_files=""
 
+	# Format/check each file in place with the appropriate tool
     for file in $modified_files; do
 		echo -n "$action""ing $(basename "$file")..."
 		if ! format_file "$file" "$action"; then
@@ -178,13 +203,13 @@ if [ "$all_files" = true ]; then
 		fi
 	done
 
-
+	# Final pass/fail directive
 	echo ""
 	if [ -n "$error_files" ]; then
-		echo -e "\u274C $action""ing failed!"
+		echo -e "${EMOJI_X} $action""ing failed!"
 		exit 1
 	else
-		echo -e "\U00002728 $action""ing done!"
+		echo -e "${EMOJI_SPARKLES} $action""ing done!"
 		exit 0
 	fi
 else
