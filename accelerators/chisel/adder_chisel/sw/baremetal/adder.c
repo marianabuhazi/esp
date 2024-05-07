@@ -1,6 +1,6 @@
 /* Copyright (c) 2011-2024 Columbia University, System Level Design Group */
 /* SPDX-License-Identifier: Apache-2.0 */
-
+/* FAKE COMMENT */
 #include <stdio.h>
 #ifndef __riscv
 #include <stdlib.h>
