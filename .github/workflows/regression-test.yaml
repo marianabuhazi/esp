@@ -18,7 +18,7 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
     container:
-      image: columbiasld:ubuntu18-small
+      image: columbiasld/esp::ubuntu18-small
       credentials:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ env.DOCKER_PASSWORD }}
