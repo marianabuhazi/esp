@@ -57,8 +57,14 @@ jobs:
           . ~/.bashrc
       - name: Run code formatting check
         run: |
-          chmod +x $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/format_modified.sh
-          if ! $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/format_modified.sh -g -ca; then
-            echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
-            exit 1 
+          cd $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/
+          chmod +x format_modified.sh
+          if [ -n "$(git rev-parse --show-toplevel 2>/dev/null)" ]; then
+            if ! ./format_modified.sh -g -ca; then
+              echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
+              exit 1 
+            fi
+          else
+            echo "Not in a Git repository. Skipping code formatting check."
           fi
+
