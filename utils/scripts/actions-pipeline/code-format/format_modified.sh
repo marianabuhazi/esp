@@ -154,10 +154,10 @@ if [ -n "$file_to_format" ]; then
 
 	echo -n "$action""ing $file_to_format..."
     if format_file "$file_to_format" "$action"; then
-		echo -e "$✨ $action""ing done!"
+		echo -e "✨ $action""ing done!"
 		exit 0
 	else
-		echo -e "$❌ $action""ing failed!"
+		echo -e "❌ $action""ing failed!"
 		exit 1
 	fi
 
