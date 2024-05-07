@@ -1,0 +1,16 @@
+{
+	"accelerators": [
+		{
+			"name": "cholesky_stratus",
+			"path": "accelerators/stratus_hls/cholesky_stratus",
+			"behavioral": "cholesky_stratus-exe",
+			"hls": "cholesky_stratus-hls"
+		},
+		{
+			"name": "fft2_stratus",
+			"path": "accelerators/stratus_hls/fft2_stratus",
+			"behavioral": "fft2_stratus-exe",
+			"hls": "fft2_stratus-hls"
+		}
+	]
+}
