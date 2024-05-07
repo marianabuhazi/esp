@@ -13,7 +13,8 @@ typedef int32_t token_t;
 
 const int ERR_TH = 0.05;
 static unsigned DMA_WORD_PER_BEAT(unsigned _st)
-{return (sizeof(void *) / _st);
+{
+	return (sizeof(void *) / _st);
 }
 
 

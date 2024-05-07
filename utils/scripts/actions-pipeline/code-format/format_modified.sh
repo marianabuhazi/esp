@@ -8,10 +8,6 @@ NC='\033[0m'
 BOLD='\033[1m'
 GREEN='\033[32m'
 RED='\033[31m'
-EMOJI_CHECK="\xE2\x9C\x94"
-MAG_GLASS='\U0001F50E'
-EMOJI_X='\u274C'
-EMOJI_SPARKLES='\U00002728'
 
 # Display usage instructions
 usage() {
@@ -158,10 +154,10 @@ if [ -n "$file_to_format" ]; then
 
 	echo -n "$action""ing $file_to_format..."
     if format_file "$file_to_format" "$action"; then
-		echo -e "${EMOJI_SPARKLES} $action""ing done!"
+		echo -e "$✨ $action""ing done!"
 		exit 0
 	else
-		echo -e "${EMOJI_X} $action""ing failed!"
+		echo -e "$❌ $action""ing failed!"
 		exit 1
 	fi
 
@@ -178,13 +174,13 @@ if [ "$all_files" = true ]; then
 	fi
 
     if [ -z "$modified_files" ]; then
-        echo -e "No modified files found."
+        echo -e "🔍 No modified files found."
         exit 0
     fi
 
 	# List the number of modified files found
     modified_count=$(echo "$modified_files" | wc -l)
-    echo -e "${MAG_GLASS} Found $modified_count modified files:"
+    echo -e "🔍 Found $modified_count modified files:"
     echo ""
     for file in $modified_files; do
         echo "   - $file"
@@ -206,10 +202,10 @@ if [ "$all_files" = true ]; then
 	# Final pass/fail directive
 	echo ""
 	if [ -n "$error_files" ]; then
-		echo -e "${EMOJI_X} $action""ing failed!"
+		echo -e "$❌ $action""ing failed!"
 		exit 1
 	else
-		echo -e "${EMOJI_SPARKLES} $action""ing done!"
+		echo -e "$✨ $action""ing done!"
 		exit 0
 	fi
 else
