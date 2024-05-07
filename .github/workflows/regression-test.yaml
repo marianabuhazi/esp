@@ -24,10 +24,10 @@ jobs:
           pip3 install vsg
           echo 'export PATH="$PATH:/home/espuser/.local/bin/"' >> ~/.bashrc
 
-      # - name: Install clang-format-10
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install clang-format-10
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang-format
 
       - name: Install autopep8
         run: |
