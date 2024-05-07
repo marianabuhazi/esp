@@ -58,5 +58,4 @@ jobs:
       - name: Run code formatting check
         run: |
           pwd
-          cd /utils/scripts/
 
