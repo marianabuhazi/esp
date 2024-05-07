@@ -54,7 +54,7 @@ jobs:
 
       - name: Source .bashrc
         run: |
-          source ~/.bashrc
+          . ~/.bashrc
       - name: Run code formatting check
         run: |
           chmod +x $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format/format_modified.sh
