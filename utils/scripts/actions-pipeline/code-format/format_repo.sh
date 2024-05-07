@@ -2,7 +2,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #   This program recurses through all directories in  #
 #   the /esp repository and formats all files using   #
-#   clang-format, autopep8, verible, or vsg.       #
+#   clang-format-10, autopep8, verible, or vsg.       #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output styles
@@ -71,7 +71,7 @@ find_c_h_files() {
   	local output
     if [[ -f "$file" ]]; then
 	  echo -n "Formatting $(basename "$file")..."
-      output=$(clang-format -i "$file" 2>&1)
+      output=$(clang-format-10 -i "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
 		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
@@ -92,7 +92,7 @@ find_cpp_hpp_files() {
   for file in "$dir"/*.cpp "$dir"/*.hpp; do
     if [[ -f "$file" ]]; then
 	  echo -n "Formatting $(basename "$file")..."
-      output=$(clang-format -i "$file" 2>&1)
+      output=$(clang-format-10 -i "$file" 2>&1)
 	  if [ ! $? -eq 0 ]; then
 		echo -e " ${RED}FAILED${NC}"
 		echo "$output" | sed 's/^/  /'
