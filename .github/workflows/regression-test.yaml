@@ -65,6 +65,6 @@ jobs:
           cd $GITHUB_WORKSPACE/utils/scripts/actions-pipeline/code-format
           chmod +x format_modified.sh
           if ! ./format_modified.sh -g -ca; then
-              echo "Code format check failed. Please fix the formatting issues by running the following script: /utils/scripts/format_modified.sh"
+              echo "Code format check failed. Fix the formatting issues by running the following script: /utils/scripts/code-format/format_modified.sh"
               exit 1 
           fi

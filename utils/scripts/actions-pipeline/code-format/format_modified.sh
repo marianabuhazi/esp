@@ -202,10 +202,10 @@ if [ "$all_files" = true ]; then
 	# Final pass/fail directive
 	echo ""
 	if [ -n "$error_files" ]; then
-		echo -e "$❌ $action""ing failed!"
+		echo -e "❌ $action""ing failed!"
 		exit 1
 	else
-		echo -e "$✨ $action""ing done!"
+		echo -e "✨ $action""ing done!"
 		exit 0
 	fi
 else
