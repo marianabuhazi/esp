@@ -6,6 +6,8 @@
  * (point-to-point communication test)
  */
 
+// Mock change to dummy.c
+// Expect pipeline to run in its entirety.
 #include <stdio.h>
 #ifndef __riscv
     #include <stdlib.h>
