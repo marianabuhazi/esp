@@ -1,12 +1,11 @@
 name: Regression Test
 
 on:
-  push:
+  pull_request:
     branches:
       - dev
       - main
       - master
-      - scripts-05-07
 
 jobs:
   code-format-check:
