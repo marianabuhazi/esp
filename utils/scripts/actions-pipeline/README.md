@@ -1,13 +1,14 @@
 # ESP Linting and Regression Testing Workflows
 The scripts included in this directory are used as part of a GitHub Actions workflow triggered on PRs to the dev, main or master branches.
+Scripts under the /code-format directory are used for linting purposes, while the other scripts are used for regression testing.
 
 ## Scripts
 ### Code Formatting
-There are two scripts under [./code-format](https://github.com/marianabuhazi/esp/blob/scripts-05-07/utils/scripts/actions-pipeline/code-format/) that can be used by contributors to check their code for formatting violations, as well as to format code in place. These scripts could also be used as part of a Git hook or a GitHub Actions workflow.
+There are two scripts under [./code-format](https://github.com/marianabuhazi/esp/blob/regression-flow/utils/scripts/actions-pipeline/code-format/) that can be used by contributors to check their code for formatting violations, as well as to format code in place. These scripts could also be used as part of a Git hook or a GitHub Actions workflow.
 The scripts support formatting for the following languages: C/C++, Verilog/SystemVerilog, VHDL, and Python. 
 
-#### Format Modified    
-Bash script that examines the Git status of the remote repository to identify files that the user has recently modified, added, or deleted. It then determines the file extension type (e.g., C/C++, VHDL, SystemVerilog/Verilog, or Python) and invokes an open-source linting tool for that language with the filename and other necessary arguments. The script offers flexibility through various flags, allowing users to both report programming violations and fix formatting in-place. This tool plays a crucial role in maintaining ESP's readability, consistency, and bug-free nature. 
+#### Format Newly-Modified Files 
+[format_modified.sh](https://github.com/marianabuhazi/esp/blob/regression-flow/utils/scripts/actions-pipeline/code-format/format_modified.sh) is a bash script that examines the Git status of the remote repository to identify files that the user has recently modified, added, or deleted. It then determines the file extension type (e.g., C/C++, VHDL, SystemVerilog/Verilog, or Python) and invokes an open-source linting tool for that language with the filename and other necessary arguments. The script offers flexibility through various flags, allowing users to report programming violations, as well as, fix formatting in-place. This tool plays a crucial role in maintaining ESP's readability, consistency, and bug-free nature. 
 ``` 
 ESP format checker ✨🛠️
 Report violations or format files in-place.
@@ -19,9 +20,9 @@ Usage: ./format_modified [OPTIONS]
     -g            Run as Github Actions workflow or pre-push hook
 ```
 
-#### Format Repo
-The Format Modified script is useful for formatting new modifications to existing code. However, this implies that the code in the repository is already properly structured to begin with. In reality, our ESP repository lacks uniformity. To introduce formatting into the existing code, we have provided another script called Format Repo which traverses through all directories in the ESP repository recursively, skipping over any directories that are Git submodules owned by another organization. It identifies the file extension of each file within the current directory and formats it in-place by calling the appropriate open-source linter. 
-Format Repo is intended for one-time use. Format Repo can significantly impact Git blame, potentially attributing all changes to a single contributor (whoever ran the script). To mitigate this, changes made by Format Repo should be committed separately and excluded from the blame.
+#### Format ESP Repo
+The [format_modified.sh](https://github.com/marianabuhazi/esp/blob/regression-flow/utils/scripts/actions-pipeline/code-format/format_modified.sh) script is useful for formatting new modifications to existing code. However, this implies that the code in the repository is already properly structured to begin with. In reality, our ESP repository lacks uniformity. To introduce formatting into the existing code, we have provided another script called [format_repo.sh](https://github.com/marianabuhazi/esp/blob/regression-flow/utils/scripts/actions-pipeline/code-format/format_repo.sh) which traverses through all directories in the ESP repository recursively, skipping over any directories that are Git submodules owned by another organization. The script identifies the file extension of each file within the current directory and formats it in-place by calling the appropriate open-source linter. 
+format_repo.sh is intended for one-time use. Additionally, it can significantly impact Git blame, potentially attributing all changes to a single contributor (whoever ran the script). To mitigate this, changes made by format_repo.sh should be committed separately and excluded from the blame.
 ``` 
 ESP format checker ✨🛠️
 Recursively format all files in the /esp repository for a given file extension.
@@ -78,9 +79,13 @@ Now, every time you try to push changes to the repository, the pre-push hook wil
 
 
 ## Setting Up Self-Hosted GitHub Runners
+GitHub Actions is a tool integrated into the ESP repository that consists of YAML workflows that can be triggered by different GitHub operations such as push or pull request.
+
+### Resources
 - [Adding self-hosted runners to the repository](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners)
 - [Configuring and starting the runner](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners)
 
 
 ## Writing GitHub Actions YAML workflows
+### Resources
 - [Writing on pull_request workflows](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
