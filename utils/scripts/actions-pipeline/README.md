@@ -79,7 +79,14 @@ Now, every time you try to push changes to the repository, the pre-push hook wil
 
 
 ## Setting Up Self-Hosted GitHub Runners
-GitHub Actions is a tool integrated into the ESP repository that consists of YAML workflows that can be triggered by different GitHub operations such as push or pull request.
+GitHub Actions is a tool integrated into the ESP GitHub repository that consists of YAML workflows that can be triggered by different git operations such as push or pull request.
+Normally, GitHub Actions is executed on a GitHub-hosted server and can be operated at no-cost with a limit on the number of workflow runs. 
+This is useful for many applications but for ESP, we have a variety of licensed tools that are used for HLS and other procedures which are not easily accessed via GitHub-hosted servers.
+Instead, it makes sense for ESP to run regression workflows on the SOCP servers for more control and flexibility. For this, GitHub offers self-hosted runners which are easily configurable 
+via a downloadable executable program. The resources below explain how a self-hosted runner can be created and configured for ESP.
+
+For testing, I set up the actions-runner program under the ma4107 user in socp01, then executed the `run.sh` script within the project to enable the tool to listen for GitHub Actions 
+jobs. 
 
 ### Resources
 - [Adding self-hosted runners to the repository](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners)
@@ -87,5 +94,45 @@ GitHub Actions is a tool integrated into the ESP repository that consists of YAM
 
 
 ## Writing GitHub Actions YAML workflows
+YAML workflows execute sccripts upon a push or pull request to a repository's branch. There is one GitHub Actions YAML workflow under [.github/workflows/regresstion-test.yaml](https://github.com/marianabuhazi/esp/blob/regression-flow/.github/workflows/regression-test.yaml) that
+sets up the environment to run the tests (columbia-sld's ubuntu-small Docker image) and installs all the open-source linters. Then, it executes code formatting and testing scripts. 
+
+### Installing open-source tools
+#### vhdl-style-guide
+```
+pip3 install vsg
+export PATH="$PATH:/home/espuser/.local/bin/"
+source ~/.bashrc
+```
+
+#### clang-format-10
+```
+sudo apt-get install clang-format-10
+```
+
+#### autopep8
+```
+pip3 install autopep8
+```
+
+#### verible
+```
+wget https://github.com/chipsalliance/verible/releases/download/v0.0-3545-ge4028f19/verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+tar -xvf verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+rm verible-v0.0-3545-ge4028f19-linux-static-x86_64.tar.gz
+mv verible-v0.0-3545-ge4028f19/ verible 
+export PATH=$PATH:/home/espuser/verible/bin
+source ~/.bashrc
+```
+
+For more information on writing YAML workflows that are compatible with GitHub Actions, and documentation on these open-source linters check out the resources below.
+
 ### Resources
 - [Writing on pull_request workflows](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
+- [vhdl-style-guide docs](https://vhdl-style-guide.readthedocs.io/en/latest/)
+- [clang-format-10 docs](https://releases.llvm.org/10.0.0/tools/clang/docs/ClangFormat.html)
+- [autopep8 docs](https://pypi.org/project/autopep8/)
+- [verible repo + docs](https://github.com/chipsalliance/verible)
+
+### Disclaimer
+Surely, when these scripts and workflows get integrated into the ESP repository they will need to be modified to match the expectations and demands of the team. There is also lots of room for improvement and adding more advanced linting and testing features! Please contact Marian Abuhazi at ma4107@columbia.edu if you have more questions or want to brainstorm more! Happy to help 🤗
