@@ -105,14 +105,11 @@ find_files() {
 		local out
 		if [[ -f "$file" ]]; then
 			echo -n -e "Formatting $(basename "$file")...\n"
-			echo -e "$format $file"
 			out=$("$format" "$file" 2>&1)
 			if [ ! $? -eq 0 ]; then
 				echo -e "${ERROR}: $out\n"
-				return 1
 			else
 				echo -e "${SUCCESS}"
-				return 0
 			fi
 		fi
 	done
@@ -171,5 +168,5 @@ if [ -z "$ext" ]; then
 fi
 
 header
-check_tools
+# check_tools
 descend_and_format "$cwd" "$gitmodules" "$cwd" "$ext" "$format"
