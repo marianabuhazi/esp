@@ -400,7 +400,8 @@ class EspCreator:
     self.debug_link_config_frame.update_frame()
     self.adv_config_frame = AdvancedConfigFrame(self.soc, self.left_panel, self)
     self.caches_config_frame = CachesConfigFrame(self.soc, self.left_panel, self)
-    self.noc_config_frame = NoCConfigFrame(self.soc, self.left_panel, self.right_panel_frame) 
+
+    self.noc_config_frame = NoCConfigFrame(self.soc, self.left_panel, self.right_panel_frame)  
 
     self.message_frame = ctk.CTkFrame(self.left_panel, fg_color="#ebebeb")
     self.message_frame.pack(padx=(8,3), pady=(10,20), fill="x")

@@ -103,83 +103,163 @@ class VFPoint():
   frequency = 0
   energy = 0
 
+# class Tile():
+
+#   def update_tile(self, soc):
+#     selection = self.ip_type.get()
+#     self.ip_list.forget()
+#     self.ip_list.configure(values=soc.list_of_ips)
+#     self.ip_list.pack(pady=10)
+#     if soc.IPs.PROCESSORS.count(selection):
+#        self.frame.configure(fg_color="#ef6865")
+#     elif soc.IPs.MISC.count(selection):
+#        self.frame.configure(fg_color="#fdfda0")
+#     elif soc.IPs.MEM.count(selection):
+#        self.frame.configure(fg_color="#6ab0d4")
+#     elif soc.IPs.SLM.count(selection):
+#        self.frame.configure(fg_color="#c9a6e4")
+#     elif soc.IPs.ACCELERATORS.count(selection):
+#        self.frame.configure(fg_color="#78cbbb")
+#        self.point_label.configure(text_color="black")
+#        self.vendor = soc.IPs.VENDOR[selection]
+#        dma_width = str(soc.noc.dma_noc_width.get())
+#        display_points = [point for point in soc.IPs.POINTS[selection] if "dma" + str(dma_width) in point]
+#        self.point_select.configure(values=display_points)
+#        point = self.point.get()
+#        self.point_select.set("")
+#        for p in display_points:
+#          if point == p:
+#            self.point_select.set(point)
+#            break;
+#          else:
+#            self.point_select.set(str(display_points[0]))
+#        self.point_select.configure(state="normal")
+#     else:
+#        self.frame.configure(fg_color='white')
+#        if self.ip_type.get() != "empty":
+#          self.ip_type.set("empty")
+
+#     try:
+#       if soc.IPs.ACCELERATORS.count(selection) and soc.cache_en.get() == 1 and soc.noc.dma_noc_width.get() == soc.ARCH_BITS:
+#         self.has_l2_selection.configure(state="normal")
+#       else:
+#         if soc.IPs.PROCESSORS.count(selection) and soc.cache_en.get() == 1:
+#           self.has_l2.set(1)
+#         else:
+#           self.has_l2.set(0)
+#         self.has_l2_selection.configure(state="disabled")
+#       if soc.IPs.ACCELERATORS.count(selection) and (soc.TECH == "asic" or soc.TECH == "inferred"):
+#         self.has_tdvfs_selection.configure(state="normal")
+#       else:
+#         self.has_tdvfs_selection.configure(state="disabled")
+#       if soc.IPs.SLM.count(selection) and soc.TECH == "asic":
+#         self.has_ddr_selection.configure(state="normal")
+#       else:
+#         # DDR SLM tile only supported w/ ASIC technology
+#         self.has_ddr.set(0)
+#         self.has_ddr_selection.configure(state="disabled")
+#     except:
+#       pass
+
+#   def center(self, toplevel):
+#     toplevel.update_idletasks()
+#     w = toplevel.winfo_screenwidth()
+#     h = toplevel.winfo_screenheight()
+#     size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
+#     x = w/2 - size[0]/2 + 100
+#     y = h/2 - size[1]/2
+#     toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
+
+#   def __init__(self, top, x, y):
+#     self.row = x
+#     self.col = y
+#     self.ip_type = StringVar()
+#     self.point = StringVar()
+#     self.vendor = ""
+#     self.has_l2 = IntVar()
+#     self.has_tdvfs = IntVar()
+#     self.has_ddr = IntVar()
+
 class Tile():
-
-  def update_tile(self, soc):
-    selection = self.ip_type.get()
-    self.ip_list.forget()
-    self.ip_list.configure(values=soc.list_of_ips)
-    self.ip_list.pack(pady=10)
-    if soc.IPs.PROCESSORS.count(selection):
-       self.frame.configure(fg_color="#ef6865")
-    elif soc.IPs.MISC.count(selection):
-       self.frame.configure(fg_color="#fdfda0")
-    elif soc.IPs.MEM.count(selection):
-       self.frame.configure(fg_color="#6ab0d4")
-    elif soc.IPs.SLM.count(selection):
-       self.frame.configure(fg_color="#c9a6e4")
-    elif soc.IPs.ACCELERATORS.count(selection):
-       self.frame.configure(fg_color="#78cbbb")
-       self.point_label.configure(text_color="black")
-       self.vendor = soc.IPs.VENDOR[selection]
-       dma_width = str(soc.noc.dma_noc_width.get())
-       display_points = [point for point in soc.IPs.POINTS[selection] if "dma" + str(dma_width) in point]
-       self.point_select.configure(values=display_points)
-       point = self.point.get()
-       self.point_select.set("")
-       for p in display_points:
-         if point == p:
-           self.point_select.set(point)
-           break;
-         else:
-           self.point_select.set(str(display_points[0]))
-       self.point_select.configure(state="normal")
-    else:
-       self.frame.configure(fg_color='white')
-       if self.ip_type.get() != "empty":
-         self.ip_type.set("empty")
-
-    try:
-      if soc.IPs.ACCELERATORS.count(selection) and soc.cache_en.get() == 1 and soc.noc.dma_noc_width.get() == soc.ARCH_BITS:
-        self.has_l2_selection.configure(state="normal")
-      else:
-        if soc.IPs.PROCESSORS.count(selection) and soc.cache_en.get() == 1:
-          self.has_l2.set(1)
+    def update_tile(self, soc):
+        if not soc or not soc.IPs:
+            print("Error: SoC configuration is missing or incomplete.")
+            return
+        
+        selection = self.ip_type.get()
+        self.ip_list.forget()
+        self.ip_list.configure(values=soc.list_of_ips)
+        self.ip_list.pack(pady=10)
+        
+        # Configure tile color based on IP type
+        if soc.IPs.PROCESSORS.count(selection):
+            self.frame.configure(fg_color="#ef6865")
+        elif soc.IPs.MISC.count(selection):
+            self.frame.configure(fg_color="#fdfda0")
+        elif soc.IPs.MEM.count(selection):
+            self.frame.configure(fg_color="#6ab0d4")
+        elif soc.IPs.SLM.count(selection):
+            self.frame.configure(fg_color="#c9a6e4")
+        elif soc.IPs.ACCELERATORS.count(selection):
+            self.frame.configure(fg_color="#78cbbb")
+            self.point_label.configure(text_color="black")
+            self.vendor = soc.IPs.VENDOR.get(selection, "")
+            
+            dma_width = str(soc.noc.dma_noc_width.get())
+            display_points = [
+                point for point in soc.IPs.POINTS.get(selection, [])
+                if f"dma{dma_width}" in point
+            ]
+            self.point_select.configure(values=display_points)
+            point = self.point.get()
+            self.point_select.set(display_points[0] if display_points else "")
         else:
-          self.has_l2.set(0)
-        self.has_l2_selection.configure(state="disabled")
-      if soc.IPs.ACCELERATORS.count(selection) and (soc.TECH == "asic" or soc.TECH == "inferred"):
-        self.has_tdvfs_selection.configure(state="normal")
-      else:
-        self.has_tdvfs_selection.configure(state="disabled")
-      if soc.IPs.SLM.count(selection) and soc.TECH == "asic":
-        self.has_ddr_selection.configure(state="normal")
-      else:
-        # DDR SLM tile only supported w/ ASIC technology
-        self.has_ddr.set(0)
-        self.has_ddr_selection.configure(state="disabled")
-    except:
-      pass
+            self.frame.configure(fg_color='white')
+            if self.ip_type.get() != "empty":
+                self.ip_type.set("empty")
 
-  def center(self, toplevel):
-    toplevel.update_idletasks()
-    w = toplevel.winfo_screenwidth()
-    h = toplevel.winfo_screenheight()
-    size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
-    x = w/2 - size[0]/2 + 100
-    y = h/2 - size[1]/2
-    toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
+        # Handle cache and optional features
+        try:
+            if (soc.IPs.ACCELERATORS.count(selection) and
+                soc.cache_en.get() == 1 and
+                soc.noc.dma_noc_width.get() == soc.ARCH_BITS):
+                self.has_l2_selection.configure(state="normal")
+            else:
+                self.has_l2.set(1 if soc.IPs.PROCESSORS.count(selection) and soc.cache_en.get() == 1 else 0)
+                self.has_l2_selection.configure(state="disabled")
+            
+            if soc.IPs.ACCELERATORS.count(selection) and soc.TECH in ["asic", "inferred"]:
+                self.has_tdvfs_selection.configure(state="normal")
+            else:
+                self.has_tdvfs_selection.configure(state="disabled")
+            
+            if soc.IPs.SLM.count(selection) and soc.TECH == "asic":
+                self.has_ddr_selection.configure(state="normal")
+            else:
+                self.has_ddr.set(0)
+                self.has_ddr_selection.configure(state="disabled")
+        except Exception as e:
+            print(f"Error updating tile: {e}")
 
-  def __init__(self, top, x, y):
-    self.row = x
-    self.col = y
-    self.ip_type = StringVar()
-    self.point = StringVar()
-    self.vendor = ""
-    self.has_l2 = IntVar()
-    self.has_tdvfs = IntVar()
-    self.has_ddr = IntVar()
+    def center(self, toplevel):
+        """Centers a toplevel window on the screen."""
+        toplevel.update_idletasks()
+        w = toplevel.winfo_screenwidth()
+        h = toplevel.winfo_screenheight()
+        size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
+        x = w/2 - size[0]/2 + 100
+        y = h/2 - size[1]/2
+        toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
 
+    def __init__(self, top, x, y):
+        self.row = x
+        self.col = y
+        self.ip_type = StringVar()
+        self.point = StringVar()
+        self.vendor = ""
+        self.has_l2 = IntVar()
+        self.has_tdvfs = IntVar()
+        self.has_ddr = IntVar()
 
 class NoC():
 
@@ -363,7 +443,28 @@ class NoCConfigFrame:
     self.noc = self.soc.noc
     self.left_panel = left_panel
     self.right_panel = right_panel
+
+    self.tabview = ctk.CTkTabview(self.right_panel)
+    self.tabview.pack()
     
+    self.chiplet_select_frame = ctk.CTkFrame(self.left_panel, fg_color="#ebebeb")
+    self.chiplet_select_frame.pack(padx=(8, 3), pady=(10, 20), fill="x")
+    self.title_label = StyledComponents.LabelGrid(self.chiplet_select_frame, text="Chiplet Configuration", font=("Arial", 12, "bold"), row=0, column=0, columnspan=5, padx=0, pady=10)
+    self.chiplet_rows_label = StyledComponents.LabelGrid(self.chiplet_select_frame, text="Rows:", font=("Arial", 10), row=1, column=0, padx=20, pady=20, sticky="e")
+    self.chiplet_rows = StyledComponents.Entry(self.chiplet_select_frame)
+    self.CHIPLET_ROWS = self.chiplet_rows
+    self.chiplet_rows.insert(0, "2")
+    self.chiplet_rows.grid(row=1, column=1, padx=5, pady=20)
+
+    self.chiplet_columns_label = StyledComponents.LabelGrid(self.chiplet_select_frame, text="Columns:", font=("Arial", 10), row=1, column=2, padx=20, pady=20, sticky="e")
+    self.chiplet_columns = StyledComponents.Entry(self.chiplet_select_frame)
+    self.CHIPLET_COLS = self.chiplet_columns
+    self.chiplet_columns.insert(0, "2")
+    self.chiplet_columns.grid(row=1, column=3, padx=5, pady=20)
+    
+    self.update_chiplet_button = StyledComponents.Button(self.chiplet_select_frame, text="Update Chiplet", font=("Arial", 10), command=self.create_noc)
+    self.update_chiplet_button.grid(row=1, column=4, padx=15, pady=20)
+
     self.noc_select_frame = ctk.CTkFrame(self.left_panel, fg_color="#ebebeb")
     self.noc_select_frame.pack(padx=(8, 3), pady=(10, 20), fill="x")
     self.title_label = StyledComponents.LabelGrid(self.noc_select_frame, text="NoC Configuration", font=("Arial", 12, "bold"), row=0, column=0, columnspan=5, padx=0, pady=10)
@@ -620,34 +721,90 @@ class NoCConfigFrame:
     self.soc_config_frame = soc_config_frame
     self.gen_soc_config = gen_soc_config
 
+  # def create_noc(self):
+  #   #self.pack(side=LEFT,fill=BOTH,expand=YES)
+  #   if isInt(self.ROWS.get()) == False or isInt(self.COLS.get()) == False:
+  #      return
+  #   #destroy current topology
+  #   if len(self.row_frames) > 0:
+  #     for x in range(0, len(self.row_frames)):
+  #       self.row_frames[x].destroy()
+  #     self.noc_tiles = []
+  #     self.row_frames = []
+  #   #create new topology
+  #   self.noc.create_topology(self.curr_tab, int(self.ROWS.get()), int(self.COLS.get()))
+  #   for y in range(0, int(self.ROWS.get())):
+  #     self.row_frames.append(ctk.CTkFrame(self.curr_tab))
+  #     self.row_frames[y].pack(side=TOP)
+  #     self.noc_tiles.append([])
+  #     for x in range(0, int(self.COLS.get())):
+  #       self.noc_tiles[y].append(ctk.CTkFrame(self.row_frames[y]))
+  #       self.noc_tiles[y][x].pack(side=LEFT)
+  #       # Label(self.noc_tiles[y][x], text="("+str(y)+","+str(x)+")").pack()
+  #       self.create_tile(self.noc_tiles[y][x], self.noc.topology[y][x])
+  #       if len(self.noc.topology[y][x].ip_type.get()) == 0:
+  #         self.noc.topology[y][x].ip_type.set("empty") # default value
+  #   #set call-backs and default value
+  #   for y in range(0, int(self.ROWS.get())):
+  #     for x in range(0, int(self.COLS.get())):
+  #       tile = self.noc.topology[y][x]
+  #       # tile.ip_type.trace('w', self.changed)
+  #   self.soc.IPs = Components(self.soc.TECH, self.noc.dma_noc_width.get(), self.soc.CPU_ARCH.get())
+  #   self.soc.update_list_of_ips()
+  #   self.changed()
   def create_noc(self):
-    #self.pack(side=LEFT,fill=BOTH,expand=YES)
+    if isInt(self.CHIPLET_ROWS.get()) == False or isInt(self.CHIPLET_COLS.get()) == False:
+        return
+    self.total_chiplets = int(self.CHIPLET_ROWS.get()) * int(self.CHIPLET_COLS.get())
+
     if isInt(self.ROWS.get()) == False or isInt(self.COLS.get()) == False:
-       return
-    #destroy current topology
-    if len(self.row_frames) > 0:
-      for x in range(0, len(self.row_frames)):
-        self.row_frames[x].destroy()
-      self.noc_tiles = []
-      self.row_frames = []
-    #create new topology
-    self.noc.create_topology(self.right_panel, int(self.ROWS.get()), int(self.COLS.get()))
-    for y in range(0, int(self.ROWS.get())):
-      self.row_frames.append(ctk.CTkFrame(self.right_panel))
-      self.row_frames[y].pack(side=TOP)
-      self.noc_tiles.append([])
-      for x in range(0, int(self.COLS.get())):
-        self.noc_tiles[y].append(ctk.CTkFrame(self.row_frames[y]))
-        self.noc_tiles[y][x].pack(side=LEFT)
-        # Label(self.noc_tiles[y][x], text="("+str(y)+","+str(x)+")").pack()
-        self.create_tile(self.noc_tiles[y][x], self.noc.topology[y][x])
-        if len(self.noc.topology[y][x].ip_type.get()) == 0:
-          self.noc.topology[y][x].ip_type.set("empty") # default value
-    #set call-backs and default value
-    for y in range(0, int(self.ROWS.get())):
-      for x in range(0, int(self.COLS.get())):
-        tile = self.noc.topology[y][x]
-        # tile.ip_type.trace('w', self.changed)
+        return
+    total_rows = int(self.ROWS.get())
+    total_cols = int(self.COLS.get())
+
+    if not hasattr(self, "tab_data"):
+        self.tab_data = {} 
+    if not hasattr(self, "tab_list"):
+        self.tab_list = []
+
+    for tab_name in self.tab_list:
+        self.tabview.delete(tab_name)
+    self.tab_data.clear() 
+    self.tab_list.clear() 
+
+    for i in range(1, self.total_chiplets + 1):
+        tab_name = f"Chiplet {i}"
+        tab = self.tabview.add(tab_name)
+        self.tab_list.append(tab_name)
+        self.tab_data[tab_name] = {"noc_tiles": [], "row_frames": [], "topology": []}
+
+        tab_state = self.tab_data[tab_name]
+        row_frames = tab_state["row_frames"]
+        noc_tiles = tab_state["noc_tiles"]
+        topology = tab_state["topology"]
+
+        self.noc.create_topology(tab, total_rows, total_cols)
+
+        for y in range(total_rows):
+            row_frame = ctk.CTkFrame(tab)
+            row_frame.pack(side=TOP, fill="both", expand=True)
+            row_frames.append(row_frame)
+
+            noc_tiles.append([])
+            topology.append([])
+
+            for x in range(total_cols):
+                tile_frame = ctk.CTkFrame(row_frame)
+                tile_frame.pack(side=LEFT, padx=5, pady=5)
+                noc_tiles[y].append(tile_frame)
+
+                tile_data = self.noc.topology[y][x]
+                self.create_tile(tile_frame, tile_data)
+                if len(tile_data.ip_type.get()) == 0:
+                    tile_data.ip_type.set("empty")
+
+                topology[y].append(tile_data)
+
     self.soc.IPs = Components(self.soc.TECH, self.noc.dma_noc_width.get(), self.soc.CPU_ARCH.get())
     self.soc.update_list_of_ips()
     self.changed()
